@@ -10,5 +10,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/2024CR3BPReturnMaps/"
+  base: "/2024Billiards3D/"
 })
