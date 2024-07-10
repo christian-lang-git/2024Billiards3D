@@ -259,10 +259,10 @@ class MarchingCubesMesh{
         this.points = [];
         this.values = [];
         this.scene = scene;
-        this.lol();
+        this.build();
     }
 
-    lol(){
+    build(){
         // number of cubes along a side
         var size = 20;
 
