@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ObjectArrow, ObjectAxes } from "./custom_objects";
+import { ObjectArrow, ObjectAxes, MarchingCubesMesh } from "./custom_objects";
 import { vec3 } from "gl-matrix/esm";
 import { SimulationParameters } from "@/components/logic/simulation_parameters";
 import { getMousePositionInCanvasNDC } from "@/components/utility/mouseHelper";
@@ -65,6 +65,8 @@ class SceneWrapperVisualization {
         this.textureRenderer = new TextureRendererPlane(renderer_id, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
 
         this.activeBehaviorLastFrame = null;
+
+        this.marchingCubesMesh = new MarchingCubesMesh(scene);
     }
 
     initialize() {
