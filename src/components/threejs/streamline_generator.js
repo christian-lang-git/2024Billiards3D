@@ -126,7 +126,13 @@ class Streamline {
         console.warn("SEED VELOCITY: ", this.seed_velocity);
     }
 
-    calculate() {
+    calculate(){
+
+    }
+
+    //unused but kept in case we need rk4 later
+    /*
+    calculateRK4() {
         this.list_point_data = [];
         this.arc_length = 0;
         this.t = 0;
@@ -293,6 +299,7 @@ class Streamline {
         console.warn("debug hamiltonian smallest:", this.hamiltonian_smallest);
         console.warn("debug hamiltonian largest:", this.hamiltonian_largest);
     }
+        */
 
     build() {
         this.path = new THREE.CurvePath();

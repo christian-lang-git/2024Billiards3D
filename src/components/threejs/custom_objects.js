@@ -263,10 +263,53 @@ class MarchingCubesMesh{
         this.simulationParameters = simulationParameters;
         
         //this.formula_implicit_surface = "x*x + y*y - z*z - 25";
-        this.formula_implicit_surface = "x*x/(3.5*3.5) + y*y/(2.5*2.5) + z*z/(1.5*1.5) - 1";
+        this.formula_implicit_surface = "1";
+    }
+
+    UpdateParametersCheckBuildRequired(){
+        var size_x = this.simulationParameters.domain_pixels_x;
+        var size_y = this.simulationParameters.domain_pixels_y;
+        var size_z = this.simulationParameters.domain_pixels_z;
+
+        var min_x = this.simulationParameters.domain_min_x;
+        var min_y = this.simulationParameters.domain_min_y;
+        var min_z = this.simulationParameters.domain_min_z;
+
+        var max_x = this.simulationParameters.domain_max_x;
+        var max_y = this.simulationParameters.domain_max_y;
+        var max_z = this.simulationParameters.domain_max_z;
+
+        var formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
+
+        this.noParameterChange = size_x == this.size_x && size_y == this.size_y && size_z == this.size_z
+            && min_x == this.min_x && min_y == this.min_y && min_z == this.min_z
+            && max_x == this.max_x && max_y == this.max_y && max_z == this.max_z
+            && formula_implicit_surface == this.formula_implicit_surface;
+
+        this.size_x = this.simulationParameters.domain_pixels_x;
+        this.size_y = this.simulationParameters.domain_pixels_y;
+        this.size_z = this.simulationParameters.domain_pixels_z;
+
+        this.min_x = this.simulationParameters.domain_min_x;
+        this.min_y = this.simulationParameters.domain_min_y;
+        this.min_z = this.simulationParameters.domain_min_z;
+
+        this.max_x = this.simulationParameters.domain_max_x;
+        this.max_y = this.simulationParameters.domain_max_y;
+        this.max_z = this.simulationParameters.domain_max_z;
+
+        this.formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
     }
 
     build(){
+        this.UpdateParametersCheckBuildRequired();
+        if(this.noParameterChange){
+            console.warn("implicit surface build skipped");
+            return;
+        }else{
+            console.warn("implicit surface build");
+        }
+
         this.points = [];
         this.values = [];
         this.scene.remove(this.mesh);
