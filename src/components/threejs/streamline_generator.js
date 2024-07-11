@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
+import {evaluate} from "mathjs";
 
 class PointData {
     constructor() {
@@ -126,8 +127,47 @@ class Streamline {
         console.warn("SEED VELOCITY: ", this.seed_velocity);
     }
 
-    calculate(){
+    evaluateSurface(x, y, z){
+        let scope = {
+            x: x,
+            y: y,
+            z: z,
+        };
+        var value = evaluate(this.formula_implicit_surface, scope);
+        return value;
+    }
 
+    findIntersection(position, direction, intersection_position, intersection_direction){
+        vec3.add(intersection_position, position, direction);
+        console.warn("build intersection_position", intersection_position);
+    }
+
+    calculate(){
+        this.list_point_data = [];
+        this.arc_length = 0;
+        this.t = 0;
+        this.success = true;
+        var difference = vec3.create();
+        //initial position
+        var current_position_data = new PointData();
+        vec3.copy(current_position_data.position, this.seed_position);
+        vec3.copy(current_position_data.direction, this.seed_direction);
+        this.list_point_data.push(current_position_data);
+
+        //intersection
+        var next_position_data = new PointData();
+        this.list_point_data.push(next_position_data);
+        this.findIntersection(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);
+
+        console.warn("build this.seed_position", this.seed_position);
+        console.warn("build next_position_data", next_position_data);
+        console.warn("build this.list_point_data", this.list_point_data);
+        
+        vec3.subtract(difference, next_position_data.position, current_position_data.position);
+        var segment_length = vec3.length(difference);
+        next_position_data.arc_length = current_position_data.arc_length + segment_length;
+        //next_position_data.t = current_position_data.t + step_size;
+        this.arc_length = next_position_data.arc_length;
     }
 
     //unused but kept in case we need rk4 later
@@ -318,6 +358,9 @@ class Streamline {
         var num_segments = Math.ceil(this.arc_length / tube_segment_length);
         num_segments = Math.min(num_segments, this.streamline_generator.simulationParameters.tube_max_segments);
 
+        num_segments = 1;
+
+        console.warn("build num_segments", num_segments);
         this.geometry = new THREE.TubeGeometry(this.path, num_segments, radius, num_sides, false);
         //this.material = new THREE.MeshStandardMaterial({ color: 0xffff00, roughness: 0.5 });
         //this.material = new THREE.MeshStandardMaterial({ color: 0x0090ff, roughness: 0.5 });

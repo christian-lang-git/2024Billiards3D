@@ -525,7 +525,7 @@ class SceneWrapperVisualization {
         console.warn("recalculateStreamlineFromSimulationParameters")
         var pos_x = this.simulationParameters.seed_position_x;
         var pos_y = this.simulationParameters.seed_position_y;
-        var pos_z = 0;
+        var pos_z = this.simulationParameters.seed_position_z;
         var dir_x = this.simulationParameters.seed_direction_x;
         var dir_y = this.simulationParameters.seed_direction_y;
         var dir_z = this.simulationParameters.seed_direction_z;
