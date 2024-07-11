@@ -67,7 +67,10 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_X", "nx", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MIN_Y", "ymin", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MAX_Y", "ymax", Constants.TYPE_STRING);
-        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Y", "ny", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Y", "ny", Constants.TYPE_STRING);        
+        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MIN_Z", "zmin", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MAX_Z", "zmax", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Z", "nz", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_ANGLE_PIXELS_X", "ax", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_ANGLE_PIXELS_Y", "ay", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_CAMERA_CONTROLS_ROTATESPEED", "rot", Constants.TYPE_STRING);

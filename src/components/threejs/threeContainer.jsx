@@ -243,11 +243,14 @@ class ThreeContainer extends Component {
         var domain_min_y = uiState.UI_STATE_DATA_DOMAIN_MIN_Y;
         var domain_max_y = uiState.UI_STATE_DATA_DOMAIN_MAX_Y;
         var domain_pixels_y = uiState.UI_STATE_DATA_DOMAIN_PIXELS_Y;
+        var domain_min_z = uiState.UI_STATE_DATA_DOMAIN_MIN_Z;
+        var domain_max_z = uiState.UI_STATE_DATA_DOMAIN_MAX_Z;
+        var domain_pixels_z = uiState.UI_STATE_DATA_DOMAIN_PIXELS_Z;
 
         var angle_pixels_x = uiState.UI_STATE_DATA_ANGLE_PIXELS_X;
         var angle_pixels_y = uiState.UI_STATE_DATA_ANGLE_PIXELS_Y;
 
-        this.sceneWrapper.updateParametersData(mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, angle_pixels_x, angle_pixels_y);
+        this.sceneWrapper.updateParametersData(mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
     }
 
     updateParametersRendering(){

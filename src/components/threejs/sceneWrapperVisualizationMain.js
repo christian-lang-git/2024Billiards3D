@@ -106,7 +106,9 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         var min_x = this.simulationParameters.domain_min_x;
         var max_x = this.simulationParameters.domain_max_x;
         var min_y = this.simulationParameters.domain_min_y;
-        var max_y = this.simulationParameters.domain_max_y;      
+        var max_y = this.simulationParameters.domain_max_y; 
+        var min_z = this.simulationParameters.domain_min_z;
+        var max_z = this.simulationParameters.domain_max_z;       
         
         var diff_x = max_x - min_x;
         var diff_y = max_y - min_y;
@@ -116,7 +118,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         var color1 = 0xff0000;
         var color2 = 0x00ff00;
         var color3 = 0x0000ff;
-        this.objectAxes.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, radius, color1, color2, color3);
+        this.objectAxes.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, min_z, max_z, radius, color1, color2, color3);
     }
 
     rayCastAndMovePosition(mousePositionNDC){        

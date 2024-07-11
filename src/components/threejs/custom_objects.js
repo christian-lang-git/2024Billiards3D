@@ -124,14 +124,14 @@ class ObjectAxes{
         }
     }
 
-    rebuild(has_z, z_factor, scene, simulationParameters, min_x, max_x, min_y, max_y, radius, color1, color2, color3){       
+    rebuild(has_z, z_factor, scene, simulationParameters, min_x, max_x, min_y, max_y, min_z, max_z, radius, color1, color2, color3){       
 
         this.removefromScene(scene);
 
-        var position = vec3.fromValues(min_x, min_y, 0);
+        var position = vec3.fromValues(min_x, min_y, min_z);
         var length_x = max_x - min_x;
         var length_y = max_y - min_y;
-        var length_z = Math.min(length_x, length_y) * z_factor;//z_factor = 0.5 in default case
+        var length_z = max_z - min_z;
         var cone_radius_factor = 5.0;
         var cone_fraction = 0.05;
 

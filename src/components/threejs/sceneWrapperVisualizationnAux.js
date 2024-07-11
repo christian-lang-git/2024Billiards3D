@@ -92,12 +92,14 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var min_x = 0;
         var max_x = 1;
         var min_y = 0;
-        var max_y = 1;    
+        var max_y = 1;   
+        var min_z = 0;
+        var max_z = 1;    
         var radius = 0.002;
         var color1 = 0x00ffff;
         var color2 = 0xff00ff;
         var color3 = 0x000000;
-        this.objectAxes.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, radius, color1, color2, color3);
+        this.objectAxes.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, min_z, max_z, radius, color1, color2, color3);
     }
 
     updateAxes(){
@@ -137,12 +139,14 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var min_x = 0;
         var max_x = 1;
         var min_y = 0;
-        var max_y = 1;        
+        var max_y = 1;   
+        var min_z = 0;
+        var max_z = 1;        
         var radius = 0.002;
         var color1 = 0x00ffff;
         var color2 = 0xff00ff;
         var color3 = 0x000000;
-        this.objectAxes_thetaDown.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, radius, color1, color2, color3);
+        this.objectAxes_thetaDown.rebuild(has_z, z_factor, this.scene, this.simulationParameters, min_x, max_x, min_y, max_y, min_z, max_z, radius, color1, color2, color3);
     }
 
     //for sphere sceen
@@ -162,12 +166,14 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var min_x = 0;
         var max_x = 1.25;
         var min_y = 0;
-        var max_y = 1.25;        
+        var max_y = 1.25;     
+        var min_z = 0;
+        var max_z = 1.25;        
         var radius = 0.002;
         var color1 = 0xff0000;
         var color2 = 0x00ff00;
         var color3 = 0x0000ff;
-        this.objectAxes_spheres.rebuild(has_z, z_factor, this.scene_sphere, this.simulationParameters, min_x, max_x, min_y, max_y, radius, color1, color2, color3);
+        this.objectAxes_spheres.rebuild(has_z, z_factor, this.scene_sphere, this.simulationParameters, min_x, max_x, min_y, max_y, min_z, max_z, radius, color1, color2, color3);
     }
 
     initializeSpherelikeGrid(){
