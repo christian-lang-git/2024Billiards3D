@@ -53,7 +53,8 @@ class OffscreenRendererSeeds extends OffscreenRenderer {
         this.dummy_plane_mesh.material.uniforms.seed_direction.value.y = this.simulationParameters.seed_direction_y;
         this.dummy_plane_mesh.material.uniforms.seed_direction.value.z = this.simulationParameters.seed_direction_z;
         this.dummy_plane_mesh.material.uniforms.seed_position.value.x = this.simulationParameters.seed_position_x;
-        this.dummy_plane_mesh.material.uniforms.seed_position.value.y = this.simulationParameters.seed_position_y;        
+        this.dummy_plane_mesh.material.uniforms.seed_position.value.y = this.simulationParameters.seed_position_y; 
+        this.dummy_plane_mesh.material.uniforms.seed_position.value.z = this.simulationParameters.seed_position_z;       
         this.dummy_plane_mesh.material.uniforms.seed_energy.value = this.simulationParameters.seed_energy;
         this.dummy_plane_mesh.material.uniforms.use_constant_velocity.value = this.simulationParameters.use_constant_velocity;  
         

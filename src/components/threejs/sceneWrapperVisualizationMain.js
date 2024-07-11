@@ -128,17 +128,18 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         mouse.x = mousePositionNDC.x;
         mouse.y = mousePositionNDC.y;
         this.raycaster.setFromCamera(mouse, this.camera);
-        const intersects = this.raycaster.intersectObject(this.plane_mesh);
+        const intersects = this.raycaster.intersectObject(this.marchingCubesMesh.mesh);
         if (intersects.length > 0) {
             this.simulationParameters.seed_position_x = intersects[0].point.x;
             this.simulationParameters.seed_position_y = intersects[0].point.y;
+            this.simulationParameters.seed_position_z = intersects[0].point.z;
             Emitter.emit(Constants.EVENT_SEED_POSITION_CHANGED,{});
         }
 
     }
 
     repositionSeedSpheres(){        
-        this.clicked_mesh.position.set(this.simulationParameters.seed_position_x, this.simulationParameters.seed_position_y, 0);
+        this.clicked_mesh.position.set(this.simulationParameters.seed_position_x, this.simulationParameters.seed_position_y, this.simulationParameters.seed_position_z);
     }
 
     OnSeedDirectionChanged(){

@@ -229,13 +229,14 @@ class SceneWrapperVisualization {
 
 
 
-    updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
+    updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
         this.simulationParameters.mu = parseFloat(mu);
         this.simulationParameters.angular_velocity = parseFloat(angular_velocity);
         this.simulationParameters.use_constant_velocity = use_constant_velocity;
         this.simulationParameters.seed_energy = parseFloat(seed_energy);
         this.simulationParameters.seed_position_x = parseFloat(seed_position_x);
         this.simulationParameters.seed_position_y = parseFloat(seed_position_y);
+        this.simulationParameters.seed_position_z = parseFloat(seed_position_z);
         this.simulationParameters.setSeedDirection(parseFloat(seed_direction_x), parseFloat(seed_direction_y), parseFloat(seed_direction_z));
 
         this.simulationParameters.step_size = parseFloat(step_size);

@@ -217,7 +217,8 @@ class ThreeContainer extends Component {
             ["UI_STATE_DATA_PHYSICS_SEED_DIRECTION_Y"]: this.sceneWrapper.simulationParameters.seed_direction_y,
             ["UI_STATE_DATA_PHYSICS_SEED_DIRECTION_Z"]: this.sceneWrapper.simulationParameters.seed_direction_z,
             ["UI_STATE_DATA_PHYSICS_SEED_POSITION_X"]: this.sceneWrapper.simulationParameters.seed_position_x,
-            ["UI_STATE_DATA_PHYSICS_SEED_POSITION_Y"]: this.sceneWrapper.simulationParameters.seed_position_y
+            ["UI_STATE_DATA_PHYSICS_SEED_POSITION_Y"]: this.sceneWrapper.simulationParameters.seed_position_y,
+            ["UI_STATE_DATA_PHYSICS_SEED_POSITION_Z"]: this.sceneWrapper.simulationParameters.seed_position_z
          });
     }
 
@@ -233,6 +234,7 @@ class ThreeContainer extends Component {
         var seed_direction_z = uiState.UI_STATE_DATA_PHYSICS_SEED_DIRECTION_Z;
         var seed_position_x = uiState.UI_STATE_DATA_PHYSICS_SEED_POSITION_X;
         var seed_position_y = uiState.UI_STATE_DATA_PHYSICS_SEED_POSITION_Y;
+        var seed_position_z = uiState.UI_STATE_DATA_PHYSICS_SEED_POSITION_Z;        
 
         var step_size = uiState.UI_STATE_DATA_INTEGRATION_STEP_SIZE;
         var max_steps = uiState.UI_STATE_DATA_INTEGRATION_MAX_STEPS;
@@ -251,7 +253,7 @@ class ThreeContainer extends Component {
         var angle_pixels_x = uiState.UI_STATE_DATA_ANGLE_PIXELS_X;
         var angle_pixels_y = uiState.UI_STATE_DATA_ANGLE_PIXELS_Y;
 
-        this.sceneWrapper.updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
+        this.sceneWrapper.updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
     }
 
     updateParametersRendering(){
