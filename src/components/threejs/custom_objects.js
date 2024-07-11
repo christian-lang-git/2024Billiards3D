@@ -5,6 +5,7 @@ import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUti
 import * as LINALG from "@/components/glsl/linalg";
 import * as UTILITY from "@/components/glsl/utility";
 import {marchingOBJ} from "@/components/utility/utility";
+import {evaluate} from "mathjs";
 
 const glsl = x => x[0];
 
@@ -259,15 +260,18 @@ class MarchingCubesMesh{
         this.points = [];
         this.values = [];
         this.scene = scene;
+        
+        //this.formula_implicit_surface = "x*x + y*y - z*z - 25";
+        this.formula_implicit_surface = "x*x/8 + y*y/6 + z*z/2 - 1";
         this.build();
     }
 
     build(){
         // number of cubes along a side
-        var size = 20;
+        var size = 50;
 
-        var axisMin = -10;
-        var axisMax =  10;
+        var axisMin = -4;
+        var axisMax =  4;
         var axisRange = axisMax - axisMin;
         
         // Generate a list of 3D points and values at those points
@@ -280,7 +284,15 @@ class MarchingCubesMesh{
             var y = axisMin + axisRange * j / (size - 1);
             var z = axisMin + axisRange * k / (size - 1);
             this.points.push( new THREE.Vector3(x,y,z) );
-            var value = x*x + y*y - z*z - 25;
+
+            let scope = {
+                x: x,
+                y: y,
+                z: z,
+            };
+            //console.log("scope: ", scope);
+            //console.log("this.shader_formula_u: ", this.shader_formula_u);
+            var value = evaluate(this.formula_implicit_surface, scope);
             this.values.push( value );
         }
         
@@ -473,7 +485,7 @@ class MarchingCubesMesh{
         
         //geometry.computeCentroids();
         //geometry.computeFaceNormals();
-        //geometry.computeVertexNormals();
+        geometry.computeVertexNormals();
         
         var colorMaterial =  new THREE.MeshLambertMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
         var mesh = new THREE.Mesh( geometry, colorMaterial );
