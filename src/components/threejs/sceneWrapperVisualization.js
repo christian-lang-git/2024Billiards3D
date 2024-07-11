@@ -65,8 +65,6 @@ class SceneWrapperVisualization {
         this.textureRenderer = new TextureRendererPlane(renderer_id, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
 
         this.activeBehaviorLastFrame = null;
-
-        this.marchingCubesMesh = new MarchingCubesMesh(scene);
     }
 
     initialize() {
