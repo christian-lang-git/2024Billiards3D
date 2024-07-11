@@ -9,6 +9,7 @@ import { OffscreenRendererSeeds} from "./offscreen_renderer_seeds";
 import { OffscreenRendererFlowMap } from "./offscreen_renderer_flow_map";
 import { OffscreenRendererFTLE } from "./offscreen_renderer_ftle";
 import { OffscreenRendererGravitationalForce} from "./offscreen_renderer_gravitational_force";
+import { TextureRendererPlane } from "@/components/threejs/texture_renderer_plane";
 import { TextureRendererSphere } from "@/components/threejs/texture_renderer_sphere";
 import { StreamlineGenerator } from "@/components/threejs/streamline_generator";
 import { SceneWrapperVisualization } from "@/components/threejs/sceneWrapperVisualization";
@@ -32,6 +33,7 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         this.camera_sphere = camera_sphere;
         this.controls_sphere = controls_sphere;
         var useAnglePlane = true;
+        this.textureRenderer = new TextureRendererPlane(Constants.RENDERER_ID_AUX, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
         this.textureRendererSphere = new TextureRendererSphere(Constants.RENDERER_ID_AUX, renderer, this.simulationParameters, this.colorMaps, this.scene_sphere, useAnglePlane);
     }
 

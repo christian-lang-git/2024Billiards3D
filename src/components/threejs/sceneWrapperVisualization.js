@@ -62,7 +62,7 @@ class SceneWrapperVisualization {
         this.OffscreenRendererFTLEBackwards.initialize();
         this.offscreenRendererGravitationalForce.initialize();
 
-        this.textureRenderer = new TextureRendererPlane(renderer_id, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
+        //this.textureRenderer = new TextureRendererPlane(renderer_id, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
 
         this.activeBehaviorLastFrame = null;
     }
@@ -131,6 +131,9 @@ class SceneWrapperVisualization {
     }
 
     initializeTexturedPlane() {
+        if(this.textureRenderer === undefined){
+            return;
+        }
         this.textureRenderer.initialize();
     }
 
@@ -299,6 +302,8 @@ class SceneWrapperVisualization {
             this.marchingCubesMesh.build();
         }
 
+        /*
+
         this.offscreenRendererSeeds.updateTexturedPlane();
         this.offscreenRendererSeeds.compute();
         this.offscreenRendererSeedsAndReturns.updateTexturedPlane();
@@ -341,6 +346,8 @@ class SceneWrapperVisualization {
         this.offscreenRendererGravitationalForce.updateTexturedPlane();
         this.offscreenRendererGravitationalForce.compute();
 
+        */
+
         this.computeAdditionalStuff();
     }
 
@@ -349,6 +356,10 @@ class SceneWrapperVisualization {
     }
 
     updateTexturedPlane(){
+        if(this.textureRenderer === undefined){
+            return;
+        }
+
         var min_x = this.getTexturedPlaneMinX();
         var max_x = this.getTexturedPlaneMaxX();
         var min_y = this.getTexturedPlaneMinY();
