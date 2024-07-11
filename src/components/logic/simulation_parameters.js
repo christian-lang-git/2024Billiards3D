@@ -66,6 +66,10 @@ class SimulationParameters {
         this.tube_roughness = 0.75;
         this.tube_emissive_intensity = 0.4;
 
+        this.domain_pixels_x = 20;
+        this.domain_pixels_y = 20;
+        this.domain_pixels_z = 20;
+        this.formula_implicit_surface = "x*x/(3.5*3.5) + y*y/(2.5*2.5) + z*z/(1.5*1.5) - 1";
         this.print();
     }
 

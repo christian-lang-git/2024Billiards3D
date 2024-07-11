@@ -256,33 +256,51 @@ class MarchingCubesMesh{
     //based on https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Marching-Cubes.html
     //ported to new threejs by CL
 
-    constructor(scene){
+    constructor(scene, simulationParameters){
         this.points = [];
         this.values = [];
         this.scene = scene;
+        this.simulationParameters = simulationParameters;
         
         //this.formula_implicit_surface = "x*x + y*y - z*z - 25";
-        this.formula_implicit_surface = "x*x/8 + y*y/6 + z*z/2 - 1";
-        this.build();
+        this.formula_implicit_surface = "x*x/(3.5*3.5) + y*y/(2.5*2.5) + z*z/(1.5*1.5) - 1";
     }
 
     build(){
+        this.points = [];
+        this.values = [];
+        this.scene.remove(this.mesh);
         // number of cubes along a side
-        var size = 50;
+        //var size = 50;
+        var size_x = this.simulationParameters.domain_pixels_x;
+        var size_y = this.simulationParameters.domain_pixels_y;
+        var size_z = this.simulationParameters.domain_pixels_z;
 
-        var axisMin = -4;
-        var axisMax =  4;
-        var axisRange = axisMax - axisMin;
+        var min_x = this.simulationParameters.domain_min_x;
+        var min_y = this.simulationParameters.domain_min_y;
+        var min_z = this.simulationParameters.domain_min_z;
+
+        var max_x = this.simulationParameters.domain_max_x;
+        var max_y = this.simulationParameters.domain_max_y;
+        var max_z = this.simulationParameters.domain_max_z;
+
+        this.formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
+
+        var axisRange_x = max_x - min_x;
+        var axisRange_y = max_y - min_y;
+        var axisRange_z = max_z - min_z;
+
+        console.warn("build ", this.formula_implicit_surface, max_x);
         
         // Generate a list of 3D points and values at those points
-        for (var k = 0; k < size; k++)
-        for (var j = 0; j < size; j++)
-        for (var i = 0; i < size; i++)
+        for (var k = 0; k < size_z; k++)
+        for (var j = 0; j < size_y; j++)
+        for (var i = 0; i < size_x; i++)
         {
             // actual values
-            var x = axisMin + axisRange * i / (size - 1);
-            var y = axisMin + axisRange * j / (size - 1);
-            var z = axisMin + axisRange * k / (size - 1);
+            var x = min_x + axisRange_x * i / (size_x - 1);
+            var y = min_y + axisRange_y * j / (size_y - 1);
+            var z = min_z + axisRange_z * k / (size_z - 1);
             this.points.push( new THREE.Vector3(x,y,z) );
 
             let scope = {
@@ -303,7 +321,7 @@ class MarchingCubesMesh{
             uv : []
         }
         
-        var size2 = size * size;
+        var size2 = size_x * size_y;
 
         // Vertices may occur along edges of cube, when the values at the edge's endpoints
         //   straddle the isolevel value.
@@ -313,14 +331,14 @@ class MarchingCubesMesh{
         var geometry = new THREE.BufferGeometry();
         var vertexIndex = 0;
         
-        for (var z = 0; z < size - 1; z++)
-        for (var y = 0; y < size - 1; y++)
-        for (var x = 0; x < size - 1; x++)
+        for (var z = 0; z < size_z - 1; z++)
+        for (var y = 0; y < size_y - 1; y++)
+        for (var x = 0; x < size_x - 1; x++)
         {
             // index of base point, and also adjacent points on cube
-            var p    = x + size * y + size2 * z,
+            var p    = x + size_x * y + size2 * z,
                 px   = p   + 1,
-                py   = p   + size,
+                py   = p   + size_x,
                 pxy  = py  + 1,
                 pz   = p   + size2,
                 pxz  = px  + size2,
@@ -487,9 +505,10 @@ class MarchingCubesMesh{
         //geometry.computeFaceNormals();
         geometry.computeVertexNormals();
         
-        var colorMaterial =  new THREE.MeshLambertMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
-        var mesh = new THREE.Mesh( geometry, colorMaterial );
-        this.scene.add(mesh);
+        var green = 0x34a853;
+        var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
+        this.mesh = new THREE.Mesh( geometry, colorMaterial );
+        this.scene.add(this.mesh);
 
     }
 }

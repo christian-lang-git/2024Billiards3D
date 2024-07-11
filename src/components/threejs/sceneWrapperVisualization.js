@@ -226,7 +226,7 @@ class SceneWrapperVisualization {
 
 
 
-    updateParametersData(mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
+    updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, step_size, max_steps, termination_method, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
         this.simulationParameters.mu = parseFloat(mu);
         this.simulationParameters.angular_velocity = parseFloat(angular_velocity);
         this.simulationParameters.use_constant_velocity = use_constant_velocity;
@@ -251,6 +251,8 @@ class SceneWrapperVisualization {
         this.simulationParameters.domain_max_z = parseFloat(domain_max_z);    
         this.simulationParameters.domain_dimension_z = this.simulationParameters.domain_max_z - this.simulationParameters.domain_min_z;  
         this.simulationParameters.domain_pixels_z = parseInt(domain_pixels_z);
+        
+        this.simulationParameters.formula_implicit_surface = formula_implicit_surface;    
         
         this.simulationParameters.angle_pixels_x = parseInt(angle_pixels_x);
         this.simulationParameters.angle_pixels_y = parseInt(angle_pixels_y);
@@ -293,6 +295,10 @@ class SceneWrapperVisualization {
     }
 
     computeStuff(){
+        if(this.marchingCubesMesh){
+            this.marchingCubesMesh.build();
+        }
+
         this.offscreenRendererSeeds.updateTexturedPlane();
         this.offscreenRendererSeeds.compute();
         this.offscreenRendererSeedsAndReturns.updateTexturedPlane();

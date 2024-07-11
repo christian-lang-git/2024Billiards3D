@@ -27,7 +27,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
     constructor(renderer, scene, camera, controls, raycaster) {
         super(Constants.RENDERER_ID_MAIN, renderer, scene, camera, controls, raycaster, true, false);
         console.warn("CONSTRUCTOR SceneWrapperVisualizationMain");
-        this.marchingCubesMesh = new MarchingCubesMesh(scene);
+        this.marchingCubesMesh = new MarchingCubesMesh(scene, this.simulationParameters);
     }
 
     initializeAdditionalObjects(){

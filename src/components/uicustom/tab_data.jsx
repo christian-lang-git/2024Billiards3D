@@ -67,6 +67,10 @@ class TabData extends Component {
                                 <AccordionTrigger>Physics</AccordionTrigger>
                                 <AccordionContent>
                                     <LabeledField
+                                        name="UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT"
+                                        labelText={"implicit surface"}
+                                    />
+                                    <LabeledField
                                         name="UI_STATE_DATA_PHYSICS_MU"
                                         labelText={"mass of secondary: mu"}
                                     />
