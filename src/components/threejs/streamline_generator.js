@@ -142,8 +142,37 @@ class Streamline {
         return value;
     }
 
+    evaluateGradient(pos, gradient){
+        let scope = {
+            x: pos[0],
+            y: pos[1],
+            z: pos[2],
+        };
+        var dx = evaluate(this.simulationParameters.formula_implicit_surface_dx, scope);
+        var dy = evaluate(this.simulationParameters.formula_implicit_surface_dy, scope);
+        var dz = evaluate(this.simulationParameters.formula_implicit_surface_dz, scope);
+        vec3.set(gradient, dx, dy, dz);
+    }
+
+    reflect(direction, normal, reflection_direction){
+
+        //debugging: reflect in normal direction
+        //vec3.negate(normal, normal);
+        //vec3.copy(reflection_direction, normal);
+
+        this.reflect_regular(direction, normal, reflection_direction);
+    }
+
+    reflect_regular(direction, normal, reflection_direction){
+        var d = vec3.dot(direction, normal);
+        vec3.scaleAndAdd(reflection_direction, direction, normal, -2*d);//r=d-2(d dot n)n with direction d and normal n
+        //console.warn("direction", direction);  
+        //console.warn("normal", normal);  
+        //console.warn("reflection_direction", reflection_direction);  
+    }
+
     bisectSurface(pos_inside, pos_outside, intersection_position){  
-        console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
+        //console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
         var value_outside = this.evaluateSurface(pos_outside);    
         
         for(var i=0; i<8; i++){
@@ -151,7 +180,7 @@ class Streamline {
             var pos = vec3.create();
             vec3.add(pos, pos_inside, pos_outside);
             vec3.scale(pos, pos, 0.5);
-            console.warn("bisectSurface pos", pos); 
+            //console.warn("bisectSurface pos", pos); 
             var value = this.evaluateSurface(pos);
 
             //compare
@@ -173,11 +202,11 @@ class Streamline {
         var pos_outside = vec3.create();
         var found_outside = false;
         vec3.copy(intersection_position, position);
-        var step_size = 0.1;
+        var step_size = 0.21;
         
         console.warn("------ value");
 
-        for(var i=0; i<100; i++)
+        for(var i=1; i<100; i++)
         {            
             var scale = i * step_size;        
             vec3.scaleAndAdd(pos, position, direction, scale);
@@ -208,6 +237,7 @@ class Streamline {
         this.t = 0;
         this.success = true;
         var difference = vec3.create();
+        var normal = vec3.create();
         //initial position
         var current_position_data = new PointData();
         vec3.copy(current_position_data.position, this.seed_position);
@@ -228,7 +258,22 @@ class Streamline {
         next_position_data.arc_length = current_position_data.arc_length + segment_length;
         //next_position_data.t = current_position_data.t + step_size;
         this.arc_length = next_position_data.arc_length;
+
+        //reflection
+        //this.evaluateGradient(next_position_data.position, next_position_data.direction);
+        //vec3.normalize(next_position_data.direction, next_position_data.direction);
+        //vec3.negate(next_position_data.direction, next_position_data.direction);
+        
+        
+        
+        this.evaluateGradient(next_position_data.position, normal);
+        vec3.normalize(normal, normal);
+        //vec3.negate(normal, normal);
+
+        this.reflect(current_position_data.direction, normal, next_position_data.direction);  
+         
     }
+
 
     //unused but kept in case we need rk4 later
     /*

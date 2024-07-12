@@ -1,6 +1,7 @@
 import * as Constants from "@/components/utility/constants";
 import { getThetaFromCartesian, getPhiFromCartesian } from "@/components/utility/utility";
 import { vec3 } from "gl-matrix/esm";
+import {derivative} from "mathjs";
 
 class SimulationParameters {
     constructor() {
@@ -71,7 +72,20 @@ class SimulationParameters {
         this.domain_pixels_y = 20;
         this.domain_pixels_z = 20;
         this.formula_implicit_surface = "x*x/(3.5*3.5) + y*y/(2.5*2.5) + z*z/(1.5*1.5) - 1";
+        this.formula_implicit_surface_dx = "";
+        this.formula_implicit_surface_dy = "";
+        this.formula_implicit_surface_dz = "";
         this.print();
+    }
+
+    computeDerivative(){
+        this.formula_implicit_surface_dx = derivative(this.formula_implicit_surface, "x").toString();
+        this.formula_implicit_surface_dy = derivative(this.formula_implicit_surface, "y").toString();
+        this.formula_implicit_surface_dz = derivative(this.formula_implicit_surface, "z").toString();
+        //console.warn("f", this.formula_implicit_surface);
+        //console.warn("dx", this.formula_implicit_surface_dx);
+        //console.warn("dy", this.formula_implicit_surface_dy);
+        //console.warn("dz", this.formula_implicit_surface_dz);
     }
 
     getPrimaryMass() {

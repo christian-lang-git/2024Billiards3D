@@ -257,6 +257,7 @@ class SceneWrapperVisualization {
         this.simulationParameters.domain_pixels_z = parseInt(domain_pixels_z);
         
         this.simulationParameters.formula_implicit_surface = formula_implicit_surface;    
+        this.simulationParameters.computeDerivative();
         
         this.simulationParameters.angle_pixels_x = parseInt(angle_pixels_x);
         this.simulationParameters.angle_pixels_y = parseInt(angle_pixels_y);
