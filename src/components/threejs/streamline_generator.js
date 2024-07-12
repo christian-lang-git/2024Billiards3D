@@ -31,6 +31,8 @@ class Streamline {
         this.seed_position = vec3.fromValues(0.75, 0.4, 0);
         this.seed_direction = vec3.fromValues(0, 0, 0.1);
         this.seed_velocity = vec3.fromValues(0, 0, 0.1);
+        this.seed_direction_normalized = vec3.create();
+        vec3.normalize(this.seed_direction_normalized, this.seed_direction);
 
         this.existsInScene = false;
     }
@@ -38,6 +40,7 @@ class Streamline {
     setSeed(position, direction) {
         vec3.copy(this.seed_position, position);
         vec3.copy(this.seed_direction, direction);
+        vec3.normalize(this.seed_direction_normalized, this.seed_direction);
     }
 
     setSeedPosition(position) {
@@ -46,6 +49,7 @@ class Streamline {
 
     setSeedDirection(direction) {
         vec3.copy(this.seed_direction, direction);
+        vec3.normalize(this.seed_direction_normalized, this.seed_direction);
     }
     /*
     recalculate(x, y, z, dir_x, dir_y, dir_z, energy) {
@@ -127,18 +131,74 @@ class Streamline {
         console.warn("SEED VELOCITY: ", this.seed_velocity);
     }
 
-    evaluateSurface(x, y, z){
+    evaluateSurface(pos){
         let scope = {
-            x: x,
-            y: y,
-            z: z,
+            x: pos[0],
+            y: pos[1],
+            z: pos[2],
         };
-        var value = evaluate(this.formula_implicit_surface, scope);
+        console.warn("this.simulationParameters.formula_implicit_surface", this.simulationParameters.formula_implicit_surface);
+        var value = evaluate(this.simulationParameters.formula_implicit_surface, scope);
         return value;
     }
 
+    bisectSurface(pos_inside, pos_outside, intersection_position){  
+        console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
+        var value_outside = this.evaluateSurface(pos_outside);    
+        
+        for(var i=0; i<8; i++){
+            //get and evaluate center point
+            var pos = vec3.create();
+            vec3.add(pos, pos_inside, pos_outside);
+            vec3.scale(pos, pos, 0.5);
+            console.warn("bisectSurface pos", pos); 
+            var value = this.evaluateSurface(pos);
+
+            //compare
+            if((value>0) == (value_outside>0)){
+                //center and outside have same sign
+                vec3.copy(pos_outside, pos);
+            }else{
+                //center and inside have same sign
+                vec3.copy(pos_inside, pos);
+            }
+        }
+
+        vec3.copy(intersection_position, pos);
+    }
+
     findIntersection(position, direction, intersection_position, intersection_direction){
-        vec3.add(intersection_position, position, direction);
+        var pos = vec3.create();
+        var pos_inside = vec3.create();
+        var pos_outside = vec3.create();
+        var found_outside = false;
+        vec3.copy(intersection_position, position);
+        var step_size = 0.1;
+        
+        console.warn("------ value");
+
+        for(var i=0; i<100; i++)
+        {            
+            var scale = i * step_size;        
+            vec3.scaleAndAdd(pos, position, direction, scale);
+            var value = this.evaluateSurface(pos);
+            console.warn("value", value);
+            if(value < 0){   
+                //inside object             
+                vec3.copy(pos_inside, pos);
+            }
+            else{
+                //outside object   
+                vec3.copy(pos_outside, pos);  
+                found_outside = true;
+                break;
+            }
+        }
+
+        if(found_outside){
+            this.bisectSurface(pos_inside, pos_outside, intersection_position);
+        }
+        
         console.warn("build intersection_position", intersection_position);
     }
 
@@ -151,7 +211,7 @@ class Streamline {
         //initial position
         var current_position_data = new PointData();
         vec3.copy(current_position_data.position, this.seed_position);
-        vec3.copy(current_position_data.direction, this.seed_direction);
+        vec3.copy(current_position_data.direction, this.seed_direction_normalized);
         this.list_point_data.push(current_position_data);
 
         //intersection
