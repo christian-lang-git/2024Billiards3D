@@ -13,7 +13,6 @@ import Emitter from "@/components/utility/emitter";
 import * as Constants from "@/components/utility/constants";
 import LabeledField from "@/components/uicustom/labeledfield";
 import LabeledSelect from "@/components/uicustom/labeledSelect";
-import LabeledSelectTerminationMethod from "@/components/uicustom/labeledSelectTerminationMethod";
 import LabeledSelectUseConstantVelocity from "@/components/uicustom/labeledSelectUseConstantVelocity";
 import { Input } from "@/components/ui/input"
 import {
@@ -138,7 +137,10 @@ class TabData extends Component {
                                         labelText={"max steps"}
                                     />
                                     </div>    
-                                    <LabeledSelectTerminationMethod/>
+                                    <LabeledField
+                                        name="UI_STATE_DATA_NUMBER_OF_INTERSECTIONS"
+                                        labelText={"number of intersections"}
+                                    />
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="domain">

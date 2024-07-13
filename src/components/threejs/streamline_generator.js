@@ -332,7 +332,7 @@ class Streamline {
 
         var max_steps = this.streamline_generator.simulationParameters.max_steps;
         var step_size = this.streamline_generator.simulationParameters.step_size;
-        var termination_method = this.streamline_generator.simulationParameters.termination_method;
+        var number_of_intersections = this.streamline_generator.simulationParameters.number_of_intersections;
         var isOnPositiveZ = this.seed_direction[2] >= 0;
 
         for (var i = 0; i < max_steps; i++) {
@@ -417,7 +417,7 @@ class Streamline {
                 //we are currently at z > 0
                 if (next_position_data.position[2] < 0) {
                     isOnPositiveZ = false;
-                    termination_method -= 1;
+                    number_of_intersections -= 1;
                     console.warn("multi a", this.multi);
                     this.multi.list_point_data_returns.push(current_position_data);
                     this.success = true;
@@ -427,7 +427,7 @@ class Streamline {
                 //we are currently at z < 0
                 if (next_position_data.position[2] > 0) {
                     isOnPositiveZ = true;
-                    termination_method -= 1;
+                    number_of_intersections -= 1;
                     console.warn("multi b", this.multi);
                     this.multi.list_point_data_returns.push(current_position_data);
                     this.success = true;
@@ -519,19 +519,19 @@ class MultipleReturnsStreamline {
         }
 
         this.list_point_data_returns = [];
-        var number_of_returns = this.simulationParameters.termination_method;
+        var number_of_intersections = this.simulationParameters.number_of_intersections;
         var index = 0;
 
         //calculate initial streamline with last parameters
         var streamline = this.list_streamlines[index];
         streamline.updateSeedVelocity();
         streamline.calculate();
-        number_of_returns -= 1;
+        number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
         this.number_computed = 1;
 
         //calculate additional streamlines starting from previous end point
-        while (number_of_returns > 0) {
+        while (number_of_intersections > 0) {
             index += 1;
             var previous = this.list_streamlines[index - 1];
             if (!previous.success) {
@@ -567,18 +567,18 @@ class MultipleReturnsStreamline {
 
     recalculate(x, y, z, dir_x, dir_y, dir_z, energy) {
         this.list_point_data_returns = [];
-        var number_of_returns = this.simulationParameters.termination_method;
+        var number_of_intersections = this.simulationParameters.number_of_intersections;
         var index = 0;
 
         //calculate initial streamline with new parameters
         var streamline = this.list_streamlines[index];
         streamline.recalculate(x, y, z, dir_x, dir_y, dir_z, energy);
-        number_of_returns -= 1;
+        number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
         this.number_computed = 1;
 
         //calculate additional streamlines starting from previous end point
-        while (number_of_returns > 0) {
+        while (number_of_intersections > 0) {
             index += 1;
             var previous = this.list_streamlines[index - 1];
             if (!previous.success) {
@@ -591,7 +591,7 @@ class MultipleReturnsStreamline {
             }
             var streamline = this.list_streamlines[index];
             streamline.recalculateFromOther(previous);
-            number_of_returns -= 1;
+            number_of_intersections -= 1;
             this.number_computed += 1;
             this.number_success = streamline.success ? this.number_success+1 : this.number_success;
         }

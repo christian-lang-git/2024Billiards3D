@@ -23,7 +23,7 @@ class SimulationParameters {
         //RK4
         this.max_steps = 15000;
         this.step_size = 0.001;
-        this.termination_method = Constants.TERMINATION_METHOD_FIRST_RETURN;
+        this.number_of_intersections = 2;
 
         //cosmetics
         //camera

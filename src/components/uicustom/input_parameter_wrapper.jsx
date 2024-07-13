@@ -62,7 +62,7 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_DATA_PHYSICS_SEED_POSITION_Z", "qz", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_INTEGRATION_STEP_SIZE", "ss", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_INTEGRATION_MAX_STEPS", "sn", Constants.TYPE_STRING);
-        new InputWrapper(this, "UI_STATE_DATA_INTEGRATION_TERMINATION_METHOD", "ter", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_NUMBER_OF_INTERSECTIONS", "num", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MIN_X", "xmin", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MAX_X", "xmax", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_X", "nx", Constants.TYPE_STRING);
