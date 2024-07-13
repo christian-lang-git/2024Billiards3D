@@ -50,7 +50,8 @@ class InputParameterWrapper extends Component{
         Emitter.on(Constants.EVENT_INITIALIZATION_COMPLETED, this.handleEventInitializationCompleted);
         Emitter.on(Constants.EVENT_WRITE_FROM_UI_TO_URL, this.handleEventWriteFromUItoURL);
         this.waiting_for_completion = Constants.NUM_ELEMENTS_THAT_REQUIRE_INITIALIZATION;
-
+        
+        new InputWrapper(this, "UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT", "imp", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_PHYSICS_MU", "mu", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_PHYSICS_ANGULAR_VELOCITY", "n", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_PHYSICS_SEED_ENERGY", "e", Constants.TYPE_STRING);
