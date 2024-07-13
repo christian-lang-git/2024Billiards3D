@@ -40,16 +40,6 @@ class TabData extends Component {
         Emitter.emit(Constants.EVENT_WRITE_FROM_UI_TO_URL, {});    
     }
 
-    shouldRenderSeedMagnitude = () => {
-        const { uiState } = this.context;
-        return uiState.UI_STATE_DATA_PHYSICS_USE_CONSTANT_VELOCITY === true;
-    };
-
-    shouldRenderSeedHamiltonian = () => {
-        const { uiState } = this.context;
-        return uiState.UI_STATE_DATA_PHYSICS_USE_CONSTANT_VELOCITY === false;
-    };
-
     render() {
         return (
             <div className="flex flex-col h-full">
@@ -68,30 +58,7 @@ class TabData extends Component {
                                     <LabeledField
                                         name="UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT"
                                         labelText={"implicit surface"}
-                                    />
-                                    <LabeledField
-                                        name="UI_STATE_DATA_PHYSICS_MU"
-                                        labelText={"mass of secondary: mu"}
-                                    />
-                                    <LabeledField
-                                        name="UI_STATE_DATA_PHYSICS_ANGULAR_VELOCITY"
-                                        labelText={"angular velocity: n"}
-                                    />                                    
-                                    <div className="grid grid-cols-2">
-                                    <LabeledSelectUseConstantVelocity/>
-                                    {this.shouldRenderSeedMagnitude() && (
-                                        <LabeledField
-                                        name="UI_STATE_DATA_PHYSICS_SEED_ENERGY"
-                                        labelText={"magnitude"}
-                                        />
-                                    )}
-                                    {this.shouldRenderSeedHamiltonian() && (
-                                        <LabeledField
-                                        name="UI_STATE_DATA_PHYSICS_SEED_ENERGY"
-                                        labelText={"hamiltonian"}
-                                        />
-                                    )}
-                                    </div>    
+                                    />                                     
                                     <Label className="font-medium">constant seed direction (left view)</Label>
                                     <div className="grid grid-cols-3">
                                     <LabeledField
@@ -125,9 +92,13 @@ class TabData extends Component {
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="integration">
-                                <AccordionTrigger>Integration</AccordionTrigger>
+                                <AccordionTrigger>Reflection</AccordionTrigger>
                                 <AccordionContent>
-                                    <div className="grid grid-cols-2">
+                                    <LabeledField
+                                        name="UI_STATE_DATA_NUMBER_OF_INTERSECTIONS"
+                                        labelText={"number of intersections"}
+                                    />
+                                    <div className="grid grid-cols-3">
                                     <LabeledField
                                         name="UI_STATE_DATA_INTEGRATION_STEP_SIZE"
                                         labelText={"step size"}
@@ -136,11 +107,11 @@ class TabData extends Component {
                                         name="UI_STATE_DATA_INTEGRATION_MAX_STEPS"
                                         labelText={"max steps"}
                                     />
-                                    </div>    
                                     <LabeledField
-                                        name="UI_STATE_DATA_NUMBER_OF_INTERSECTIONS"
-                                        labelText={"number of intersections"}
+                                        name="UI_STATE_DATA_INTEGRATION_BISECTION_STEPS"
+                                        labelText={"bisection steps"}
                                     />
+                                    </div>    
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="domain">

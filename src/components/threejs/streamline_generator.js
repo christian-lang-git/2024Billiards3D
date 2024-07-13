@@ -173,9 +173,10 @@ class Streamline {
 
     bisectSurface(pos_inside, pos_outside, intersection_position){  
         //console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
+        var number_of_bisection_steps = this.simulationParameters.number_of_bisection_steps;
         var value_outside = this.evaluateSurface(pos_outside);    
         
-        for(var i=0; i<8; i++){
+        for(var i=0; i<number_of_bisection_steps; i++){
             //get and evaluate center point
             var pos = vec3.create();
             vec3.add(pos, pos_inside, pos_outside);
@@ -202,11 +203,12 @@ class Streamline {
         var pos_outside = vec3.create();
         var found_outside = false;
         vec3.copy(intersection_position, position);
-        var step_size = 0.21;
+        var step_size = this.simulationParameters.step_size;
+        var max_steps = this.simulationParameters.max_steps;
         
         console.warn("------ value");
 
-        for(var i=1; i<100; i++)
+        for(var i=1; i<max_steps; i++)
         {            
             var scale = i * step_size;        
             vec3.scaleAndAdd(pos, position, direction, scale);

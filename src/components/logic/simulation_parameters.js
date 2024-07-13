@@ -20,10 +20,11 @@ class SimulationParameters {
         this.seed_position_z = 0;
         this.seed_energy = 0.25;//used to calculate seed velocity - this is either the hamiltonian or the magnitude depending on use_constant_velocity
         this.use_constant_velocity = false;//if set to false, use constant hamiltonian
-        //RK4
-        this.max_steps = 15000;
-        this.step_size = 0.001;
+        //REFLECTION
+        this.max_steps = 100;
+        this.step_size = 0.1;
         this.number_of_intersections = 2;
+        this.number_of_bisection_steps = 8;
 
         //cosmetics
         //camera
