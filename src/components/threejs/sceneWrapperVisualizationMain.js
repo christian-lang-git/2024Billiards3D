@@ -85,6 +85,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.updateStreamlineModel();  
         this.updateTexturedPlane();
         this.updateAxes();
+        this.updateMarchingCubesMesh();
     }
 
     updateBodies() {
@@ -145,6 +146,10 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
     OnSeedDirectionChanged(){
         console.warn("OnSeedDirectionChanged");
         this.seed_changed = true;
+    }
+
+    updateMarchingCubesMesh(){
+        this.marchingCubesMesh.mesh.material.opacity = this.simulationParameters.opacity;
     }
 }
 

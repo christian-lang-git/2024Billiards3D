@@ -549,8 +549,9 @@ class MarchingCubesMesh{
         geometry.computeVertexNormals();
         
         var green = 0x34a853;
-        var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
-        this.mesh = new THREE.Mesh( geometry, colorMaterial );
+        //var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
+        var material =  new THREE.MeshStandardMaterial( {color: green, side: THREE.DoubleSide, wireframe: false, transparent: true} );
+        this.mesh = new THREE.Mesh( geometry, material );
         this.scene.add(this.mesh);
 
     }
