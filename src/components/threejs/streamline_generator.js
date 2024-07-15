@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
-import {evaluate} from "mathjs";
 
 class PointData {
     constructor() {
@@ -131,29 +130,6 @@ class Streamline {
         console.warn("SEED VELOCITY: ", this.seed_velocity);
     }
 
-    evaluateSurface(pos){
-        let scope = {
-            x: pos[0],
-            y: pos[1],
-            z: pos[2],
-        };
-        console.warn("this.simulationParameters.formula_implicit_surface", this.simulationParameters.formula_implicit_surface);
-        var value = evaluate(this.simulationParameters.formula_implicit_surface, scope);
-        return value;
-    }
-
-    evaluateGradient(pos, gradient){
-        let scope = {
-            x: pos[0],
-            y: pos[1],
-            z: pos[2],
-        };
-        var dx = evaluate(this.simulationParameters.formula_implicit_surface_dx, scope);
-        var dy = evaluate(this.simulationParameters.formula_implicit_surface_dy, scope);
-        var dz = evaluate(this.simulationParameters.formula_implicit_surface_dz, scope);
-        vec3.set(gradient, dx, dy, dz);
-    }
-
     reflect(direction, normal, reflection_direction){
 
         //debugging: reflect in normal direction
@@ -174,7 +150,7 @@ class Streamline {
     bisectSurface(pos_inside, pos_outside, intersection_position){  
         //console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
         var number_of_bisection_steps = this.simulationParameters.number_of_bisection_steps;
-        var value_outside = this.evaluateSurface(pos_outside);    
+        var value_outside = this.simulationParameters.evaluateSurface(pos_outside);    
         
         for(var i=0; i<number_of_bisection_steps; i++){
             //get and evaluate center point
@@ -182,7 +158,7 @@ class Streamline {
             vec3.add(pos, pos_inside, pos_outside);
             vec3.scale(pos, pos, 0.5);
             //console.warn("bisectSurface pos", pos); 
-            var value = this.evaluateSurface(pos);
+            var value = this.simulationParameters.evaluateSurface(pos);
 
             //compare
             if((value>0) == (value_outside>0)){
@@ -212,7 +188,7 @@ class Streamline {
         {            
             var scale = i * step_size;        
             vec3.scaleAndAdd(pos, position, direction, scale);
-            var value = this.evaluateSurface(pos);
+            var value = this.simulationParameters.evaluateSurface(pos);
             console.warn("value", value);
             if(value < 0){   
                 //inside object             
@@ -268,7 +244,7 @@ class Streamline {
         
         
         
-        this.evaluateGradient(next_position_data.position, normal);
+        this.simulationParameters.evaluateGradient(next_position_data.position, normal);
         vec3.normalize(normal, normal);
         //vec3.negate(normal, normal);
 

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ObjectArrow, ObjectAxes, MarchingCubesMesh } from "./custom_objects";
+import { ObjectArrow, ObjectAxes, MarchingCubesMesh, LocalCoordinates } from "./custom_objects";
 import { vec3 } from "gl-matrix/esm";
 import { SimulationParameters } from "@/components/logic/simulation_parameters";
 import { getMousePositionInCanvasNDC } from "@/components/utility/mouseHelper";
@@ -28,6 +28,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         super(Constants.RENDERER_ID_MAIN, renderer, scene, camera, controls, raycaster, true, false);
         console.warn("CONSTRUCTOR SceneWrapperVisualizationMain");
         this.marchingCubesMesh = new MarchingCubesMesh(scene, this.simulationParameters);
+        this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters)
     }
 
     initializeAdditionalObjects(){

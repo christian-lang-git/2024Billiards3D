@@ -557,4 +557,97 @@ class MarchingCubesMesh{
     }
 }
 
-export { ObjectArrow, ObjectAxes, SpherelikeGrid, MarchingCubesMesh }
+class TubeVector{
+
+    constructor(scene, simulationParameters, color){
+        this.scene = scene;
+        this.simulationParameters = simulationParameters;
+        this.color = color;
+        this.position = vec3.fromValues(0,0,0);
+        this.direction = vec3.fromValues(1,0,0);
+        this.end_point = vec3.fromValues(0.25,0,0);
+        this.length = 0.25;
+        this.three_position = new THREE.Vector3(this.position[0], this.position[1], this.position[2]);        
+        this.three_end_point = new THREE.Vector3(this.end_point[0], this.end_point[1], this.end_point[2])
+    }
+
+    setPosition(x, y, z){
+        vec3.set(this.position, x, y, z);
+        vec3.scaleAndAdd(this.end_point, this.position, this.direction, this.length);
+        this.updateTHREE();
+    }
+
+    setDirection(x, y, z){
+        vec3.set(this.direction, x, y, z);
+        vec3.scaleAndAdd(this.end_point, this.position, this.direction, this.length);
+        this.updateTHREE();
+    }
+
+    setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z){
+        vec3.set(this.position, pos_x, pos_y, pos_z);
+        vec3.set(this.direction, dir_x, dir_y, dir_z);
+        vec3.scaleAndAdd(this.end_point, this.position, this.direction, this.length);
+        this.updateTHREE();
+    }
+
+    updateTHREE(){
+        this.three_position.set(this.position[0], this.position[1], this.position[2]);
+        this.three_end_point.set(this.end_point[0], this.end_point[1], this.end_point[2]);
+    }
+
+    build() {
+        this.scene.remove(this.mesh);
+
+        this.path = new THREE.CurvePath();
+        var curve = new THREE.LineCurve3(this.three_position, this.three_end_point);
+        this.path.add(curve);
+
+        var radius = this.simulationParameters.tube_radius;
+        var num_sides = this.simulationParameters.tube_num_sides;
+        var num_segments = 1;
+
+        this.geometry = new THREE.TubeGeometry(this.path, num_segments, radius, num_sides, false);
+
+        var tube_roughness = this.simulationParameters.tube_roughness;
+        var tube_emissive_intensity = this.simulationParameters.tube_emissive_intensity;
+        this.material = new THREE.MeshStandardMaterial({ color: this.color, roughness: tube_roughness, emissive: this.color, emissiveIntensity: tube_emissive_intensity });
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+        this.scene.add(this.mesh);
+    }
+}
+
+class LocalCoordinates{
+    constructor(scene, simulationParameters){
+        this.scene = scene;
+        this.simulationParameters = simulationParameters;
+        this.position = vec3.fromValues(0,0,0);
+        this.normal = vec3.fromValues(0,0,0);
+        this.tangent_a = vec3.fromValues(0,0,0);
+        this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
+        this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
+        this.axis3 = new TubeVector(scene, simulationParameters, 0x0000ff);
+
+        this.axis1.build();
+    }
+
+    update(pos_x, pos_y, pos_z){
+        vec3.set(this.position, pos_x, pos_y, pos_z);
+        this.simulationParameters.evaluateGradient(this.position, this.normal);
+        vec3.normalize(this.normal, this.normal);
+        var dir_x = this.normal[0];
+        var dir_y = this.normal[1];
+        var dir_z = this.normal[2];
+        this.axis1.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
+        this.axis1.build();
+
+        this.simulationParameters.computeTangentA(this.position, this.normal, this.tangent_a);
+        var dir_x = this.tangent_a[0];
+        var dir_y = this.tangent_a[1];
+        var dir_z = this.tangent_a[2];
+        this.axis2.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
+        this.axis2.build();
+    }
+}
+
+export { ObjectArrow, ObjectAxes, SpherelikeGrid, MarchingCubesMesh, TubeVector, LocalCoordinates }

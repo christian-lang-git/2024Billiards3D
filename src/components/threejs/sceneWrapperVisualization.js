@@ -535,6 +535,8 @@ class SceneWrapperVisualization {
         console.warn("dir", dir_x, dir_y, dir_z)         
         this.streamlineGenerator.recalculateMulti(0, pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, energy);
         this.streamlineGenerator.updateMultiModel(0);
+        if(this.local_coordinates)
+            this.local_coordinates.update(pos_x, pos_y, pos_z);
     }
 
     recalculateStreamlineAtPosition(pos_x, pos_y, pos_z){
