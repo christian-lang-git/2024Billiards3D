@@ -229,7 +229,7 @@ class SceneWrapperVisualization {
 
 
 
-    updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
+    updateParametersData(surface_type, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
         this.simulationParameters.mu = parseFloat(mu);
         this.simulationParameters.angular_velocity = parseFloat(angular_velocity);
         this.simulationParameters.use_constant_velocity = use_constant_velocity;
@@ -257,11 +257,18 @@ class SceneWrapperVisualization {
         this.simulationParameters.domain_dimension_z = this.simulationParameters.domain_max_z - this.simulationParameters.domain_min_z;  
         this.simulationParameters.domain_pixels_z = parseInt(domain_pixels_z);
         
-        this.simulationParameters.formula_implicit_surface = formula_implicit_surface;    
-        this.simulationParameters.computeDerivative();
+        //this.simulationParameters.formula_implicit_surface = formula_implicit_surface;    
+        //this.simulationParameters.computeDerivative();
         
         this.simulationParameters.angle_pixels_x = parseInt(angle_pixels_x);
         this.simulationParameters.angle_pixels_y = parseInt(angle_pixels_y);
+        
+        var a = parseFloat(var_a);
+        var b = parseFloat(var_b);
+        var c = parseFloat(var_c);
+        var R = parseFloat(var_R);
+        var r = parseFloat(var_r);
+        this.simulationParameters.setSurfaceValues(surface_type, a, b, c, R, r, formula_implicit_surface);
     }
 
     updateParametersRendering(max_radius_bodies, radius_center_of_mass, radius_clicked_position, radius_clicked_position_aux, radius_clicked_position_aux_sphere, rendering_ftle_type, rendering_texture_mode, rendering_specialized_mode, return_number, rendering_forward, rendering_raw_mode, rendering_raw_mode_layer, rendering_raw_mode_x_texture_index, rendering_raw_mode_y_texture_index, scalar_min, scalar_max, opacity, tube_segment_length, tube_max_segments, tube_num_sides, tube_radius, tube_only_show_successful_returns, tube_color, tube_roughness, tube_emissive_intensity, scale_vertices) {

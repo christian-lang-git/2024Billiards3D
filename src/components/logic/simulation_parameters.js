@@ -2,9 +2,15 @@ import * as Constants from "@/components/utility/constants";
 import { getThetaFromCartesian, getPhiFromCartesian } from "@/components/utility/utility";
 import { vec3 } from "gl-matrix/esm";
 import {evaluate, derivative} from "mathjs";
+import { SurfaceCustom } from "./surface_custom";
+import { SurfaceEllipsoid } from "./surface_ellipsoid";
+import { SurfaceTorus } from "./surface_torus";
 
 class SimulationParameters {
     constructor() {
+        //SURFACES
+        this.generateSurfaces();
+
         //physics
         this.mu = 0.1;//mass of secondary
         this.angular_velocity = 1;//n in the equations of motion
@@ -77,6 +83,30 @@ class SimulationParameters {
         this.formula_implicit_surface_dy = "";
         this.formula_implicit_surface_dz = "";
         this.print();
+    }
+
+    generateSurfaces(){        
+        this.surface_list = [];
+        this.surface_list.push(new SurfaceCustom());
+        this.surface_list.push(new SurfaceEllipsoid());
+        this.surface_list.push(new SurfaceTorus());
+        this.active_surface = this.surface_list[0];
+        this.noSurfaceParameterChange = false;
+    }
+
+    setSurfaceValues(surface_type, a, b, c, R, r, formula_implicit_surface){
+        this.noSurfaceParameterChange = true;
+        if(surface_type != this.surface_type){
+            this.noSurfaceParameterChange = false;
+        }
+        this.surface_type = surface_type;
+
+        for(var i=0; i<this.surface_list.length; i++){
+            var noChange = this.surface_list[i].setSurfaceValues(a, b, c, R, r, formula_implicit_surface);
+            this.noSurfaceParameterChange = this.noSurfaceParameterChange && noChange;
+        }
+
+        this.active_surface = this.surface_list[surface_type];
     }
 
     computeDerivative(){
@@ -225,55 +255,16 @@ class SimulationParameters {
         return SimulationParameters.instance;
     }
 
-    evaluateSurface(pos){
-        let scope = {
-            x: pos[0],
-            y: pos[1],
-            z: pos[2],
-        };
-        console.warn("simulationParameters.formula_implicit_surface", this.formula_implicit_surface);
-        var value = evaluate(this.formula_implicit_surface, scope);
-        return value;
+    evaluateSurface(pos){  
+        return this.active_surface.evaluateSurface(pos);
     }
 
     evaluateGradient(pos, gradient){
-        let scope = {
-            x: pos[0],
-            y: pos[1],
-            z: pos[2],
-        };
-        var dx = evaluate(this.formula_implicit_surface_dx, scope);
-        var dy = evaluate(this.formula_implicit_surface_dy, scope);
-        var dz = evaluate(this.formula_implicit_surface_dz, scope);
-        vec3.set(gradient, dx, dy, dz);
+        this.active_surface.evaluateGradient(pos, gradient);
     }
 
     computeTangentA(pos, normal, tangent_a){
-        //set to ellipsoid test values
-        var a = 3.5;
-        var b = 2.5;
-        var c = 1.5;
-
-        //set to 1 for torus
-        //a = 1;
-        //b = 1;
-        //c = 1;
-
-        var x = pos[0];
-        var y = pos[1];
-        var z = pos[2];
-
-        //calculate the ellipse of slicing the ellipsoid via z coordinate
-        var root = Math.sqrt(1-(z*z)/(c*c))
-        var a_e = a / root;
-        var b_e = b / root;
-
-        var pos_norm = vec3.create();
-        vec3.normalize(pos_norm, pos);
-        var dir_x = y * a_e*a_e;
-        var dir_y = -x * b_e*b_e;
-        vec3.set(tangent_a, dir_x, dir_y, 0);
-        vec3.normalize(tangent_a, tangent_a);
+        this.active_surface.computeTangentA(pos, normal, tangent_a);
     }
 }
 

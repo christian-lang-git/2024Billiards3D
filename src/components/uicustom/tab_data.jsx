@@ -13,7 +13,7 @@ import Emitter from "@/components/utility/emitter";
 import * as Constants from "@/components/utility/constants";
 import LabeledField from "@/components/uicustom/labeledfield";
 import LabeledSelect from "@/components/uicustom/labeledSelect";
-import LabeledSelectUseConstantVelocity from "@/components/uicustom/labeledSelectUseConstantVelocity";
+import LabeledSelectSurfaceType from "@/components/uicustom/labeledSelectSurfaceType";
 import { Input } from "@/components/ui/input"
 import {
     Select,
@@ -55,10 +55,35 @@ class TabData extends Component {
                             <AccordionItem value="physics">
                                 <AccordionTrigger>Physics</AccordionTrigger>
                                 <AccordionContent>
+                                    <LabeledSelectSurfaceType/>
                                     <LabeledField
                                         name="UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT"
                                         labelText={"implicit surface"}
-                                    />                                     
+                                    />        
+                                    <div className="grid grid-cols-3">
+                                    <LabeledField
+                                        name="UI_STATE_DATA_VAR_A"
+                                        labelText={"a"}
+                                    />
+                                    <LabeledField
+                                        name="UI_STATE_DATA_VAR_B"
+                                        labelText={"b"}
+                                    />
+                                    <LabeledField
+                                        name="UI_STATE_DATA_VAR_C"
+                                        labelText={"c"}
+                                    />
+                                    </div>        
+                                    <div className="grid grid-cols-2">
+                                    <LabeledField
+                                        name="UI_STATE_DATA_VAR_BIG_R"
+                                        labelText={"R"}
+                                    />
+                                    <LabeledField
+                                        name="UI_STATE_DATA_VAR_SMALL_R"
+                                        labelText={"r"}
+                                    />
+                                    </div>                             
                                     <Label className="font-medium">constant seed direction (left view)</Label>
                                     <div className="grid grid-cols-3">
                                     <LabeledField

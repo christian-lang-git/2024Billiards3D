@@ -5,6 +5,12 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
     const [uiState, setUiState] = useState({
+        UI_STATE_DATA_SURFACE_TYPE: Constants.SURFACE_TYPE_TORUS,
+        UI_STATE_DATA_VAR_A: "3.5",
+        UI_STATE_DATA_VAR_B: "2.5",
+        UI_STATE_DATA_VAR_C: "1.5",
+        UI_STATE_DATA_VAR_BIG_R: "2",
+        UI_STATE_DATA_VAR_SMALL_R: "1",
         UI_STATE_DATA_PHYSICS_MU: "0.1",
         UI_STATE_DATA_PHYSICS_ANGULAR_VELOCITY: "1.0",
         UI_STATE_DATA_PHYSICS_SEED_ENERGY: "0.5",

@@ -254,7 +254,14 @@ class ThreeContainer extends Component {
         var angle_pixels_x = uiState.UI_STATE_DATA_ANGLE_PIXELS_X;
         var angle_pixels_y = uiState.UI_STATE_DATA_ANGLE_PIXELS_Y;
 
-        this.sceneWrapper.updateParametersData(formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
+        var surface_type = uiState.UI_STATE_DATA_SURFACE_TYPE;
+        var var_a = uiState.UI_STATE_DATA_VAR_A;
+        var var_b = uiState.UI_STATE_DATA_VAR_B;
+        var var_c = uiState.UI_STATE_DATA_VAR_C;
+        var var_R = uiState.UI_STATE_DATA_VAR_BIG_R;
+        var var_r = uiState.UI_STATE_DATA_VAR_SMALL_R;
+
+        this.sceneWrapper.updateParametersData(surface_type, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
     }
 
     updateParametersRendering(){

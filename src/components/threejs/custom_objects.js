@@ -261,9 +261,6 @@ class MarchingCubesMesh{
         this.values = [];
         this.scene = scene;
         this.simulationParameters = simulationParameters;
-        
-        //this.formula_implicit_surface = "x*x + y*y - z*z - 25";
-        this.formula_implicit_surface = "1";
     }
 
     UpdateParametersCheckBuildRequired(){
@@ -279,12 +276,10 @@ class MarchingCubesMesh{
         var max_y = this.simulationParameters.domain_max_y;
         var max_z = this.simulationParameters.domain_max_z;
 
-        var formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
-
         this.noParameterChange = size_x == this.size_x && size_y == this.size_y && size_z == this.size_z
             && min_x == this.min_x && min_y == this.min_y && min_z == this.min_z
             && max_x == this.max_x && max_y == this.max_y && max_z == this.max_z
-            && formula_implicit_surface == this.formula_implicit_surface;
+            && this.simulationParameters.noSurfaceParameterChange;
 
         this.size_x = this.simulationParameters.domain_pixels_x;
         this.size_y = this.simulationParameters.domain_pixels_y;
@@ -297,8 +292,6 @@ class MarchingCubesMesh{
         this.max_x = this.simulationParameters.domain_max_x;
         this.max_y = this.simulationParameters.domain_max_y;
         this.max_z = this.simulationParameters.domain_max_z;
-
-        this.formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
     }
 
     build(){
@@ -308,6 +301,7 @@ class MarchingCubesMesh{
             return;
         }else{
             console.warn("implicit surface build");
+            this.simulationParameters.noSurfaceParameterChange = true;
         }
 
         this.points = [];
@@ -327,13 +321,9 @@ class MarchingCubesMesh{
         var max_y = this.simulationParameters.domain_max_y;
         var max_z = this.simulationParameters.domain_max_z;
 
-        this.formula_implicit_surface = this.simulationParameters.formula_implicit_surface;
-
         var axisRange_x = max_x - min_x;
         var axisRange_y = max_y - min_y;
         var axisRange_z = max_z - min_z;
-
-        console.warn("build ", this.formula_implicit_surface, max_x);
         
         // Generate a list of 3D points and values at those points
         for (var k = 0; k < size_z; k++)
@@ -346,14 +336,8 @@ class MarchingCubesMesh{
             var z = min_z + axisRange_z * k / (size_z - 1);
             this.points.push( new THREE.Vector3(x,y,z) );
 
-            let scope = {
-                x: x,
-                y: y,
-                z: z,
-            };
-            //console.log("scope: ", scope);
-            //console.log("this.shader_formula_u: ", this.shader_formula_u);
-            var value = evaluate(this.formula_implicit_surface, scope);
+            var pos = vec3.fromValues(x,y,z);
+            var value = this.simulationParameters.evaluateSurface(pos);
             this.values.push( value );
         }
         

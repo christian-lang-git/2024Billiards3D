@@ -16,7 +16,7 @@ class PointData {
 
 class Streamline {
     constructor(streamline_generator, multi) {
-        console.log("Streamline: initialize");
+        //console.log("Streamline: initialize");
         this.streamline_generator = streamline_generator;
         this.simulationParameters = streamline_generator.simulationParameters;
         this.scene = streamline_generator.scene;
@@ -78,7 +78,7 @@ class Streamline {
     }
 
     recalculateFromOther(other){
-        console.warn("OTHER:", other);
+        //console.warn("OTHER:", other);
         var seed_position = vec3.create();
         var seed_direction = vec3.create();
         var end_point_data = other.list_point_data[other.list_point_data.length-1];
@@ -92,7 +92,7 @@ class Streamline {
     }
 
     updateSeedVelocity(){
-        console.warn("SEED DIRECTION: ", this.seed_direction);
+        //console.warn("SEED DIRECTION: ", this.seed_direction);
 
         if(this.simulationParameters.use_constant_velocity){
             //if set to true, use constant velocity
@@ -122,12 +122,12 @@ class Streamline {
             var a1 = L + R;
             var a2 = L - R;
             var a = Math.max(a1, a2);
-            console.warn("results for a", a1, a2);
+            //console.warn("results for a", a1, a2);
     
             vec3.scale(this.seed_velocity, dir_normalized, a);
         }
 
-        console.warn("SEED VELOCITY: ", this.seed_velocity);
+        //console.warn("SEED VELOCITY: ", this.seed_velocity);
     }
 
     reflect(direction, normal, reflection_direction){
@@ -182,14 +182,14 @@ class Streamline {
         var step_size = this.simulationParameters.step_size;
         var max_steps = this.simulationParameters.max_steps;
         
-        console.warn("------ value");
+        //console.warn("------ value");
 
         for(var i=1; i<max_steps; i++)
         {            
             var scale = i * step_size;        
             vec3.scaleAndAdd(pos, position, direction, scale);
             var value = this.simulationParameters.evaluateSurface(pos);
-            console.warn("value", value);
+            //console.warn("value", value);
             if(value < 0){   
                 //inside object             
                 vec3.copy(pos_inside, pos);
@@ -206,7 +206,7 @@ class Streamline {
             this.bisectSurface(pos_inside, pos_outside, intersection_position);
         }
         
-        console.warn("build intersection_position", intersection_position);
+        //console.warn("build intersection_position", intersection_position);
     }
 
     calculate(){
@@ -227,9 +227,9 @@ class Streamline {
         this.list_point_data.push(next_position_data);
         this.findIntersection(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);
 
-        console.warn("build this.seed_position", this.seed_position);
-        console.warn("build next_position_data", next_position_data);
-        console.warn("build this.list_point_data", this.list_point_data);
+        //console.warn("build this.seed_position", this.seed_position);
+        //console.warn("build next_position_data", next_position_data);
+        //console.warn("build this.list_point_data", this.list_point_data);
         
         vec3.subtract(difference, next_position_data.position, current_position_data.position);
         var segment_length = vec3.length(difference);
@@ -443,7 +443,7 @@ class Streamline {
 
         num_segments = 1;
 
-        console.warn("build num_segments", num_segments);
+        //console.warn("build num_segments", num_segments);
         this.geometry = new THREE.TubeGeometry(this.path, num_segments, radius, num_sides, false);
         //this.material = new THREE.MeshStandardMaterial({ color: 0xffff00, roughness: 0.5 });
         //this.material = new THREE.MeshStandardMaterial({ color: 0x0090ff, roughness: 0.5 });
