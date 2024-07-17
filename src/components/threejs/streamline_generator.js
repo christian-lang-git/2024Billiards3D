@@ -170,6 +170,9 @@ class Streamline {
             }
         }
 
+        //var value = this.simulationParameters.evaluateSurface(pos);
+        //console.warn("bisect value", value);
+        //console.warn("bisect pos", pos);
         vec3.copy(intersection_position, pos);
     }
 
@@ -179,10 +182,13 @@ class Streamline {
         var pos_outside = vec3.create();
         var found_outside = false;
         vec3.copy(intersection_position, position);
+        vec3.copy(pos_inside, position);
+        vec3.copy(pos_outside, position);
         var step_size = this.simulationParameters.step_size;
         var max_steps = this.simulationParameters.max_steps;
         
-        //console.warn("------ value");
+        //var value = this.simulationParameters.evaluateSurface(position);
+        //console.warn("initial value", value);
 
         for(var i=1; i<max_steps; i++)
         {            
@@ -204,6 +210,8 @@ class Streamline {
 
         if(found_outside){
             this.bisectSurface(pos_inside, pos_outside, intersection_position);
+        }else{
+            //console.warn("did not find outside");
         }
         
         //console.warn("build intersection_position", intersection_position);
@@ -233,6 +241,7 @@ class Streamline {
         
         vec3.subtract(difference, next_position_data.position, current_position_data.position);
         var segment_length = vec3.length(difference);
+        //console.warn("segment length", segment_length);
         next_position_data.arc_length = current_position_data.arc_length + segment_length;
         //next_position_data.t = current_position_data.t + step_size;
         this.arc_length = next_position_data.arc_length;
@@ -550,6 +559,8 @@ class MultipleReturnsStreamline {
 
         //calculate initial streamline with new parameters
         var streamline = this.list_streamlines[index];
+        console.warn("------");
+        console.warn("index", 0)
         streamline.recalculate(x, y, z, dir_x, dir_y, dir_z, energy);
         number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
@@ -558,6 +569,8 @@ class MultipleReturnsStreamline {
         //calculate additional streamlines starting from previous end point
         while (number_of_intersections > 0) {
             index += 1;
+            console.warn("------");
+            console.warn("index", index)
             var previous = this.list_streamlines[index - 1];
             if (!previous.success) {
                 break;

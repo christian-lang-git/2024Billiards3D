@@ -55,9 +55,9 @@ class SurfaceCustom extends SurfaceBase{
         var c = 1.5;
 
         //set to 1 for torus
-        //a = 1;
-        //b = 1;
-        //c = 1;
+        a = 1;
+        b = 1;
+        c = 1;
 
         var x = pos[0];
         var y = pos[1];
