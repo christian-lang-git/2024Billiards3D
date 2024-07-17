@@ -10,7 +10,6 @@ import { OffscreenRendererFlowMap } from "./offscreen_renderer_flow_map";
 import { OffscreenRendererFTLE } from "./offscreen_renderer_ftle";
 import { OffscreenRendererGravitationalForce} from "./offscreen_renderer_gravitational_force";
 import { TextureRenderer } from "@/components/threejs/texture_renderer";
-import { StreamlineGenerator } from "@/components/threejs/streamline_generator";
 import { SceneWrapperVisualization } from "@/components/threejs/sceneWrapperVisualization";
 
 import { ColorMaps } from "@/components/colormaps/colormaps"

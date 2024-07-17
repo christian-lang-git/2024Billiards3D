@@ -1,3 +1,5 @@
+import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
+
 export function clamp(value, minValue, maxValue) {
     return Math.max(minValue, Math.min(value, maxValue));
 }
@@ -337,4 +339,22 @@ export const marchingOBJ = {
         0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+}
+
+export function computeOrthogonalVector(orth, dir) {
+
+    //two arbitrary vectors a and b
+    var a = vec3.fromValues(1, 0, 0);
+    var b = vec3.fromValues(0, 1, 0);
+
+    //compute cross product of dir and a
+    vec3.cross(orth, dir, a);
+
+    //check if dir is parallel to a
+    if (vec3.sqrLen(orth) === 0) {
+        //use vector b instead
+        vec3.cross(orth, dir, b);
+    }
+
+    vec3.normalize(orth, orth);
 }

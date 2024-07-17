@@ -11,7 +11,6 @@ import { OffscreenRendererFTLE } from "./offscreen_renderer_ftle";
 import { OffscreenRendererGravitationalForce} from "./offscreen_renderer_gravitational_force";
 import { TextureRendererPlane } from "@/components/threejs/texture_renderer_plane";
 import { TextureRendererSphere } from "@/components/threejs/texture_renderer_sphere";
-import { StreamlineGenerator } from "@/components/threejs/streamline_generator";
 import { SceneWrapperVisualization } from "@/components/threejs/sceneWrapperVisualization";
 
 import { ColorMaps } from "@/components/colormaps/colormaps"

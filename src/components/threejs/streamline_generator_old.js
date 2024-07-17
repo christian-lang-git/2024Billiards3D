@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
-import { computeOrthogonalVector } from "@/components/utility/utility";
 
 class PointData {
     constructor() {
@@ -23,7 +22,6 @@ class Streamline {
         this.scene = streamline_generator.scene;
         this.multi = multi;
 
-        this.number_of_allocated_points = 0;
         this.list_point_data = [];
         this.path = null;
         this.signum = 1;
@@ -72,11 +70,11 @@ class Streamline {
     }
     */
 
-    recalculate(number_of_intersections, x, y, z, dir_x, dir_y, dir_z, energy) {
+    recalculate(x, y, z, dir_x, dir_y, dir_z, energy) {
         this.setSeedPosition(vec3.fromValues(x, y, z));
         this.setSeedDirection(vec3.fromValues(dir_x, dir_y, dir_z));
         this.updateSeedVelocity();
-        this.calculate(number_of_intersections);    
+        this.calculate();    
     }
 
     recalculateFromOther(other){
@@ -219,12 +217,7 @@ class Streamline {
         //console.warn("build intersection_position", intersection_position);
     }
 
-    calculate(number_of_intersections){
-        var new_number_of_allocated_points = number_of_intersections + 1;
-        if(this.number_of_allocated_points != new_number_of_allocated_points){
-            this.number_of_allocated_points = new_number_of_allocated_points;
-            console.warn("NEW NUMBER OF POINTS", new_number_of_allocated_points);
-        }
+    calculate(){
         this.list_point_data = [];
         this.arc_length = 0;
         this.t = 0;
@@ -237,252 +230,210 @@ class Streamline {
         vec3.copy(current_position_data.direction, this.seed_direction_normalized);
         this.list_point_data.push(current_position_data);
 
-        for(var i=1; i<this.number_of_allocated_points; i++){
-            var current_position_data = this.list_point_data[i-1];
-            
-            //intersection --> next position
+        //intersection
+        var next_position_data = new PointData();
+        this.list_point_data.push(next_position_data);
+        this.findIntersection(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);
+
+        //console.warn("build this.seed_position", this.seed_position);
+        //console.warn("build next_position_data", next_position_data);
+        //console.warn("build this.list_point_data", this.list_point_data);
+        
+        vec3.subtract(difference, next_position_data.position, current_position_data.position);
+        var segment_length = vec3.length(difference);
+        //console.warn("segment length", segment_length);
+        next_position_data.arc_length = current_position_data.arc_length + segment_length;
+        //next_position_data.t = current_position_data.t + step_size;
+        this.arc_length = next_position_data.arc_length;
+
+        //reflection
+        //this.evaluateGradient(next_position_data.position, next_position_data.direction);
+        //vec3.normalize(next_position_data.direction, next_position_data.direction);
+        //vec3.negate(next_position_data.direction, next_position_data.direction);
+        
+        
+        
+        this.simulationParameters.evaluateGradient(next_position_data.position, normal);
+        vec3.normalize(normal, normal);
+        //vec3.negate(normal, normal);
+
+        this.reflect(current_position_data.direction, normal, next_position_data.direction);  
+         
+    }
+
+
+    //unused but kept in case we need rk4 later
+    /*
+    calculateRK4() {
+        this.list_point_data = [];
+        this.arc_length = 0;
+        this.t = 0;
+        this.success = false;
+
+        //initial position
+        var current_position_data = new PointData();
+        vec3.copy(current_position_data.position, this.seed_position);
+        vec3.copy(current_position_data.direction, this.seed_velocity);
+        this.list_point_data.push(current_position_data);
+
+        //debug: hamiltonian
+        var H = this.calculateHamiltonian(this.seed_position[0], this.seed_position[1], this.seed_position[2],
+            this.seed_velocity[0], this.seed_velocity[1], this.seed_velocity[2], this.simulationParameters.mu, this.simulationParameters.angular_velocity);
+        console.warn("debug hamiltonian start:", H);
+        this.hamiltonian_smallest = H;
+        this.hamiltonian_largest = H;
+
+        //debug: Ueff
+        var Ueff = this.calculateUeff(this.seed_position[0], this.seed_position[1], this.seed_position[2], this.simulationParameters.mu);
+        console.warn("debug Ueff start:", Ueff);
+
+        var difference = vec3.create();//current - previous positions, calculated from k values
+        var k1 = vec3.create();
+        var k2 = vec3.create();
+        var k3 = vec3.create();
+        var k4 = vec3.create();
+        var k1_2 = vec3.create();// k1_2 = k1/2
+        var k2_2 = vec3.create();// k2_2 = k2/2
+        var k1_6 = vec3.create();// k1_6 = k1/6
+        var k2_3 = vec3.create();// k2_3 = k2/3
+        var k3_3 = vec3.create();// k3_3 = k3/3
+        var k4_6 = vec3.create();// k4_6 = k4/6
+        var current_plus_k1_2 = vec3.create();
+        var current_plus_k2_2 = vec3.create();
+        var current_plus_k3 = vec3.create();
+
+        var difference_l = vec3.create();//current - previous positions, calculated from k values
+        var l1 = vec3.create();
+        var l2 = vec3.create();
+        var l3 = vec3.create();
+        var l4 = vec3.create();
+        var l1_2 = vec3.create();// k1_2 = k1/2
+        var l2_2 = vec3.create();// k2_2 = k2/2
+        var l1_6 = vec3.create();// k1_6 = k1/6
+        var l2_3 = vec3.create();// k2_3 = k2/3
+        var l3_3 = vec3.create();// k3_3 = k3/3
+        var l4_6 = vec3.create();// k4_6 = k4/6
+        var current_plus_l1_2 = vec3.create();
+        var current_plus_l2_2 = vec3.create();
+        var current_plus_l3 = vec3.create();
+
+        var max_steps = this.streamline_generator.simulationParameters.max_steps;
+        var step_size = this.streamline_generator.simulationParameters.step_size;
+        var number_of_intersections = this.streamline_generator.simulationParameters.number_of_intersections;
+        var isOnPositiveZ = this.seed_direction[2] >= 0;
+
+        for (var i = 0; i < max_steps; i++) {
+            //reference to the current position (result from last iteration)
+            var current_position = current_position_data.position;
+            var current_direction = current_position_data.direction;
+
+            //the new point to be calculated
             var next_position_data = new PointData();
             this.list_point_data.push(next_position_data);
-            this.findIntersection(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);        
-            
-            //reflect --> next direction
-            this.simulationParameters.evaluateGradient(next_position_data.position, normal);
-            vec3.normalize(normal, normal);
-            this.reflect(current_position_data.direction, normal, next_position_data.direction);  
 
-            //arc length
-            vec3.subtract(difference, next_position_data.position, current_position_data.position);
+
+
+            //---------- START OF RK4 ----------
+            //CALCULATE: vec3 k1 = step_size * f(current_position, signum);
+            vec3.scale(k1, this.streamline_generator.f_position(current_position, current_direction, this.signum), step_size);
+            vec3.scale(l1, this.streamline_generator.f_direction(current_position, current_direction, this.signum), step_size);
+
+            //CALCULATE: vec3 k2 = step_size * f(current_position + k1/2, signum);
+            vec3.scale(k1_2, k1, 1 / 2);// k1_2 = k1/2      
+            vec3.scale(l1_2, l1, 1 / 2);// k1_2 = k1/2      
+            vec3.add(current_plus_k1_2, current_position, k1_2);// current_position + k1/2         
+            vec3.add(current_plus_l1_2, current_direction, l1_2);// current_position + k1/2       
+            vec3.scale(k2, this.streamline_generator.f_position(current_plus_k1_2, current_plus_l1_2, this.signum), step_size);
+            vec3.scale(l2, this.streamline_generator.f_direction(current_plus_k1_2, current_plus_l1_2, this.signum), step_size);
+
+            //CALCULATE: vec3 k3 = step_size * f(current_position + k2/2, signum);
+            vec3.scale(k2_2, k2, 1 / 2);// k2_2 = k2/2
+            vec3.scale(l2_2, l2, 1 / 2);// k2_2 = k2/2
+            vec3.add(current_plus_k2_2, current_position, k2_2);// current_position + k2/2   
+            vec3.add(current_plus_l2_2, current_direction, k2_2);// current_position + k2/2        
+            vec3.scale(k3, this.streamline_generator.f_position(current_plus_k2_2, current_plus_l2_2, this.signum), step_size);
+            vec3.scale(l3, this.streamline_generator.f_direction(current_plus_k2_2, current_plus_l2_2, this.signum), step_size);
+
+            //CALCULATE: vec3 k4 = step_size * f(current_position + k3, signum);
+            vec3.add(current_plus_k3, current_position, k3);// current_position + k3     
+            vec3.add(current_plus_l3, current_direction, l3);// current_position + k3       
+            vec3.scale(k4, this.streamline_generator.f_position(current_plus_k3, current_plus_l3, this.signum), step_size);
+            vec3.scale(l4, this.streamline_generator.f_direction(current_plus_k3, current_plus_l3, this.signum), step_size);
+
+            //CALCULATE: vec3 next_position = current_position + k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6;
+            vec3.scale(k1_6, k1, 1 / 6);// k1_6 = k1/6
+            vec3.scale(l1_6, l1, 1 / 6);// k1_6 = k1/6
+            vec3.scale(k2_3, k2, 1 / 3);// k2_3 = k2/3
+            vec3.scale(l2_3, l2, 1 / 3);// k2_3 = k2/3
+            vec3.scale(k3_3, k3, 1 / 3);// k3_3 = k3/3
+            vec3.scale(l3_3, l3, 1 / 3);// k3_3 = k3/3
+            vec3.scale(k4_6, k4, 1 / 6);// k4_6 = k4/6
+            vec3.scale(l4_6, l4, 1 / 6);// k4_6 = k4/6
+
+            vec3.copy(difference, k1_6);
+            vec3.copy(difference_l, l1_6);
+            vec3.add(difference, difference, k2_3);// k1 / 6 + k2 / 3
+            vec3.add(difference_l, difference_l, l2_3);// k1 / 6 + k2 / 3
+            vec3.add(difference, difference, k3_3);// k1 / 6 + k2 / 3 + k3 / 3
+            vec3.add(difference_l, difference_l, l3_3);// k1 / 6 + k2 / 3 + k3 / 3
+            vec3.add(difference, difference, k4_6);// k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6
+            vec3.add(difference_l, difference_l, l4_6);// k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6
+
+            //vec3.add(difference, difference, k4_6);// next_position = current_position + k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6;
+            //vec3.add(difference_l, difference_l, l4_6);// next_position = current_position + k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6;
+            vec3.add(next_position_data.position, current_position, difference);
+            vec3.add(next_position_data.direction, current_direction, difference_l);
+
+            //console.log(next_position_data.position);
             var segment_length = vec3.length(difference);
             next_position_data.arc_length = current_position_data.arc_length + segment_length;
-            this.arc_length = next_position_data.arc_length; 
-        }    
-    }
+            next_position_data.t = current_position_data.t + step_size;
 
-    buildCircle(num_sides){       
-        console.warn("buildCircle")
-        var r = this.simulationParameters.tube_radius;
-        this.circle_x = new Float32Array(num_sides);
-        this.circle_y = new Float32Array(num_sides);
-        for(var i=0; i<num_sides; i++){
-            const angle = 2 * Math.PI * (i / num_sides);
-            this.circle_x[i] = Math.cos(angle) * r;
-            this.circle_y[i] = Math.sin(angle) * r;
+            this.arc_length = next_position_data.arc_length;
+
+
+            //debug: hamiltonian
+            var H = this.calculateHamiltonian(current_position_data.position[0], current_position_data.position[1], current_position_data.position[2],
+                current_position_data.direction[0], current_position_data.direction[1], current_position_data.direction[2],
+                this.simulationParameters.mu, this.simulationParameters.angular_velocity);
+            this.hamiltonian_smallest = Math.min(H, this.hamiltonian_smallest);
+            this.hamiltonian_largest = Math.max(H, this.hamiltonian_largest);
+
+            //check if there is a plane intersection
+            if (isOnPositiveZ) {
+                //we are currently at z > 0
+                if (next_position_data.position[2] < 0) {
+                    isOnPositiveZ = false;
+                    number_of_intersections -= 1;
+                    console.warn("multi a", this.multi);
+                    this.multi.list_point_data_returns.push(current_position_data);
+                    this.success = true;
+                    break;//stop early
+                }
+            } else {
+                //we are currently at z < 0
+                if (next_position_data.position[2] > 0) {
+                    isOnPositiveZ = true;
+                    number_of_intersections -= 1;
+                    console.warn("multi b", this.multi);
+                    this.multi.list_point_data_returns.push(current_position_data);
+                    this.success = true;
+                    break;//stop early
+                }
+            }
+
+            //---------- END OF RK4 ----------
+            //prepare next iteration
+
+            current_position_data = next_position_data;
         }
-    }
-
-    writeCircle(array, circle_index, num_sides, point, axis_1, axis_2){
-        console.warn("axis_1, axis_2",axis_1, axis_2)
-        for(var i=0; i<num_sides; i++){
-            var index = num_sides*circle_index*3 + 3*i;
-            array[index+0] = point[0] + axis_1[0] * this.circle_x[i] + axis_2[0] * this.circle_y[i];
-            array[index+1] = point[1] + axis_1[1] * this.circle_x[i] + axis_2[1] * this.circle_y[i];
-            array[index+2] = point[2] + axis_1[2] * this.circle_x[i] + axis_2[2] * this.circle_y[i];
-            
-            /*
-            //debugging
-            if(i==0){
-                array[index+0] = point[0];
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==1){
-                array[index+0] = point[0] + 0.05;
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==2){
-                array[index+0] = point[0];
-                array[index+1] = point[1] + 0.05;
-                array[index+2] = point[2];
-            }
-
-            if(i==0){
-                array[index+0] = point[0];
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==1){
-                array[index+0] = point[0] + axis_1[0];
-                array[index+1] = point[1] + axis_1[1];
-                array[index+2] = point[2] + axis_1[2];
-            }
-            if(i==2){
-                array[index+0] = point[0] + axis_2[0];
-                array[index+1] = point[1] + axis_2[1];
-                array[index+2] = point[2] + axis_2[2];
-            }
-
-            /*
-            array[index+0] = point[0] + this.circle_x[i];
-            array[index+1] = point[1] + this.circle_y[i];
-            array[index+2] = point[2];
-            */
-
-        }
-        /*
-        //v0
-        array[0] = 0.5;
-        array[1] = 0.5;
-        array[2] = 0.5;
-
-        //v1
-        array[3] = 1.0;
-        array[4] = 0.5;
-        array[5] = 0.5;
-
-        //v2
-        array[6] = 1.0;
-        array[7] = 1.0;
-        array[8] = 0.5;
-        */
-    }
-
-    build() {     
         
-        var num_sides = this.simulationParameters.tube_num_sides;
-        var num_vertices = 2 * num_sides * (this.number_of_allocated_points-1);
-        var num_triangles = num_vertices;
-        this.buildCircle(num_sides);
-
-        console.warn("build mesh")
-        this.geometry = new THREE.BufferGeometry();
-        const vertices = new Float32Array(num_vertices * 3);
-        const indices = Array(num_triangles * 3);
-
-        for (var point_index = 0; point_index < this.list_point_data.length-1; point_index++) {
-            var point_data_A = this.list_point_data[point_index];
-            var point_data_B = this.list_point_data[point_index+1];
-            var axis_1 = vec3.create();
-            var axis_2 = vec3.create();
-            var dir = vec3.create();   
-            //vec3.normalize(dir, dir); 
-            vec3.subtract(dir, point_data_B.position, point_data_A.position);
-            computeOrthogonalVector(axis_1, dir );
-            vec3.cross(axis_2, dir, axis_1 );
-            vec3.normalize(axis_2, axis_2);
-
-            var array = vertices;
-            var circle_index = 2*point_index;
-            var point = point_data_A.position;
-            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
-            
-            circle_index += 1;
-            var point = point_data_B.position;
-            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
-        }
-
-        /*
-        //v0
-        vertices[0] = 0.5;
-        vertices[1] = 0.5;
-        vertices[2] = 0.5;
-
-        //v1
-        vertices[3] = 1.0;
-        vertices[4] = 0.5;
-        vertices[5] = 0.5;
-
-        //v2
-        vertices[6] = 1.0;
-        vertices[7] = 1.0;
-        vertices[8] = 0.5;
-
-        //v3
-        vertices[9] = 0.5;
-        vertices[10] = 1.0;
-        vertices[11] = 0.5;
+        console.warn("debug hamiltonian smallest:", this.hamiltonian_smallest);
+        console.warn("debug hamiltonian largest:", this.hamiltonian_largest);
+    }
         */
 
-        
-        for(var i=0; i<this.number_of_allocated_points-1; i++){
-            var index = i * 2 * num_sides * 3;
-            var face_offset = 0;
-
-            //face 0
-            //triangle 1
-            indices[index+0] = 0 + i * 2 * num_sides;
-            indices[index+1] = 1 + i * 2 * num_sides;
-            indices[index+2] = num_sides + i * 2 * num_sides;
-
-            //triangle 2
-            indices[index+3] = 1 + i * 2 * num_sides;
-            indices[index+4] = num_sides + 1 + i * 2 * num_sides;
-            indices[index+5] = num_sides + i * 2 * num_sides;
-            
-            //other faces
-            for( var j=1; j<num_sides-1; j++){
-                face_offset += 6
-                indices[index+face_offset+0] = indices[index+face_offset+0-6]+1;
-                indices[index+face_offset+1] = indices[index+face_offset+1-6]+1;
-                indices[index+face_offset+2] = indices[index+face_offset+2-6]+1;
-
-                indices[index+face_offset+3] = indices[index+face_offset+3-6]+1;
-                indices[index+face_offset+4] = indices[index+face_offset+4-6]+1;
-                indices[index+face_offset+5] = indices[index+face_offset+5-6]+1;
-            }
-
-            
-            //last face
-            face_offset += 6
-            indices[index+face_offset+0] = num_sides-1 + i * 2 * num_sides;
-            indices[index+face_offset+1] = 0 + i * 2 * num_sides;
-            indices[index+face_offset+2] = 2*num_sides-1 + i * 2 * num_sides;
-
-            indices[index+face_offset+3] = 0 + i * 2 * num_sides;
-            indices[index+face_offset+4] = num_sides + i * 2 * num_sides;
-            indices[index+face_offset+5] = 2*num_sides-1 + i * 2 * num_sides;
-                
-        }
-        
-        /*
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-
-        
-
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-
-        indices[3] = 1;
-        indices[4] = 2;
-        indices[5] = 3;
-
-        indices[6] = 2;
-        indices[7] = 3;
-        indices[8] = 4;
-
-        indices[9] = 3;
-        indices[10] = 4;
-        indices[11] = 5;
-
-        indices[12] = 4;
-        indices[13] = 5;
-        indices[14] = 0;
-
-        indices[15] = 5;
-        indices[16] = 0;
-        indices[17]= 1;
-
-        for(var i = 18; i<36; i++ ){            
-            indices[i] = indices[i-18]+6;
-        }
-        */
-
-        console.warn(vertices);
-
-
-        this.geometry.setIndex( indices );
-        this.geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-        this.geometry.computeVertexNormals();
-
-        var tube_color = this.streamline_generator.simulationParameters.tube_color;
-        var tube_roughness = this.streamline_generator.simulationParameters.tube_roughness;
-        var tube_emissive_intensity = this.streamline_generator.simulationParameters.tube_emissive_intensity;
-        this.material = new THREE.MeshStandardMaterial({ color: tube_color, roughness: tube_roughness, emissive: tube_color, emissiveIntensity: tube_emissive_intensity });
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-        /*
+    build() {
         this.path = new THREE.CurvePath();
         //console.log(this.list_point_data);
         for (var point_index = 1; point_index < this.list_point_data.length; point_index++) {
@@ -514,7 +465,6 @@ class Streamline {
         var tube_emissive_intensity = this.streamline_generator.simulationParameters.tube_emissive_intensity;
         this.material = new THREE.MeshStandardMaterial({ color: tube_color, roughness: tube_roughness, emissive: tube_color, emissiveIntensity: tube_emissive_intensity });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        */
     }
 
     calculateHamiltonian(x, y, z, px, py, pz, mu, n){
@@ -611,13 +561,12 @@ class MultipleReturnsStreamline {
         var streamline = this.list_streamlines[index];
         //console.warn("------");
         //console.warn("index", 0)
-        streamline.recalculate(number_of_intersections, x, y, z, dir_x, dir_y, dir_z, energy);
-        //number_of_intersections -= 1;
+        streamline.recalculate(x, y, z, dir_x, dir_y, dir_z, energy);
+        number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
         this.number_computed = 1;
 
         //calculate additional streamlines starting from previous end point
-        /*
         while (number_of_intersections > 0) {
             index += 1;
             //console.warn("------");
@@ -637,7 +586,6 @@ class MultipleReturnsStreamline {
             this.number_computed += 1;
             this.number_success = streamline.success ? this.number_success+1 : this.number_success;
         }
-        */
 
         this.has_data = true;
     }
