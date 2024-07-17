@@ -204,7 +204,7 @@ class ThreeContainer extends Component {
     }
 
     writeSeedDataToUI() {
-        console.warn("writeSeedDataToUI", this.sceneWrapper.simulationParameters.seed_position_x, this.sceneWrapper.simulationParameters.seed_position_y);
+        //console.warn("writeSeedDataToUI", this.sceneWrapper.simulationParameters.seed_position_x, this.sceneWrapper.simulationParameters.seed_position_y);
         const { uiState, setUiState } = this.context;
         //setUiState({ ["UI_STATE_DATA_PHYSICS_SEED_DIRECTION_X"]: this.sceneWrapper.simulationParameters.seed_direction_x });
         //setUiState({ ["UI_STATE_DATA_PHYSICS_SEED_DIRECTION_Y"]: this.sceneWrapper.simulationParameters.seed_direction_y });

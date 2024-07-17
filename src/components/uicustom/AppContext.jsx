@@ -77,7 +77,7 @@ export const AppProvider = ({ children }) => {
     const value = {
         uiState,
         setUiState: (newState) => {
-            console.warn("update state:", newState);
+            //console.warn("update state:", newState);
             setUiState({ ...uiState, ...newState })
         }
     };

@@ -559,8 +559,8 @@ class MultipleReturnsStreamline {
 
         //calculate initial streamline with new parameters
         var streamline = this.list_streamlines[index];
-        console.warn("------");
-        console.warn("index", 0)
+        //console.warn("------");
+        //console.warn("index", 0)
         streamline.recalculate(x, y, z, dir_x, dir_y, dir_z, energy);
         number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
@@ -569,8 +569,8 @@ class MultipleReturnsStreamline {
         //calculate additional streamlines starting from previous end point
         while (number_of_intersections > 0) {
             index += 1;
-            console.warn("------");
-            console.warn("index", index)
+            //console.warn("------");
+            //console.warn("index", index)
             var previous = this.list_streamlines[index - 1];
             if (!previous.success) {
                 break;
@@ -625,22 +625,22 @@ class StreamlineGenerator {
     }
 
     recalculateMulti(index, x, y, z, dir_x, dir_y, dir_z, energy) {
-        console.warn("### recalculateMulti");
+        //console.warn("### recalculateMulti");
         this.list_multi[index].recalculate(x, y, z, dir_x, dir_y, dir_z, energy);
     }
 
     recalculateMultiKeepPosition(index) {
-        console.warn("### recalculateMultiAtLastPosition");
+        //console.warn("### recalculateMultiAtLastPosition");
         this.list_multi[index].recalculateKeepPosition();
     }
 
     recalculateMultiWithLastParameters(index) {
-        console.warn("### recalculateMultiWithLastParameters");
+        //console.warn("### recalculateMultiWithLastParameters");
         this.list_multi[index].recalculateWithLastParameters();
     }
 
     updateMultiModel(index) {
-        console.warn("### updateMultiModel");
+        //console.warn("### updateMultiModel");
         this.list_multi[index].updateStreamlineModels();
     }
 

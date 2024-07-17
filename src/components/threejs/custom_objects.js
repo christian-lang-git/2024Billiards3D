@@ -155,11 +155,11 @@ class SpherelikeGrid{
     updateGrid(subdivide, pixels_x, pixels_y){
         var no_change = subdivide == this.subdivide && pixels_x == this.pixels_x && pixels_y == this.pixels_y;
         if(no_change){
-            console.warn("SpherelikeGrid updateGrid no change");
+            //console.warn("SpherelikeGrid updateGrid no change");
             return;
         }
 
-        console.warn("SpherelikeGrid updateGrid", pixels_x, pixels_y);
+        //console.warn("SpherelikeGrid updateGrid", pixels_x, pixels_y);
 
         this.subdivide = subdivide;//if true, one additional vertex per cell is added
         this.pixels_x = pixels_x;
@@ -297,10 +297,10 @@ class MarchingCubesMesh{
     build(){
         this.UpdateParametersCheckBuildRequired();
         if(this.noParameterChange){
-            console.warn("implicit surface build skipped");
+            //console.warn("implicit surface build skipped");
             return;
         }else{
-            console.warn("implicit surface build");
+            //console.warn("implicit surface build");
             this.simulationParameters.noSurfaceParameterChange = true;
         }
 

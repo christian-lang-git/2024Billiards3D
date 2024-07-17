@@ -239,7 +239,7 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
     }
 
     OnSeedPositionChanged(){
-        console.warn("OnSeedPositionChanged");
+        //console.warn("OnSeedPositionChanged");
         this.seed_changed = true;
     }
 

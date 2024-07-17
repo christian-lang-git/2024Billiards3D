@@ -101,12 +101,12 @@ class ThreeContainerAux extends ThreeContainer {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     handleEventDownload = () => {
-        console.warn("handleEventDownload");
+        //console.warn("handleEventDownload");
         this.saveImage();
     }
 
     handleEventFullUpdate = () => {
-        console.warn("handleEventFullUpdate");
+        //console.warn("handleEventFullUpdate");
         this.updateParametersData();
         this.updateParametersRendering();
         this.computeStuff();
@@ -114,25 +114,25 @@ class ThreeContainerAux extends ThreeContainer {
     }
 
     handleEventDataUpdate = () => {
-        console.warn("aux handleEventDataUpdate");
+        //console.warn("aux handleEventDataUpdate");
         this.updateParametersData();
         this.computeStuff();
         this.updateVisualElements();
     }
 
     handleEventRenderingUpdate = () => {
-        console.log("handleEventRenderingUpdate");
+        //console.log("handleEventRenderingUpdate");
         this.updateParametersRendering();
         this.updateVisualElements();
     }
 
     handleEventAlignCamera = () => {
-        console.log("handleEventAlignCamera");
+        //console.log("handleEventAlignCamera");
         this.alignCameraWithDomain();
     }
 
     handleEventSelectChanged = (event) => {
-        console.log("handleEventSelectChanged");
+        //console.log("handleEventSelectChanged");
         switch(event.key){
             case "UI_STATE_AUX_CONTENT":
                 this.switchToScene(event.value);
@@ -147,7 +147,7 @@ class ThreeContainerAux extends ThreeContainer {
     }
 
     handleEventSeedPositionChanged = () => {
-        console.log("handleEventSeedPositionChanged");
+        //console.log("handleEventSeedPositionChanged");
         this.sceneWrapper.OnSeedPositionChanged();
         this.writeSeedDataToUI();
     }

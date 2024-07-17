@@ -531,7 +531,7 @@ class SceneWrapperVisualization {
     }
 
     recalculateStreamlineFromSimulationParameters(){
-        console.warn("recalculateStreamlineFromSimulationParameters")
+        //console.warn("recalculateStreamlineFromSimulationParameters")
         var pos_x = this.simulationParameters.seed_position_x;
         var pos_y = this.simulationParameters.seed_position_y;
         var pos_z = this.simulationParameters.seed_position_z;
@@ -539,7 +539,7 @@ class SceneWrapperVisualization {
         var dir_y = this.simulationParameters.seed_direction_y;
         var dir_z = this.simulationParameters.seed_direction_z;
         var energy = this.simulationParameters.seed_energy;   
-        console.warn("dir", dir_x, dir_y, dir_z)         
+        //console.warn("dir", dir_x, dir_y, dir_z)         
         this.streamlineGenerator.recalculateMulti(0, pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, energy);
         this.streamlineGenerator.updateMultiModel(0);
         if(this.local_coordinates)
