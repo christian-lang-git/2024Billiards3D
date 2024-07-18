@@ -614,8 +614,32 @@ class LocalCoordinates{
         this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
         this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
         this.axis3 = new TubeVector(scene, simulationParameters, 0x0000ff);
+        this.build_spheres();
+    }
 
-        this.axis1.build();
+    build_spheres(){
+        var radius = 1.0;
+        var cyan = 0x00ffff;
+        var magenta = 0xff00ff;
+        var yellow = 0xfbbc05;
+        this.sphere_geometry = new THREE.SphereGeometry(radius);
+        this.sphere_material = new THREE.MeshStandardMaterial({ color: magenta });
+        
+        this.sphere_tangent_a_forward_mesh = new THREE.Mesh(this.sphere_geometry, this.sphere_material);
+        this.sphere_tangent_a_forward_mesh.position.set(0, 0, 10000);
+        this.scene.add(this.sphere_tangent_a_forward_mesh);
+
+        this.sphere_tangent_a_backward_mesh = new THREE.Mesh(this.sphere_geometry, this.sphere_material);
+        this.sphere_tangent_a_backward_mesh.position.set(0, 0, 10000);
+        this.scene.add(this.sphere_tangent_a_backward_mesh);
+
+        this.sphere_tangent_b_forward_mesh = new THREE.Mesh(this.sphere_geometry, this.sphere_material);
+        this.sphere_tangent_b_forward_mesh.position.set(0, 0, 10000);
+        this.scene.add(this.sphere_tangent_b_forward_mesh);
+
+        this.sphere_tangent_b_backward_mesh = new THREE.Mesh(this.sphere_geometry, this.sphere_material);
+        this.sphere_tangent_b_backward_mesh.position.set(0, 0, 10000);
+        this.scene.add(this.sphere_tangent_b_backward_mesh);
     }
 
     update(pos_x, pos_y, pos_z){
