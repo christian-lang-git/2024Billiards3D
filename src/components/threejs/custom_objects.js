@@ -610,6 +610,10 @@ class LocalCoordinates{
         this.normal_negated = vec3.fromValues(0,0,0);
         this.tangent_a = vec3.fromValues(0,0,0);
         this.tangent_b = vec3.fromValues(0,0,0);
+        this.point_tangent_a_forward = vec3.fromValues(0,0,0);
+        this.point_tangent_a_backward = vec3.fromValues(0,0,0);
+        this.point_tangent_b_forward = vec3.fromValues(0,0,0);
+        this.point_tangent_b_backward = vec3.fromValues(0,0,0);
         this.axis0 = new TubeVector(scene, simulationParameters, 0xffff00);
         this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
         this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
@@ -618,7 +622,7 @@ class LocalCoordinates{
     }
 
     build_spheres(){
-        var radius = 1.0;
+        var radius = 0.01;
         var cyan = 0x00ffff;
         var magenta = 0xff00ff;
         var yellow = 0xfbbc05;
@@ -643,7 +647,12 @@ class LocalCoordinates{
     }
 
     update(pos_x, pos_y, pos_z){
-        //compute axes
+        this.updateData(pos_x, pos_y, pos_z);
+        this.updateAxes(pos_x, pos_y, pos_z);
+        this.updateSpheres(pos_x, pos_y, pos_z);
+    }
+
+    updateData(pos_x, pos_y, pos_z){
         vec3.set(this.position, pos_x, pos_y, pos_z);
         this.simulationParameters.evaluateGradient(this.position, this.normal);
         vec3.normalize(this.normal, this.normal);
@@ -651,6 +660,13 @@ class LocalCoordinates{
         this.simulationParameters.computeTangentA(this.position, this.normal, this.tangent_a);        
         vec3.cross(this.tangent_b, this.normal_negated, this.tangent_a);
 
+        vec3.scaleAndAdd(this.point_tangent_a_forward, this.position, this.tangent_a, 0.1);
+        vec3.scaleAndAdd(this.point_tangent_a_backward, this.position, this.tangent_a, -0.1);
+        vec3.scaleAndAdd(this.point_tangent_b_forward, this.position, this.tangent_b, 0.1);
+        vec3.scaleAndAdd(this.point_tangent_b_backward, this.position, this.tangent_b, -0.1);
+    }
+
+    updateAxes(pos_x, pos_y, pos_z){
         //axis0 (yellow): normal
         var dir_x = this.normal[0];
         var dir_y = this.normal[1];
@@ -678,6 +694,28 @@ class LocalCoordinates{
         var dir_z = this.normal_negated[2];
         this.axis3.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
         this.axis3.build();
+    }
+
+    updateSpheres(pos_x, pos_y, pos_z){
+        var x = this.point_tangent_a_forward[0];
+        var y = this.point_tangent_a_forward[1];
+        var z = this.point_tangent_a_forward[2];
+        this.sphere_tangent_a_forward_mesh.position.set(x, y, z);
+
+        var x = this.point_tangent_a_backward[0];
+        var y = this.point_tangent_a_backward[1];
+        var z = this.point_tangent_a_backward[2];
+        this.sphere_tangent_a_backward_mesh.position.set(x, y, z);
+
+        var x = this.point_tangent_b_forward[0];
+        var y = this.point_tangent_b_forward[1];
+        var z = this.point_tangent_b_forward[2];
+        this.sphere_tangent_b_forward_mesh.position.set(x, y, z);
+
+        var x = this.point_tangent_b_backward[0];
+        var y = this.point_tangent_b_backward[1];
+        var z = this.point_tangent_b_backward[2];
+        this.sphere_tangent_b_backward_mesh.position.set(x, y, z);
     }
 }
 
