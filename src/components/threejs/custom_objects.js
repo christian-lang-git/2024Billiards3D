@@ -607,7 +607,10 @@ class LocalCoordinates{
         this.simulationParameters = simulationParameters;
         this.position = vec3.fromValues(0,0,0);
         this.normal = vec3.fromValues(0,0,0);
+        this.normal_negated = vec3.fromValues(0,0,0);
         this.tangent_a = vec3.fromValues(0,0,0);
+        this.tangent_b = vec3.fromValues(0,0,0);
+        this.axis0 = new TubeVector(scene, simulationParameters, 0xffff00);
         this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
         this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
         this.axis3 = new TubeVector(scene, simulationParameters, 0x0000ff);
@@ -616,21 +619,41 @@ class LocalCoordinates{
     }
 
     update(pos_x, pos_y, pos_z){
+        //compute axes
         vec3.set(this.position, pos_x, pos_y, pos_z);
         this.simulationParameters.evaluateGradient(this.position, this.normal);
         vec3.normalize(this.normal, this.normal);
+        vec3.negate(this.normal_negated, this.normal);
+        this.simulationParameters.computeTangentA(this.position, this.normal, this.tangent_a);        
+        vec3.cross(this.tangent_b, this.normal_negated, this.tangent_a);
+
+        //axis0 (yellow): normal
         var dir_x = this.normal[0];
         var dir_y = this.normal[1];
         var dir_z = this.normal[2];
-        this.axis1.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
-        this.axis1.build();
+        this.axis0.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
+        this.axis0.build();
 
-        this.simulationParameters.computeTangentA(this.position, this.normal, this.tangent_a);
+        //axis1 (red): tangent a
         var dir_x = this.tangent_a[0];
         var dir_y = this.tangent_a[1];
         var dir_z = this.tangent_a[2];
+        this.axis1.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
+        this.axis1.build();
+
+        //axis2 (green): tangent b
+        var dir_x = this.tangent_b[0];
+        var dir_y = this.tangent_b[1];
+        var dir_z = this.tangent_b[2];
         this.axis2.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
         this.axis2.build();
+
+        //axis3 (blue): normal negated
+        var dir_x = this.normal_negated[0];
+        var dir_y = this.normal_negated[1];
+        var dir_z = this.normal_negated[2];
+        this.axis3.setPosDir(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z);
+        this.axis3.build();
     }
 }
 
