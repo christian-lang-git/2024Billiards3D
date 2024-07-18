@@ -258,142 +258,48 @@ class Streamline {
         }    
     }
 
-    buildCircle(num_sides){       
-        console.warn("buildCircle")
-        var r = this.simulationParameters.tube_radius;
+    initialize_circle(num_sides, radius){    
+        var noChange = num_sides == this.last_num_sides && radius == this.last_radius;  
+        if(noChange){
+            //console.warn("initialize_circle skipped");
+            return;
+        }
+        console.warn("initialize_circle");
+        
         this.circle_x = new Float32Array(num_sides);
         this.circle_y = new Float32Array(num_sides);
         for(var i=0; i<num_sides; i++){
             const angle = 2 * Math.PI * (i / num_sides);
-            this.circle_x[i] = Math.cos(angle) * r;
-            this.circle_y[i] = Math.sin(angle) * r;
+            this.circle_x[i] = Math.cos(angle) * radius;
+            this.circle_y[i] = Math.sin(angle) * radius;
         }
     }
 
     writeCircle(array, circle_index, num_sides, point, axis_1, axis_2){
-        console.warn("axis_1, axis_2",axis_1, axis_2)
+        //console.warn("axis_1, axis_2",axis_1, axis_2)
         for(var i=0; i<num_sides; i++){
             var index = num_sides*circle_index*3 + 3*i;
             array[index+0] = point[0] + axis_1[0] * this.circle_x[i] + axis_2[0] * this.circle_y[i];
             array[index+1] = point[1] + axis_1[1] * this.circle_x[i] + axis_2[1] * this.circle_y[i];
-            array[index+2] = point[2] + axis_1[2] * this.circle_x[i] + axis_2[2] * this.circle_y[i];
-            
-            /*
-            //debugging
-            if(i==0){
-                array[index+0] = point[0];
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==1){
-                array[index+0] = point[0] + 0.05;
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==2){
-                array[index+0] = point[0];
-                array[index+1] = point[1] + 0.05;
-                array[index+2] = point[2];
-            }
-
-            if(i==0){
-                array[index+0] = point[0];
-                array[index+1] = point[1];
-                array[index+2] = point[2];
-            }
-            if(i==1){
-                array[index+0] = point[0] + axis_1[0];
-                array[index+1] = point[1] + axis_1[1];
-                array[index+2] = point[2] + axis_1[2];
-            }
-            if(i==2){
-                array[index+0] = point[0] + axis_2[0];
-                array[index+1] = point[1] + axis_2[1];
-                array[index+2] = point[2] + axis_2[2];
-            }
-
-            /*
-            array[index+0] = point[0] + this.circle_x[i];
-            array[index+1] = point[1] + this.circle_y[i];
-            array[index+2] = point[2];
-            */
-
+            array[index+2] = point[2] + axis_1[2] * this.circle_x[i] + axis_2[2] * this.circle_y[i];            
         }
-        /*
-        //v0
-        array[0] = 0.5;
-        array[1] = 0.5;
-        array[2] = 0.5;
-
-        //v1
-        array[3] = 1.0;
-        array[4] = 0.5;
-        array[5] = 0.5;
-
-        //v2
-        array[6] = 1.0;
-        array[7] = 1.0;
-        array[8] = 0.5;
-        */
     }
 
-    build() {     
-        
-        var num_sides = this.simulationParameters.tube_num_sides;
+    initialize_mesh(number_of_intersections, num_sides){
+        var noChange = num_sides == this.last_num_sides && number_of_intersections == this.last_number_of_intersections;
+        if(noChange){
+            //console.warn("initialize_mesh skipped");
+            return;
+        }
+        console.warn("initialize_mesh");
+
         var num_vertices = 2 * num_sides * (this.number_of_allocated_points-1);
         var num_triangles = num_vertices;
-        this.buildCircle(num_sides);
 
-        console.warn("build mesh")
         this.geometry = new THREE.BufferGeometry();
         const vertices = new Float32Array(num_vertices * 3);
         const indices = Array(num_triangles * 3);
 
-        for (var point_index = 0; point_index < this.list_point_data.length-1; point_index++) {
-            var point_data_A = this.list_point_data[point_index];
-            var point_data_B = this.list_point_data[point_index+1];
-            var axis_1 = vec3.create();
-            var axis_2 = vec3.create();
-            var dir = vec3.create();   
-            //vec3.normalize(dir, dir); 
-            vec3.subtract(dir, point_data_B.position, point_data_A.position);
-            computeOrthogonalVector(axis_1, dir );
-            vec3.cross(axis_2, dir, axis_1 );
-            vec3.normalize(axis_2, axis_2);
-
-            var array = vertices;
-            var circle_index = 2*point_index;
-            var point = point_data_A.position;
-            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
-            
-            circle_index += 1;
-            var point = point_data_B.position;
-            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
-        }
-
-        /*
-        //v0
-        vertices[0] = 0.5;
-        vertices[1] = 0.5;
-        vertices[2] = 0.5;
-
-        //v1
-        vertices[3] = 1.0;
-        vertices[4] = 0.5;
-        vertices[5] = 0.5;
-
-        //v2
-        vertices[6] = 1.0;
-        vertices[7] = 1.0;
-        vertices[8] = 0.5;
-
-        //v3
-        vertices[9] = 0.5;
-        vertices[10] = 1.0;
-        vertices[11] = 0.5;
-        */
-
-        
         for(var i=0; i<this.number_of_allocated_points-1; i++){
             var index = i * 2 * num_sides * 3;
             var face_offset = 0;
@@ -433,88 +339,52 @@ class Streamline {
             indices[index+face_offset+5] = 2*num_sides-1 + i * 2 * num_sides;
                 
         }
-        
-        /*
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-
-        
-
-        indices[0] = 0;
-        indices[1] = 1;
-        indices[2] = 2;
-
-        indices[3] = 1;
-        indices[4] = 2;
-        indices[5] = 3;
-
-        indices[6] = 2;
-        indices[7] = 3;
-        indices[8] = 4;
-
-        indices[9] = 3;
-        indices[10] = 4;
-        indices[11] = 5;
-
-        indices[12] = 4;
-        indices[13] = 5;
-        indices[14] = 0;
-
-        indices[15] = 5;
-        indices[16] = 0;
-        indices[17]= 1;
-
-        for(var i = 18; i<36; i++ ){            
-            indices[i] = indices[i-18]+6;
-        }
-        */
-
-        console.warn(vertices);
-
 
         this.geometry.setIndex( indices );
         this.geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-        this.geometry.computeVertexNormals();
 
         var tube_color = this.streamline_generator.simulationParameters.tube_color;
         var tube_roughness = this.streamline_generator.simulationParameters.tube_roughness;
         var tube_emissive_intensity = this.streamline_generator.simulationParameters.tube_emissive_intensity;
         this.material = new THREE.MeshStandardMaterial({ color: tube_color, roughness: tube_roughness, emissive: tube_color, emissiveIntensity: tube_emissive_intensity });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        /*
-        this.path = new THREE.CurvePath();
-        //console.log(this.list_point_data);
-        for (var point_index = 1; point_index < this.list_point_data.length; point_index++) {
-            var point_data_A = this.list_point_data[point_index - 1];
-            var point_data_B = this.list_point_data[point_index];
-            var curve = new THREE.LineCurve3(point_data_A.getPosTHREE(), point_data_B.getPosTHREE());
-            this.path.add(curve);
-        }
+    }
 
-        var radius = this.streamline_generator.simulationParameters.tube_radius;
-        var num_sides = this.streamline_generator.simulationParameters.tube_num_sides;
+    build() {     
+        var number_of_intersections = this.simulationParameters.number_of_intersections;
+        var num_sides = this.simulationParameters.tube_num_sides;
+        var radius = this.simulationParameters.tube_radius;
+        this.initialize_circle(num_sides, radius);
+        this.initialize_mesh(number_of_intersections, num_sides);
+        //set values to allow skipping above initialization next time
+        this.last_number_of_intersections = number_of_intersections;
+        this.last_num_sides = num_sides;
+        this.last_radius = radius;
 
-        var tube_segment_length = this.streamline_generator.simulationParameters.tube_segment_length;
-        var num_segments = Math.ceil(this.arc_length / tube_segment_length);
-        num_segments = Math.min(num_segments, this.streamline_generator.simulationParameters.tube_max_segments);
+        var array = this.mesh.geometry.attributes.position.array;
+        for (var point_index = 0; point_index < this.list_point_data.length-1; point_index++) {
+            var point_data_A = this.list_point_data[point_index];
+            var point_data_B = this.list_point_data[point_index+1];
+            var axis_1 = vec3.create();
+            var axis_2 = vec3.create();
+            var dir = vec3.create();   
+            vec3.subtract(dir, point_data_B.position, point_data_A.position);
+            computeOrthogonalVector(axis_1, dir );
+            vec3.cross(axis_2, dir, axis_1 );
+            vec3.normalize(axis_2, axis_2);
 
-        num_segments = 1;
+            var circle_index = 2*point_index;
+            var point = point_data_A.position;
+            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
+            
+            circle_index += 1;
+            var point = point_data_B.position;
+            this.writeCircle(array, circle_index, num_sides, point, axis_1, axis_2)
+        }  
+        
+        this.mesh.geometry.attributes.position.needsUpdate = true;
+        this.mesh.geometry.computeVertexNormals();
 
-        //console.warn("build num_segments", num_segments);
-        this.geometry = new THREE.TubeGeometry(this.path, num_segments, radius, num_sides, false);
-        //this.material = new THREE.MeshStandardMaterial({ color: 0xffff00, roughness: 0.5 });
-        //this.material = new THREE.MeshStandardMaterial({ color: 0x0090ff, roughness: 0.5 });
-        //this.material = new THREE.MeshStandardMaterial({ color: 0x00b0ff, roughness: 0.75 });
-        //this.material = new THREE.MeshStandardMaterial({ color: 0x00b0ff, roughness: 0.75, emissive: 0x00b0ff, emissiveIntensity: 0.4 });
-        //this.material = new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.75, emissive: 0x00ffff, emissiveIntensity: 0.4 });
-
-        var tube_color = this.streamline_generator.simulationParameters.tube_color;
-        var tube_roughness = this.streamline_generator.simulationParameters.tube_roughness;
-        var tube_emissive_intensity = this.streamline_generator.simulationParameters.tube_emissive_intensity;
-        this.material = new THREE.MeshStandardMaterial({ color: tube_color, roughness: tube_roughness, emissive: tube_color, emissiveIntensity: tube_emissive_intensity });
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-        */
     }
 
     calculateHamiltonian(x, y, z, px, py, pz, mu, n){
@@ -609,36 +479,10 @@ class MultipleReturnsStreamline {
 
         //calculate initial streamline with new parameters
         var streamline = this.list_streamlines[index];
-        //console.warn("------");
-        //console.warn("index", 0)
         streamline.recalculate(number_of_intersections, x, y, z, dir_x, dir_y, dir_z, energy);
         //number_of_intersections -= 1;
         this.number_success = streamline.success ? 1 : 0;
         this.number_computed = 1;
-
-        //calculate additional streamlines starting from previous end point
-        /*
-        while (number_of_intersections > 0) {
-            index += 1;
-            //console.warn("------");
-            //console.warn("index", index)
-            var previous = this.list_streamlines[index - 1];
-            if (!previous.success) {
-                break;
-            }
-
-            if(index == this.list_streamlines.length){
-                var new_streamline = new Streamline(this.streamline_generator, this);
-                this.list_streamlines.push(new_streamline);
-            }
-            var streamline = this.list_streamlines[index];
-            streamline.recalculateFromOther(previous);
-            number_of_intersections -= 1;
-            this.number_computed += 1;
-            this.number_success = streamline.success ? this.number_success+1 : this.number_success;
-        }
-        */
-
         this.has_data = true;
     }
 
