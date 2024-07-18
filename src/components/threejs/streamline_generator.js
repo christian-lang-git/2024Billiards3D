@@ -348,6 +348,7 @@ class Streamline {
         var tube_emissive_intensity = this.streamline_generator.simulationParameters.tube_emissive_intensity;
         this.material = new THREE.MeshStandardMaterial({ color: tube_color, roughness: tube_roughness, emissive: tube_color, emissiveIntensity: tube_emissive_intensity });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.frustumCulled = false;
     }
 
     build() {     
