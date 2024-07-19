@@ -5,8 +5,8 @@ import { vec3 } from "gl-matrix/esm";
 import {evaluate, derivative} from "mathjs";
 
 class SurfaceCustom extends SurfaceBase{
-    constructor() {
-        super();
+    constructor(simulationParameters) {
+        super(simulationParameters);
         console.warn("CONSTRUCTOR SurfaceCustom");
     }
 

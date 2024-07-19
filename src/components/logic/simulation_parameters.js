@@ -87,9 +87,9 @@ class SimulationParameters {
 
     generateSurfaces(){        
         this.surface_list = [];
-        this.surface_list.push(new SurfaceCustom());
-        this.surface_list.push(new SurfaceEllipsoid());
-        this.surface_list.push(new SurfaceTorus());
+        this.surface_list.push(new SurfaceCustom(this));
+        this.surface_list.push(new SurfaceEllipsoid(this));
+        this.surface_list.push(new SurfaceTorus(this));
         this.active_surface = this.surface_list[0];
         this.noSurfaceParameterChange = false;
     }
@@ -265,6 +265,22 @@ class SimulationParameters {
 
     computeTangentA(pos, normal, tangent_a){
         this.active_surface.computeTangentA(pos, normal, tangent_a);
+    }
+
+    findIntersection(position, direction, intersection_position, intersection_direction){
+        this.active_surface.findIntersection(position, direction, intersection_position, intersection_direction);
+    }
+
+    setSeedPositionFromIntersection(intersection){
+        var position = vec3.fromValues(intersection.point.x, intersection.point.y, intersection.point.z);
+        this.active_surface.moveToSurface(position);
+        this.seed_position_x = position[0];
+        this.seed_position_y = position[1];
+        this.seed_position_z = position[2];
+    }
+
+    moveToSurface(position){        
+        this.active_surface.moveToSurface(position);
     }
 }
 

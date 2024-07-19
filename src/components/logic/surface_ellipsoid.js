@@ -5,8 +5,8 @@ import {evaluate, derivative} from "mathjs";
 import { SurfaceBase } from "@/components/logic/surface_base";
 
 class SurfaceEllipsoid extends SurfaceBase{
-    constructor() {
-        super();
+    constructor(simulationParameters) {
+        super(simulationParameters);
         console.warn("CONSTRUCTOR SurfaceEllipsoid");
     }
 

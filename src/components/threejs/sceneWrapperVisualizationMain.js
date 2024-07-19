@@ -131,9 +131,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.raycaster.setFromCamera(mouse, this.camera);
         const intersects = this.raycaster.intersectObject(this.marchingCubesMesh.mesh);
         if (intersects.length > 0) {
-            this.simulationParameters.seed_position_x = intersects[0].point.x;
-            this.simulationParameters.seed_position_y = intersects[0].point.y;
-            this.simulationParameters.seed_position_z = intersects[0].point.z;
+            this.simulationParameters.setSeedPositionFromIntersection(intersects[0]);
             Emitter.emit(Constants.EVENT_SEED_POSITION_CHANGED,{});
         }
 
