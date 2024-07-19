@@ -662,27 +662,17 @@ class LocalCoordinates{
 
         //initial positioning of spheres in 4 directions
         //var kernel_distance = 0.025;
-        var kernel_distance = 0.1;
+        var kernel_distance = 0.25;
         vec3.scaleAndAdd(this.point_tangent_a_forward, this.position, this.tangent_a, kernel_distance);
         vec3.scaleAndAdd(this.point_tangent_a_backward, this.position, this.tangent_a, -kernel_distance);
         vec3.scaleAndAdd(this.point_tangent_b_forward, this.position, this.tangent_b, kernel_distance);
         vec3.scaleAndAdd(this.point_tangent_b_backward, this.position, this.tangent_b, -kernel_distance);
 
         //move spheres to surface via gradient
-        //TODO
         this.simulationParameters.moveToSurface(this.point_tangent_a_forward);
         this.simulationParameters.moveToSurface(this.point_tangent_a_backward);
         this.simulationParameters.moveToSurface(this.point_tangent_b_forward);
         this.simulationParameters.moveToSurface(this.point_tangent_b_backward);
-        //var value = this.simulationParameters.evaluateSurface(this.position);
-        //console.warn("value: ", value);
-
-        //var gradient = vec3.create();
-        //var value = this.simulationParameters.evaluateSurface(this.point_tangent_a_forward);
-        //this.simulationParameters.evaluateGradient(this.point_tangent_a_forward, gradient);
-
-        //console.warn("value a forward: ", value);
-        //vec3.scaleAndAdd(this.point_tangent_a_forward, this.point_tangent_a_forward, gradient, kernel_distance);
 
     }
 

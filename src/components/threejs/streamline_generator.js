@@ -173,7 +173,7 @@ class Streamline {
             //intersection --> next position
             var next_position_data = new PointData();
             this.list_point_data.push(next_position_data);
-            this.simulationParameters.findIntersection(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);        
+            this.simulationParameters.findIntersectionFromInside(current_position_data.position, current_position_data.direction, next_position_data.position, next_position_data.direction);        
             
             //reflect --> next direction
             this.simulationParameters.evaluateGradient(next_position_data.position, normal);
@@ -418,7 +418,7 @@ class MultipleReturnsStreamline {
     }
 
     updateStreamlineModels() {
-        console.warn("this.number_success", this.number_success)
+        //console.warn("this.number_success", this.number_success)
         for (var i = 0; i < this.list_streamlines.length; i++) {
             var streamline = this.list_streamlines[i];
             if (streamline.existsInScene) {

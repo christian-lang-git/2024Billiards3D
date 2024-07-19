@@ -271,7 +271,12 @@ class SimulationParameters {
         this.active_surface.findIntersection(position, direction, intersection_position, intersection_direction);
     }
 
+    findIntersectionFromInside(position, direction, intersection_position, intersection_direction){
+        this.active_surface.findIntersectionFromInside(position, direction, intersection_position, intersection_direction);
+    }
+
     setSeedPositionFromIntersection(intersection){
+        //console.warn("setSeedPositionFromIntersection")
         var position = vec3.fromValues(intersection.point.x, intersection.point.y, intersection.point.z);
         this.active_surface.moveToSurface(position);
         this.seed_position_x = position[0];
