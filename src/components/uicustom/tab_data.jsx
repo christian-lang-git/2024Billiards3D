@@ -40,6 +40,21 @@ class TabData extends Component {
         Emitter.emit(Constants.EVENT_WRITE_FROM_UI_TO_URL, {});    
     }
 
+    shouldRenderRowImplicitFormula = () => {
+        const { uiState } = this.context;
+        return uiState.UI_STATE_DATA_SURFACE_TYPE === Constants.SURFACE_TYPE_CUSTOM;
+    };
+
+    shouldRenderRowParametersEllipsoid = () => {
+        const { uiState } = this.context;
+        return uiState.UI_STATE_DATA_SURFACE_TYPE === Constants.SURFACE_TYPE_ELLIPSOID;
+    };
+
+    shouldRenderRowParametersTorus = () => {
+        const { uiState } = this.context;
+        return uiState.UI_STATE_DATA_SURFACE_TYPE === Constants.SURFACE_TYPE_TORUS;
+    };
+
     render() {
         return (
             <div className="flex flex-col h-full">
@@ -50,40 +65,51 @@ class TabData extends Component {
                 <ScrollArea className="flex-1 overflow-y-auto">
                     <div className="pl-2 pr-4 pb-2">
                         <Accordion type="multiple" className="w-full" collapsible="true"
-                            defaultValue={["physics", "integration", "domain", "streamline", "ftle", "geometry"]}
+                            defaultValue={["surface", "selection", "integration", "domain", "streamline", "ftle", "geometry"]}
                         >
-                            <AccordionItem value="physics">
-                                <AccordionTrigger>Physics</AccordionTrigger>
+                            <AccordionItem value="surface">
+                                <AccordionTrigger>Surface</AccordionTrigger>
                                 <AccordionContent>
                                     <LabeledSelectSurfaceType/>
-                                    <LabeledField
-                                        name="UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT"
-                                        labelText={"implicit surface"}
-                                    />        
-                                    <div className="grid grid-cols-3">
-                                    <LabeledField
-                                        name="UI_STATE_DATA_VAR_A"
-                                        labelText={"a"}
-                                    />
-                                    <LabeledField
-                                        name="UI_STATE_DATA_VAR_B"
-                                        labelText={"b"}
-                                    />
-                                    <LabeledField
-                                        name="UI_STATE_DATA_VAR_C"
-                                        labelText={"c"}
-                                    />
-                                    </div>        
-                                    <div className="grid grid-cols-2">
-                                    <LabeledField
-                                        name="UI_STATE_DATA_VAR_BIG_R"
-                                        labelText={"R"}
-                                    />
-                                    <LabeledField
-                                        name="UI_STATE_DATA_VAR_SMALL_R"
-                                        labelText={"r"}
-                                    />
-                                    </div>                             
+                                    {this.shouldRenderRowImplicitFormula() && (
+                                        <LabeledField
+                                            name="UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT"
+                                            labelText={"implicit surface"}
+                                        />    
+                                    )}    
+                                    {this.shouldRenderRowParametersEllipsoid() && (
+                                      <div className="grid grid-cols-3">
+                                      <LabeledField
+                                          name="UI_STATE_DATA_VAR_A"
+                                          labelText={"a"}
+                                      />
+                                      <LabeledField
+                                          name="UI_STATE_DATA_VAR_B"
+                                          labelText={"b"}
+                                      />
+                                      <LabeledField
+                                          name="UI_STATE_DATA_VAR_C"
+                                          labelText={"c"}
+                                      />
+                                      </div>   
+                                    )}  
+                                    {this.shouldRenderRowParametersTorus() && (
+                                      <div className="grid grid-cols-2">
+                                      <LabeledField
+                                          name="UI_STATE_DATA_VAR_BIG_R"
+                                          labelText={"R"}
+                                      />
+                                      <LabeledField
+                                          name="UI_STATE_DATA_VAR_SMALL_R"
+                                          labelText={"r"}
+                                      />
+                                      </div>  
+                                    )}                               
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="selection">
+                                <AccordionTrigger>Selection</AccordionTrigger>
+                                <AccordionContent>                                    
                                     <Label className="font-medium">constant seed direction (left view)</Label>
                                     <div className="grid grid-cols-3">
                                     <LabeledField
