@@ -253,7 +253,8 @@ class SpherelikeGrid{
 
 class MarchingCubesData{
     
-    constructor(){
+    constructor(simulationParameters){
+        this.simulationParameters = simulationParameters;
         this.dict_unique_edge_to_vertex_index = {};
         this.vertices = [];
         this.indices = [];
@@ -353,6 +354,26 @@ class MarchingCubesData{
         }
 
         this.indices.push(vertexIndex);
+    }
+
+    MoveVerticesToSurface(){
+        for (var i = 0; i < this.next_vertex_index; i++) {
+            var index = 3*i;
+
+            //original point
+            var x = this.vertices[index];
+            var y = this.vertices[index+1];
+            var z = this.vertices[index+2];            
+            var point = vec3.fromValues(x,y,z);
+
+            //move point
+            this.simulationParameters.moveToSurface(point);
+            
+            //update point in list
+            this.vertices[index] = point[0];
+            this.vertices[index+1] = point[1];
+            this.vertices[index+2] = point[2];
+        }
     }
 }
 
@@ -458,7 +479,7 @@ class MarchingCubesMesh{
         }
         
         // Marching Cubes Algorithm
-        var geometry_data = new MarchingCubesData();
+        var geometry_data = new MarchingCubesData(this.simulationParameters);
         
         var size2 = size_x * size_y;
 
@@ -626,6 +647,8 @@ class MarchingCubesMesh{
                 i += 3;
             }
         }
+
+        geometry_data.MoveVerticesToSurface();
 
         const indices = Array.from(geometry_data.indices);
         const vertices = new Float32Array(geometry_data.vertices);
