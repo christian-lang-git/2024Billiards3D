@@ -257,6 +257,7 @@ class MarchingCubesData{
         this.simulationParameters = simulationParameters;
         this.dict_unique_edge_to_vertex_index = {};
         this.vertices = [];
+        this.normals = [];
         this.indices = [];
         this.uv = [];
         this.next_vertex_index = 0;
@@ -373,6 +374,29 @@ class MarchingCubesData{
             this.vertices[index] = point[0];
             this.vertices[index+1] = point[1];
             this.vertices[index+2] = point[2];
+        }
+    }
+
+    ComputeVertexNormalsFromGradient(){
+        for (var i = 0; i < this.next_vertex_index; i++) {
+            var index = 3*i;
+            var normal = vec3.create();
+
+            //original point
+            var x = this.vertices[index];
+            var y = this.vertices[index+1];
+            var z = this.vertices[index+2];            
+            var point = vec3.fromValues(x,y,z);
+
+            //compute normal
+            this.simulationParameters.evaluateGradient(point, normal);
+            vec3.normalize(normal, normal);
+            vec3.negate(normal, normal);
+            
+            //add normal
+            this.normals.push(normal[0]);
+            this.normals.push(normal[1]);
+            this.normals.push(normal[2]);
         }
     }
 }
@@ -658,10 +682,15 @@ class MarchingCubesMesh{
         geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
         geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
         
-        //geometry.computeCentroids();
-        //geometry.computeFaceNormals();
-        geometry.computeVertexNormals();
-        
+        var compute_normals_from_gradient = true;
+        if(compute_normals_from_gradient){
+            geometry_data.ComputeVertexNormalsFromGradient();
+            const normals = new Float32Array(geometry_data.normals);
+            geometry.setAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+        }else{
+            geometry.computeVertexNormals();
+        }
+
         var green = 0x34a853;
         //var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
         var material =  new THREE.MeshStandardMaterial( {color: green, side: THREE.DoubleSide, wireframe: false, transparent: true} );
