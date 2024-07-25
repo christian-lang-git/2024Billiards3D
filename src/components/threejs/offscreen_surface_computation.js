@@ -126,8 +126,17 @@ class OffscreenSurfaceComputation {
             this.updateRenderTarget();
         }
 
-        //write a test value
-        this.texture_vertices_data[0] = 1337;
+        //write vertex positions into texture
+        for (var i = 0; i < vertex_count; i++) {
+            var index = 3*i;
+            var index_new = 4*i;            
+
+            this.texture_vertices_data[index_new] = attribute_position.array[index];
+            this.texture_vertices_data[index_new+1] = attribute_position.array[index+1];
+            this.texture_vertices_data[index_new+2] = attribute_position.array[index+2];
+            this.texture_vertices_data[index_new+3] = 1;
+            
+        }
         this.texture_vertices.needsUpdate = true;
         console.warn("### this.texture_vertices_data", this.texture_vertices_data);
         
@@ -140,6 +149,9 @@ class OffscreenSurfaceComputation {
         const readBuffer = new Float32Array(this.width * this.height * 4);
         this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width, this.height, readBuffer);
         console.warn("### readBuffer", readBuffer);
+
+        //send results to mesh
+        this.marchingCubesMesh.setAttributeFTLE(readBuffer);
 
         //cleanup
         this.renderer.setRenderTarget(null);
@@ -236,16 +248,10 @@ class OffscreenSurfaceComputation {
             float theta_radians = PI * (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
             float phi_radians = 2.0 * PI * (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
 
-            //TESTING: add texture value
+            //TESTING: output coordinates
             ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
             vec4 value = texelFetch(input_texture_positions, pointer, 0);
-            if(int(x_pixel) == 0 && int(y_pixel) == 0){
-                outputColor = vec4(87,42,23,11) + value;
-            }
-            else{
-                outputColor = vec4(x_pixel,y_pixel,0,0) + value;
-            }
-
+            outputColor = value;
 
         `
             + this.fragmentShaderMethodComputation() +

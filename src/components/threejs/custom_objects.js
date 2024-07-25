@@ -411,6 +411,7 @@ class MarchingCubesMesh{
         this.values = [];
         this.scene = scene;
         this.simulationParameters = simulationParameters;
+        this.generateUniforms();
     }
 
     UpdateParametersCheckBuildRequired(){
@@ -694,7 +695,20 @@ class MarchingCubesMesh{
         var green = 0x34a853;
         //var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
         var material =  new THREE.MeshStandardMaterial( {color: green, side: THREE.DoubleSide, wireframe: false, transparent: true} );
-        this.mesh = new THREE.Mesh( geometry, material );
+
+        this.textured_material = new THREE.ShaderMaterial({
+            uniforms: this.uniforms,
+            side: THREE.DoubleSide,
+            fragmentShader: this.fragmentShader(),
+            vertexShader: this.vertexShader(),
+            glslVersion: THREE.GLSL3
+        })
+        this.textured_material.transparent = true;
+        //this.textured_material.opacity = 0.5;
+        this.textured_material.opacity = 1.0;
+
+        //this.mesh = new THREE.Mesh( geometry, material );
+        this.mesh = new THREE.Mesh( geometry, this.textured_material );
         this.scene.add(this.mesh);
 
         console.warn("vertices.length", vertices.length);
@@ -945,6 +959,123 @@ class MarchingCubesMesh{
         this.scene.add(this.mesh);
 
         console.warn("vertices.length", vertices.length);
+    }
+
+    setAttributeFTLE(readBuffer){ 
+        console.warn("### readBuffer", readBuffer);            
+        this.mesh.geometry.setAttribute( 'ftle', new THREE.BufferAttribute(readBuffer, 4) );
+        console.warn("### this.mesh.geometry", this.mesh.geometry);  
+    }
+
+    vertexShader() {
+        return glsl`
+        attribute vec4 ftle;
+        varying vec4 vftle; 
+    
+        void main() {
+          vftle = ftle; 
+    
+          vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * modelViewPosition; 
+        }
+        `
+    }
+
+    fragmentShader() {
+        return "" +
+            this.getUniformsString() 
+            + LINALG.SHADER_MODULE_LINALG + "\n" 
+            + UTILITY.SHADER_MODULE_UTILITY + "\n" 
+            + glsl`
+
+        varying vec4 vftle;
+        out vec4 outputColor;
+  
+        void main() {
+
+            /*
+            //coordinates as fractions of texture starting bottom left
+            float x_frac = vUv.x;
+            float y_frac = vUv.y;
+
+            //change coordinate directions if theta down
+            if(is_aux_view && is_plane && theta_down){
+                x_frac = 1.0-vUv.y;
+                y_frac = vUv.x;
+            }
+
+            //coordinates in pixel in virtual texture starting bottom left
+            int x_pixel = int(round(x_frac * (planeDimensionsPixel.x-1.0)));
+            int y_pixel = int(round(y_frac * (planeDimensionsPixel.y-1.0)));
+            int x_pixel_total = int(round(x_frac * (2.0*planeDimensionsPixel.x-1.0)));//TODO: const 2.0
+            int y_pixel_total = int(round(y_frac * (2.0*planeDimensionsPixel.y-1.0)));//TODO: const 2.0
+
+            int x_offset = rendering_raw_mode_x_texture_index * int(planeDimensionsPixel.x);
+            int y_offset = rendering_raw_mode_y_texture_index * int(planeDimensionsPixel.y);
+
+            ivec3 pointer;
+            vec4 data;
+            outputColor = vec4(0.0, 0.0, 0.0, 1.0);
+            switch (rendering_texture_mode) {
+                case 0://specialized
+                    RenderSpecializedMode(x_frac, y_frac);
+                    break;
+                case 1://raw texture output of virtual texture
+                    pointer = ivec3(x_pixel+x_offset, y_pixel+y_offset, rendering_raw_mode_layer);
+                    data = rendering_forward ? texelFetch(displayedTexture, pointer, 0) : texelFetch(displayedTextureBackwards, pointer, 0);
+                    outputColor = vec4(data.x, data.y, data.z, data.a);
+                    break;
+                case 2://raw texture output of all virtual textures
+                    pointer = ivec3(x_pixel_total, y_pixel_total, rendering_raw_mode_layer);
+                    data = rendering_forward ? texelFetch(displayedTexture, pointer, 0) : texelFetch(displayedTextureBackwards, pointer, 0);
+                    outputColor = vec4(data.x, data.y, data.z, data.a);
+                    break;
+            }
+*/
+            
+            outputColor = vec4(1.0, 0.0, 0.0, 1.0);   
+            //as a test: output coordinates
+            outputColor = vec4(vftle.x, vftle.y, vftle.z, 1.0);   
+        }            
+        `
+        ;
+    }
+
+        /**
+     * Automatically generates the shader code for uniforms from the method generateUniforms()
+     * The example: 
+     * 
+     *  this.uniforms = {
+     *      planeCenter: { type: 'vec2', value: new THREE.Vector2(0,0) },
+     *      planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1,-1) },
+     *      planeDimensions: { type: 'vec2', value: new THREE.Vector2(2,2) },
+     *      planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100,100) }
+     *  };
+     *  
+     * results in:
+     *       
+     *      uniform vec2 planeCenter; 
+     *      uniform vec2 planeCornerBL; 
+     *      uniform vec2 planeDimensions; 
+     *      uniform vec2 planeDimensionsPixel; 
+     * 
+     * @returns shader code for all uniforms
+     */
+    getUniformsString() {
+        return Object.keys(this.uniforms).map(key => {
+            const type = this.uniforms[key].type;
+            return `uniform ${type} ${key};`;
+        }).join('\n');
+    }
+
+    generateUniforms() {
+        this.uniforms = {
+            ftle_index: { type: 'int', value: 0 },
+        }
+    }
+
+    updateUniforms() {
+        this.textured_mesh.material.uniforms.ftle_index.value = 0;      
     }
 }
 
