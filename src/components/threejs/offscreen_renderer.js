@@ -12,8 +12,6 @@ class OffscreenRenderer {
     constructor(renderer, simulationParameters, useAnglePlane) {
         this.renderer = renderer;
         this.simulationParameters = simulationParameters;
-        this.use_external_render_target = false;
-        this.offscreen_renderer_for_external_render_target = null;
         this.useAnglePlane = useAnglePlane;
     }
 
@@ -23,16 +21,6 @@ class OffscreenRenderer {
 
     getPlaneDimensionY(){
         return this.useAnglePlane ? this.simulationParameters.angle_pixels_y : this.simulationParameters.domain_pixels_y;
-    }
-
-    /**
-     * By calling this function THIS offscreenRenderer will not generate a renderTarget.
-     * Instead it will use the same renderTarget as the one used by the parameter targetOffscreenRenderer
-     * @param {OffscreenRenderer} targetOffscreenRenderer 
-     */
-    setExternalRenderTarget(targetOffscreenRenderer){
-        this.use_external_render_target = true;
-        this.offscreen_renderer_for_external_render_target = targetOffscreenRenderer;
     }
 
     initialize() {
@@ -99,43 +87,27 @@ class OffscreenRenderer {
 
     updateRenderTarget() {
         console.warn("UPDATE RENDER TARGET SIZE");
-        if(this.use_external_render_target){
-            this.renderTarget = this.offscreen_renderer_for_external_render_target.renderTarget;
-        }
-        else{
-            /*
-            this.renderTarget = new THREE.WebGLRenderTarget(this.width * this.getNumPixelsPerNodeX(), this.height * this.getNumPixelsPerNodeY(), {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.NearestFilter,//THREE.LinearFilter
-                format: THREE.RGBAFormat,
-                type: THREE.FloatType
-            });
-            */
-            
-            var total_w = this.width * this.getNumPixelsPerNodeX();
-            var total_h = this.height * this.getNumPixelsPerNodeY();
-            var total_z = this.getNumLayers();
+        var total_w = this.width * this.getNumPixelsPerNodeX();
+        var total_h = this.height * this.getNumPixelsPerNodeY();
+        var total_z = this.getNumLayers();
 
-            this.renderTarget = new THREE.WebGL3DRenderTarget(total_w, total_h, total_z, {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.NearestFilter,//THREE.LinearFilter
-                format: THREE.RGBAFormat,
-                type: THREE.FloatType
-            });
+        this.renderTarget = new THREE.WebGL3DRenderTarget(total_w, total_h, total_z, {
+            minFilter: THREE.LinearFilter,
+            magFilter: THREE.NearestFilter,//THREE.LinearFilter
+            format: THREE.RGBAFormat,
+            type: THREE.FloatType
+        });
+        
+        const size = total_w * total_h * total_z * 4; // RGBA
+        const data = new Float32Array(size);
+        const texture = new THREE.Data3DTexture(data, total_w, total_h, total_z);            
+        texture.format = THREE.RGBAFormat;
+        texture.type = THREE.FloatType;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.NearestFilter;
+        texture.unpackAlignment = 1;
 
-            
-            const size = total_w * total_h * total_z * 4; // RGBA
-            const data = new Float32Array(size);
-            const texture = new THREE.Data3DTexture(data, total_w, total_h, total_z);            
-            texture.format = THREE.RGBAFormat;
-            texture.type = THREE.FloatType;
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.NearestFilter;
-            texture.unpackAlignment = 1;
-
-            this.renderTarget.texture = texture;
-            
-        }
+        this.renderTarget.texture = texture;
     }
 
     compute() {
