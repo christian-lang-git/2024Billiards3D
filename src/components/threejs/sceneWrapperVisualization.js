@@ -308,9 +308,6 @@ class SceneWrapperVisualization {
     }
 
     computeStuff(){
-        if(this.marchingCubesMesh){
-            this.marchingCubesMesh.build();
-        }
 
         /*
 

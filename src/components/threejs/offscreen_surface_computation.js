@@ -9,18 +9,19 @@ const glsl = x => x[0];
 
 class OffscreenSurfaceComputation {
 
-    constructor(renderer, simulationParameters, useAnglePlane) {
+    constructor(renderer, simulationParameters, marchingCubesMesh) {
         this.renderer = renderer;
         this.simulationParameters = simulationParameters;
-        this.useAnglePlane = useAnglePlane;
+        this.marchingCubesMesh = marchingCubesMesh;
+        this.initialize();
     }
 
     getPlaneDimensionX(){
-        return this.useAnglePlane ? this.simulationParameters.angle_pixels_x : this.simulationParameters.domain_pixels_x;
+        return this.simulationParameters.domain_pixels_x;
     }
 
     getPlaneDimensionY(){
-        return this.useAnglePlane ? this.simulationParameters.angle_pixels_y : this.simulationParameters.domain_pixels_y;
+        return this.simulationParameters.domain_pixels_y;
     }
 
     initialize() {
@@ -28,6 +29,7 @@ class OffscreenSurfaceComputation {
 
         this.width = 100;
         this.height = 100;
+        this.num_pixels = this.width * this.height;
 
         this.updateRenderTarget();
         this.bufferScene = new THREE.Scene();
@@ -50,10 +52,10 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh = new THREE.Mesh(this.dummy_plane_geometry, this.dummy_plane_material);
         this.bufferScene.add(this.dummy_plane_mesh);
 
-        this.compute();
+        //this.compute();
     }
 
-    updateTexturedPlane() {
+    setUniforms() {
         this.setAdditionalUniforms();        
         this.dummy_plane_mesh.material.uniforms.mu.value = this.simulationParameters.mu;
         this.dummy_plane_mesh.material.uniforms.angular_velocity.value = this.simulationParameters.angular_velocity;
@@ -65,60 +67,82 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.y = this.simulationParameters.domain_min_y;
         this.dummy_plane_mesh.material.uniforms.planeDimensions.value.x = this.simulationParameters.domain_dimension_x;
         this.dummy_plane_mesh.material.uniforms.planeDimensions.value.y = this.simulationParameters.domain_dimension_y;
-        this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.getPlaneDimensionX();
-        this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.getPlaneDimensionY();
-
-        var update_size = false;
-        if (this.getPlaneDimensionX() != this.width) {
-            this.width = this.getPlaneDimensionX();
-            update_size = true;
-        }
-        if (this.getPlaneDimensionY() != this.height) {
-            this.height = this.getPlaneDimensionY();
-            update_size = true;
-        }
-        if (update_size) {
-            this.updateRenderTarget();
-        }
-
-        return update_size;
-
+        this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.width;
+        this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.height;
+        this.dummy_plane_mesh.material.uniforms.input_texture_positions.value = this.texture_vertices;
+        
+        
     }
 
     updateRenderTarget() {
-        console.warn("UPDATE RENDER TARGET SIZE");
+        console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
         var total_w = this.width * this.getNumPixelsPerNodeX();
         var total_h = this.height * this.getNumPixelsPerNodeY();
-        var total_z = this.getNumLayers();
 
-        this.renderTarget = new THREE.WebGL3DRenderTarget(total_w, total_h, total_z, {
+        this.renderTarget = new THREE.WebGLRenderTarget(total_w, total_h, {
             minFilter: THREE.LinearFilter,
             magFilter: THREE.NearestFilter,//THREE.LinearFilter
             format: THREE.RGBAFormat,
             type: THREE.FloatType
         });
         
-        const size = total_w * total_h * total_z * 4; // RGBA
+        const size = total_w * total_h * 4; // RGBA
         const data = new Float32Array(size);
-        const texture = new THREE.Data3DTexture(data, total_w, total_h, total_z);            
+
+        //the output texture
+        const texture = new THREE.DataTexture(data, total_w, total_h);            
         texture.format = THREE.RGBAFormat;
         texture.type = THREE.FloatType;
         texture.minFilter = THREE.LinearFilter;
         texture.magFilter = THREE.NearestFilter;
         texture.unpackAlignment = 1;
-
         this.renderTarget.texture = texture;
+
+        //the input texture (vertex positions)
+        this.texture_vertices_data = new Float32Array(size);
+        this.texture_vertices = new THREE.DataTexture(this.texture_vertices_data, total_w, total_h);            
+        this.texture_vertices.format = THREE.RGBAFormat;
+        this.texture_vertices.type = THREE.FloatType;
+        this.texture_vertices.minFilter = THREE.LinearFilter;
+        this.texture_vertices.magFilter = THREE.NearestFilter;
+        this.texture_vertices.unpackAlignment = 1;
     }
 
     compute() {
-        this.computeLayer(0);
-        //this.renderer.setRenderTarget(this.renderTarget, 0);
-        //this.renderer.render(this.bufferScene, this.bufferCamera);
-        //this.renderer.setRenderTarget(null);
+        //helper values
+        var attribute_position = this.marchingCubesMesh.mesh.geometry.attributes.position;
+        var vertex_count = attribute_position.count;
 
-        //const pixelBuffer = new Float32Array(this.width * this.getNumPixelsPerNodeX() * this.height * this.getNumPixelsPerNodeY() * 4);
-        //this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width * this.getNumPixelsPerNodeX(), this.height * this.getNumPixelsPerNodeY(), pixelBuffer);
-        //console.log("pixelBuffer", pixelBuffer);
+        //compute required texture size
+        var num_pixels_x = Math.ceil(Math.sqrt(vertex_count));
+        var num_pixels_y = Math.ceil(vertex_count / num_pixels_x);
+        var num_pixels = num_pixels_x * num_pixels_y;
+
+        //check and update texture size
+        if(num_pixels != this.num_pixels){
+            this.num_pixels = num_pixels;   
+            this.width = num_pixels_x;      
+            this.height = num_pixels_y;         
+            this.updateRenderTarget();
+        }
+
+        //write a test value
+        this.texture_vertices_data[0] = 1337;
+        this.texture_vertices.needsUpdate = true;
+        console.warn("### this.texture_vertices_data", this.texture_vertices_data);
+        
+        //computation in shader
+        this.setUniforms();
+        this.renderer.setRenderTarget(this.renderTarget);
+        this.renderer.render(this.bufferScene, this.bufferCamera);
+
+        //read results
+        const readBuffer = new Float32Array(this.width * this.height * 4);
+        this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width, this.height, readBuffer);
+        console.warn("### readBuffer", readBuffer);
+
+        //cleanup
+        this.renderer.setRenderTarget(null);
     }
 
     computeLayer(targetLayerIndex){
@@ -160,7 +184,8 @@ class OffscreenSurfaceComputation {
             planeCenter: { type: 'vec2', value: new THREE.Vector2(0, 0) },
             planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1, -1) },
             planeDimensions: { type: 'vec2', value: new THREE.Vector2(2, 2) },
-            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) }
+            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
+            input_texture_positions: { type: 'sampler2D', value: this.texture_vertices}
         }
         this.addAdditionalUniforms();
     }
@@ -210,6 +235,18 @@ class OffscreenSurfaceComputation {
             //ISO convention (i.e. for physics: radius r, inclination theta, azimuth phi) --> https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
             float theta_radians = PI * (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
             float phi_radians = 2.0 * PI * (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
+
+            //TESTING: add texture value
+            ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
+            vec4 value = texelFetch(input_texture_positions, pointer, 0);
+            if(int(x_pixel) == 0 && int(y_pixel) == 0){
+                outputColor = vec4(87,42,23,11) + value;
+            }
+            else{
+                outputColor = vec4(x_pixel,y_pixel,0,0) + value;
+            }
+
+
         `
             + this.fragmentShaderMethodComputation() +
             `

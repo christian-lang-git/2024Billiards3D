@@ -449,9 +449,9 @@ class MarchingCubesMesh{
         //this.build_old();
 
         //example vertex counts
-        //142704 vertices without sharing
-        //95136 vertices when sharing in the same cell
-        //23784 vertices when sharing with neighboring cell via key shifting
+        //142704 floats, 47568 vertices without sharing
+        //95136 floats, 31712 vertices when sharing in the same cell
+        //23784 floats, 7928 vertices when sharing with neighboring cell via key shifting
         //~16.667% of original vertex count
     }
 
