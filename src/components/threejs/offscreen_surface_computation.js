@@ -230,6 +230,10 @@ class OffscreenSurfaceComputation {
         float evaluateSurface(vec3 position);
         float evaluateSurfaceEllipsoid(vec3 position);
         float evaluateSurfaceTorus(vec3 position);
+
+        vec3 evaluateGradient(vec3 position);
+        vec3 evaluateGradientEllipsoid(vec3 position);
+        vec3 evaluateGradientTorus(vec3 position);
   
         void main() {
             //coordinates in pixel in total texture starting bottom left
@@ -302,7 +306,7 @@ class OffscreenSurfaceComputation {
         LocalGrid computeLocalGrid(vec3 position){
             LocalGrid local_grid;
 
-            //TODO 
+            //TODO
 
             PhaseState center;
             PhaseState xp;
@@ -329,7 +333,7 @@ class OffscreenSurfaceComputation {
         PhaseState computeFlow(PhaseState seed_state){
             PhaseState result;
 
-            //TODO 
+            //TODO
 
             return result;
         }
@@ -395,6 +399,48 @@ class OffscreenSurfaceComputation {
     
             float value = sum*sum - 4.0*RR*(xx+yy);
             return value;
+        }
+
+        vec3 evaluateGradient(vec3 position){
+            switch (surface_type) {
+                case 0://custom
+                    return vec3(0,0,0);//TODO
+                case 1://ELLIPSOID
+                    return evaluateGradientEllipsoid(position);   
+                case 2://TORUS
+                    return evaluateGradientTorus(position);   
+                default:
+                    return vec3(0,0,0);
+            }
+        }
+
+        vec3 evaluateGradientEllipsoid(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+            float dx = 2.0*x*one_div_aa;
+            float dy = 2.0*y*one_div_bb;
+            float dz = 2.0*z*one_div_cc;
+            return vec3(dx, dy, dz);
+        }
+        
+        vec3 evaluateGradientTorus(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+            
+            float xx = x*x;
+            float yy = y*y;
+            float zz = z*z;
+            float RR = var_R*var_R;
+            float rr = var_r*var_r;
+            float sum = - rr - RR + xx + yy + zz;
+            float sum2 = - rr + RR + xx + yy + zz;
+    
+            float dx = 4.0*x*sum;
+            float dy = 4.0*y*sum;
+            float dz = 4.0*z*sum2;
+            return vec3(dx, dy, dz);
         }
         `
     }
