@@ -187,6 +187,39 @@ class OffscreenSurfaceComputation {
         const float G = 1.0;//TODO
         const float PI = 3.1415926535897932384626433832795;
         out vec4 outputColor;
+
+        struct PhaseState{
+            vec3 position;
+            vec3 direction;
+        };
+
+        struct LocalAxes{            
+            vec3 x_axis;            
+            vec3 y_axis;            
+            vec3 z_axis;
+        };
+
+        struct LocalGrid{
+            PhaseState center;
+            PhaseState xp;
+            PhaseState xn;
+            PhaseState yp;
+            PhaseState yn;
+            float dist_x;
+            float dist_y;
+        };
+
+        struct FlowResults{
+            PhaseState xp;
+            PhaseState xn;
+            PhaseState yp;
+            PhaseState yn;
+        };
+
+        LocalGrid computeLocalGrid(vec3 position);
+        FlowResults computeFlowResults(LocalGrid local_grid);
+        PhaseState computeFlow(PhaseState seed_state);
+        float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type);
   
         void main() {
             //coordinates in pixel in total texture starting bottom left
@@ -213,9 +246,99 @@ class OffscreenSurfaceComputation {
                 return;
             }
 
+            //------------------------------------------------------------------------------------------------------
+
+            //generate a local grid from the seed position
+
+            LocalGrid local_grid = computeLocalGrid(position);
+
+            //------------------------------------------------------------------------------------------------------
+
+            //compute flowmap for all 4 seeds of the local grid
+
+            FlowResults flow_results = computeFlowResults(local_grid);
+
+            //------------------------------------------------------------------------------------------------------
+
+            //finite differences
+            //finite differences in x direction
+            vec3 dpos_dx = (flow_results.xp.position - flow_results.xn.position) / local_grid.dist_x;
+            vec3 dvel_dx = (flow_results.xp.direction - flow_results.xn.direction) / local_grid.dist_x;
+            //finite differences in y direction
+            vec3 dpos_dy = (flow_results.yp.position - flow_results.yn.position) / local_grid.dist_y;
+            vec3 dvel_dy = (flow_results.yp.direction - flow_results.yn.direction) / local_grid.dist_y;
+
+            //------------------------------------------------------------------------------------------------------
+
+            //psftle computation
+            float psftle = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 0);
+            float psftle_pos = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 1);
+            float psftle_vel = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 2);
+            outputColor = vec4(psftle,psftle_pos,psftle_vel,1);
+
             //TESTING: output coordinates
-            outputColor = value;
-        }    
+            //outputColor = value;
+        }   
+
+        LocalGrid computeLocalGrid(vec3 position){
+            LocalGrid local_grid;
+
+            //TODO
+
+            PhaseState center;
+            PhaseState xp;
+            PhaseState xn;
+            PhaseState yp;
+            PhaseState yn;
+
+            //compute grid distances for finite differences
+            local_grid.dist_x = distance(local_grid.xp.position, local_grid.xn.position);
+            local_grid.dist_y = distance(local_grid.yp.position, local_grid.yn.position);
+
+            return local_grid;
+        }
+        
+        FlowResults computeFlowResults(LocalGrid local_grid){            
+            FlowResults flow_results;
+            flow_results.xp = computeFlow(local_grid.xp);
+            flow_results.xn = computeFlow(local_grid.xn);
+            flow_results.yp = computeFlow(local_grid.yp);
+            flow_results.yn = computeFlow(local_grid.yn);
+            return flow_results;
+        }
+        
+        PhaseState computeFlow(PhaseState seed_state){
+            PhaseState result;
+
+            //TODO
+
+            return result;
+        }
+        
+        float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type){
+            //build Cauchy-Green
+            mat2 C;
+            if(type == 0){//0 = psftle
+                C = BuildCauchyGreen(dpos_dx, dvel_dx, dpos_dy, dvel_dy);
+            }
+            else if(type == 1){//1 = psftle_pos
+                C = BuildCauchyGreenPos(dpos_dx, dpos_dy);
+            }
+            else if(type == 2){//2 = psftle_vel
+                C = BuildCauchyGreenVel(dvel_dx, dvel_dy);
+            }
+
+            //biggest eigenvalue lambda_max
+            vec2 lambdas = vec2(0,0);
+            mat2eigenvalues(C, lambdas);
+            float lambda_max = max(lambdas.x, lambdas.y);
+
+            //FTLE
+            float advection_time = 1.0;//TODO SCALING?
+            float ftle = 1.0 / advection_time * log(sqrt(lambda_max));
+
+            return ftle;
+        }
         `
     }
 
