@@ -64,8 +64,8 @@ class SurfaceTorus extends SurfaceBase{
         var y = pos[1];
         var z = pos[2];
 
-        var pos_norm = vec3.create();
-        vec3.normalize(pos_norm, pos);
+        //var pos_norm = vec3.create();
+        //vec3.normalize(pos_norm, pos);
         var dir_x = y;
         var dir_y = -x;
         vec3.set(tangent_a, dir_x, dir_y, 0);

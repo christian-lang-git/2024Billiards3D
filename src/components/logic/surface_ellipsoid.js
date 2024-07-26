@@ -60,8 +60,8 @@ class SurfaceEllipsoid extends SurfaceBase{
         var a_e = a / root;
         var b_e = b / root;
 
-        var pos_norm = vec3.create();
-        vec3.normalize(pos_norm, pos);
+        //var pos_norm = vec3.create();
+        //vec3.normalize(pos_norm, pos);
         var dir_x = y * a_e*a_e;
         var dir_y = -x * b_e*b_e;
         vec3.set(tangent_a, dir_x, dir_y, 0);

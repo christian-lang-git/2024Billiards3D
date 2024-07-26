@@ -234,6 +234,10 @@ class OffscreenSurfaceComputation {
         vec3 evaluateGradient(vec3 position);
         vec3 evaluateGradientEllipsoid(vec3 position);
         vec3 evaluateGradientTorus(vec3 position);
+
+        vec3 computeTangentA(vec3 position);
+        vec3 computeTangentAEllipsoid(vec3 position);
+        vec3 computeTangentATorus(vec3 position);
   
         void main() {
             //coordinates in pixel in total texture starting bottom left
@@ -306,7 +310,7 @@ class OffscreenSurfaceComputation {
         LocalGrid computeLocalGrid(vec3 position){
             LocalGrid local_grid;
 
-            //TODO
+            //TODO 
 
             PhaseState center;
             PhaseState xp;
@@ -333,7 +337,7 @@ class OffscreenSurfaceComputation {
         PhaseState computeFlow(PhaseState seed_state){
             PhaseState result;
 
-            //TODO
+            //TODO 
 
             return result;
         }
@@ -441,6 +445,47 @@ class OffscreenSurfaceComputation {
             float dy = 4.0*y*sum;
             float dz = 4.0*z*sum2;
             return vec3(dx, dy, dz);
+        }
+
+        vec3 computeTangentA(vec3 position){
+            switch (surface_type) {
+                case 0://custom
+                    return vec3(0,0,0);//TODO
+                case 1://ELLIPSOID
+                    return computeTangentAEllipsoid(position);   
+                case 2://TORUS
+                    return computeTangentATorus(position);   
+                default:
+                    return vec3(0,0,0);
+            }
+        }
+
+        vec3 computeTangentAEllipsoid(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+            float a = var_a;
+            float b = var_b;
+            float c = var_c;
+    
+            //calculate the ellipse of slicing the ellipsoid via z coordinate
+            float root = sqrt(1.0-(z*z)/(c*c));
+            float a_e = a / root;
+            float b_e = b / root;
+    
+            float dir_x = y * a_e*a_e;
+            float dir_y = -x * b_e*b_e;
+            return normalize(vec3(dir_x, dir_y, 0));
+        }
+
+        vec3 computeTangentATorus(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+    
+            float dir_x = y;
+            float dir_y = -x;
+            return normalize(vec3(dir_x, dir_y, 0));
         }
         `
     }
