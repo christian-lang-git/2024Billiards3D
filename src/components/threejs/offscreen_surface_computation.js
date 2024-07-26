@@ -16,16 +16,8 @@ class OffscreenSurfaceComputation {
         this.initialize();
     }
 
-    getPlaneDimensionX(){
-        return this.simulationParameters.domain_pixels_x;
-    }
-
-    getPlaneDimensionY(){
-        return this.simulationParameters.domain_pixels_y;
-    }
-
     initialize() {
-        console.warn("INITIALIZE OffscreenRenderer");
+        console.warn("INITIALIZE OffscreenSurfaceComputation");
 
         this.width = 100;
         this.height = 100;
@@ -37,7 +29,6 @@ class OffscreenSurfaceComputation {
         this.bufferCamera.position.z = 5;
 
         this.dummy_plane_geometry = new THREE.PlaneGeometry(100, 100);
-        //this.dummy_plane_material = new THREE.MeshBasicMaterial({ color: 0x500000, side: THREE.DoubleSide });
 
         this.generateUniforms();
         this.dummy_plane_material = new THREE.ShaderMaterial({
@@ -56,7 +47,6 @@ class OffscreenSurfaceComputation {
     }
 
     setUniforms() {
-        this.setAdditionalUniforms();        
         this.dummy_plane_mesh.material.uniforms.mu.value = this.simulationParameters.mu;
         this.dummy_plane_mesh.material.uniforms.angular_velocity.value = this.simulationParameters.angular_velocity;
         this.dummy_plane_mesh.material.uniforms.primary_x.value = this.simulationParameters.getPrimaryX();
@@ -157,33 +147,6 @@ class OffscreenSurfaceComputation {
         this.renderer.setRenderTarget(null);
     }
 
-    computeLayer(targetLayerIndex){
-        this.dummy_plane_mesh.material.uniforms.target_layer_index.value = targetLayerIndex;
-        this.renderer.setRenderTarget(this.renderTarget, targetLayerIndex);
-        this.renderer.render(this.bufferScene, this.bufferCamera);
-        this.renderer.setRenderTarget(null);
-    }
-
-    /**
-     * Computes a 2D texture at layer 0 of this texture but for layer targetLayerIndex
-     * @param {*} targetLayerIndex the target layer in the 3D texture
-     */
-    computeTargetLayerAt0(targetLayerIndex){
-        this.dummy_plane_mesh.material.uniforms.target_layer_index.value = targetLayerIndex;
-        this.renderer.setRenderTarget(this.renderTarget, 0);
-        this.renderer.render(this.bufferScene, this.bufferCamera);
-        this.renderer.setRenderTarget(null);
-    }
-    
-    copyTextureToLayer(texture_input, targetLayerIndex){
-        //console.warn("texture_input", texture_input);
-        this.dummy_plane_mesh.material.uniforms.texture_input.value = texture_input;      
-        this.dummy_plane_mesh.material.uniforms.target_layer_index.value = targetLayerIndex;
-        this.renderer.setRenderTarget(this.renderTarget, targetLayerIndex);
-        this.renderer.render(this.bufferScene, this.bufferCamera);
-        this.renderer.setRenderTarget(null);
-    }
-
     generateUniforms() {
         this.uniforms = {
             target_layer_index: { type: 'int', value: 0 },
@@ -199,7 +162,6 @@ class OffscreenSurfaceComputation {
             planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
             input_texture_positions: { type: 'sampler2D', value: this.texture_vertices}
         }
-        this.addAdditionalUniforms();
     }
 
     vertexShader() {
@@ -218,7 +180,7 @@ class OffscreenSurfaceComputation {
     fragmentShader() {
         return "" +
             this.getUniformsString() + "\n" +
-            this.fragmentShaderAdditionalMethodDeclarations() + LINALG.SHADER_MODULE_LINALG + "\n" + UTILITY.SHADER_MODULE_UTILITY + "\n" +
+            LINALG.SHADER_MODULE_LINALG + "\n" + UTILITY.SHADER_MODULE_UTILITY + "\n" +
             glsl`
         varying vec3 vUv;
 
@@ -239,26 +201,22 @@ class OffscreenSurfaceComputation {
             int virtual_texture_x = int(x_pixel) / int(planeDimensionsPixel.x);
             int virtual_texture_y = int(y_pixel) / int(planeDimensionsPixel.y);
 
-            //world coordinates in virtual texture (when position is variable and direction is constant)
-            float world_x = planeCornerBL.x + (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0)) * planeDimensions.x;
-            float world_y = planeCornerBL.y + (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0)) * planeDimensions.y;
-
-            //angles in virtual texture (when position is constant and direction is variable)
-            //ISO convention (i.e. for physics: radius r, inclination theta, azimuth phi) --> https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
-            float theta_radians = PI * (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
-            float phi_radians = 2.0 * PI * (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
-
-            //TESTING: output coordinates
+            //reading seed position
             ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
             vec4 value = texelFetch(input_texture_positions, pointer, 0);
-            outputColor = value;
+            vec3 position = value.xyz;
+            bool no_value = value.w < 0.5;
 
-        `
-            + this.fragmentShaderMethodComputation() +
-            `
+            //early termination if this pixel is padding (i.e., not associated with any vertex)
+            if(no_value){
+                outputColor = vec4(0,0,0,0);
+                return;
+            }
+
+            //TESTING: output coordinates
+            outputColor = value;
         }    
         `
-        + this.fragmentShaderAdditionalMethodDefinitions();
     }
 
     /**
@@ -312,55 +270,6 @@ class OffscreenSurfaceComputation {
      */
     getNumPixelsPerNodeY() {
         return 1;
-    }
-
-    /**
-     * How many layers of 2D textures make up the 3D texture
-     * 
-     * @returns the number of layers
-     */
-    getNumLayers(){
-        return 1;
-    }
-
-    /**
-     * The actual computation of the shader is done in this method.
-     * 
-     * @returns partial shader code that is copied inside the main function of the shader
-     */
-    fragmentShaderMethodComputation() {
-        return "";
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //      OPTIONAL METHODS
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * The following uniforms are created for all offscreen renderers during generateUniforms():
-     * - planeCenter
-     * - planeCornerBL
-     * - planeDimensions
-     * - planeDimensionsPixel
-     * 
-     * Additional uniforms can be created in this method
-     */
-    addAdditionalUniforms() {
-
-    }
-
-    setAdditionalUniforms() {
-
-    }
-
-    fragmentShaderAdditionalMethodDeclarations(){
-        return "";
-    }
-
-    fragmentShaderAdditionalMethodDefinitions(){
-        return "";
     }
 
 }

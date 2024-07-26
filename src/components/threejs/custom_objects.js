@@ -967,6 +967,7 @@ class MarchingCubesMesh{
         console.warn("### this.mesh.geometry", this.mesh.geometry);  
     }
 
+    //this shader is responsible for rendering the vertex data computed by OffscreenSurfaceComputation 
     vertexShader() {
         return glsl`
         attribute vec4 ftle;
@@ -981,6 +982,7 @@ class MarchingCubesMesh{
         `
     }
 
+    //this shader is responsible for rendering the vertex data computed by OffscreenSurfaceComputation 
     fragmentShader() {
         return "" +
             this.getUniformsString() 
