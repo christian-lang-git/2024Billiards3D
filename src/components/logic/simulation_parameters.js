@@ -100,6 +100,11 @@ class SimulationParameters {
             this.noSurfaceParameterChange = false;
         }
         this.surface_type = surface_type;
+        this.var_a = a;
+        this.var_b = b;
+        this.var_c = c;
+        this.var_R = R;
+        this.var_r = r;
 
         for(var i=0; i<this.surface_list.length; i++){
             var noChange = this.surface_list[i].setSurfaceValues(a, b, c, R, r, formula_implicit_surface);

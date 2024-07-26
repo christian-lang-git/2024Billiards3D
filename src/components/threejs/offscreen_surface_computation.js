@@ -47,21 +47,29 @@ class OffscreenSurfaceComputation {
     }
 
     setUniforms() {
-        this.dummy_plane_mesh.material.uniforms.mu.value = this.simulationParameters.mu;
-        this.dummy_plane_mesh.material.uniforms.angular_velocity.value = this.simulationParameters.angular_velocity;
-        this.dummy_plane_mesh.material.uniforms.primary_x.value = this.simulationParameters.getPrimaryX();
-        this.dummy_plane_mesh.material.uniforms.secondary_x.value = this.simulationParameters.getSecondaryX();
-        this.dummy_plane_mesh.material.uniforms.primary_mass.value = this.simulationParameters.getPrimaryMass();
-        this.dummy_plane_mesh.material.uniforms.secondary_mass.value = this.simulationParameters.getSecondaryMass();
-        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.x = this.simulationParameters.domain_min_x;
-        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.y = this.simulationParameters.domain_min_y;
-        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.x = this.simulationParameters.domain_dimension_x;
-        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.y = this.simulationParameters.domain_dimension_y;
+
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.width;
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.height;
         this.dummy_plane_mesh.material.uniforms.input_texture_positions.value = this.texture_vertices;
+
+        //surface variables
+        this.dummy_plane_mesh.material.uniforms.surface_type.value = this.simulationParameters.surface_type;
+        this.dummy_plane_mesh.material.uniforms.var_a.value = this.simulationParameters.var_a;
+        this.dummy_plane_mesh.material.uniforms.var_b.value = this.simulationParameters.var_b;
+        this.dummy_plane_mesh.material.uniforms.var_c.value = this.simulationParameters.var_c;
+        this.dummy_plane_mesh.material.uniforms.var_R.value = this.simulationParameters.var_R;
+        this.dummy_plane_mesh.material.uniforms.var_r.value = this.simulationParameters.var_r;
         
-        
+        //compute some values like one_div_aa
+        var a = this.simulationParameters.var_a;
+        var b = this.simulationParameters.var_b;
+        var c = this.simulationParameters.var_c;
+        var one_div_aa = 1 / (a * a);
+        var one_div_bb = 1 / (b * b);
+        var one_div_cc = 1 / (c * c);
+        this.dummy_plane_mesh.material.uniforms.one_div_aa.value = one_div_aa;
+        this.dummy_plane_mesh.material.uniforms.one_div_bb.value = one_div_bb;
+        this.dummy_plane_mesh.material.uniforms.one_div_cc.value = one_div_cc;     
     }
 
     updateRenderTarget() {
@@ -148,19 +156,18 @@ class OffscreenSurfaceComputation {
     }
 
     generateUniforms() {
-        this.uniforms = {
-            target_layer_index: { type: 'int', value: 0 },
-            mu: { type: 'float', value: 0.1 },
-            angular_velocity: { type: 'float', value: 1.0 },
-            primary_x: { type: 'float', value: 0.0 },
-            secondary_x: { type: 'float', value: 0.0 },
-            primary_mass: { type: 'float', value: 0.0 },
-            secondary_mass: { type: 'float', value: 0.0 },
-            planeCenter: { type: 'vec2', value: new THREE.Vector2(0, 0) },
-            planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1, -1) },
-            planeDimensions: { type: 'vec2', value: new THREE.Vector2(2, 2) },
+        this.uniforms = {      
             planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
-            input_texture_positions: { type: 'sampler2D', value: this.texture_vertices}
+            input_texture_positions: { type: 'sampler2D', value: this.texture_vertices},      
+            surface_type: { type: 'int', value: 2 },
+            var_a: { type: 'float', value: 3.5 },
+            var_b: { type: 'float', value: 2.5 },
+            var_c: { type: 'float', value: 1.5 },
+            var_R: { type: 'float', value: 2.0 },
+            var_r: { type: 'float', value: 1.0 },
+            one_div_aa: { type: 'float', value: 1.0 },//computed later
+            one_div_bb: { type: 'float', value: 1.0 },//computed later
+            one_div_cc: { type: 'float', value: 1.0 },//computed later
         }
     }
 
@@ -220,6 +227,9 @@ class OffscreenSurfaceComputation {
         FlowResults computeFlowResults(LocalGrid local_grid);
         PhaseState computeFlow(PhaseState seed_state);
         float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type);
+        float evaluateSurface(vec3 position);
+        float evaluateSurfaceEllipsoid(vec3 position);
+        float evaluateSurfaceTorus(vec3 position);
   
         void main() {
             //coordinates in pixel in total texture starting bottom left
@@ -278,12 +288,21 @@ class OffscreenSurfaceComputation {
 
             //TESTING: output coordinates
             //outputColor = value;
+            
+            //TESTING: output evaluateSurface
+            //outputColor = vec4(abs(evaluateSurface(position))*100.0,0,0,1);
+
+            //TESTING: positive values? --> no
+            //float v = evaluateSurface(position);
+            //if(v > 0.0){
+            //    outputColor = vec4(1,0,0,1);
+            //}
         }   
 
         LocalGrid computeLocalGrid(vec3 position){
             LocalGrid local_grid;
 
-            //TODO
+            //TODO 
 
             PhaseState center;
             PhaseState xp;
@@ -310,7 +329,7 @@ class OffscreenSurfaceComputation {
         PhaseState computeFlow(PhaseState seed_state){
             PhaseState result;
 
-            //TODO
+            //TODO 
 
             return result;
         }
@@ -338,6 +357,44 @@ class OffscreenSurfaceComputation {
             float ftle = 1.0 / advection_time * log(sqrt(lambda_max));
 
             return ftle;
+        }
+
+        float evaluateSurface(vec3 position){
+            switch (surface_type) {
+                case 0://custom
+                    return 0.0;//TODO   
+                case 1://ELLIPSOID
+                    return evaluateSurfaceEllipsoid(position);   
+                case 2://TORUS
+                    return evaluateSurfaceTorus(position);   
+                default:
+                    return 0.0;
+            }
+        }
+
+        float evaluateSurfaceEllipsoid(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+
+            float value = x*x*one_div_aa + y*y*one_div_bb + z*z*one_div_cc - 1.0;
+            return value;
+        }
+
+        float evaluateSurfaceTorus(vec3 position){
+            float x = position.x;
+            float y = position.y;
+            float z = position.z;
+    
+            float xx = x*x;
+            float yy = y*y;
+            float zz = z*z;
+            float RR = var_R*var_R;
+            float rr = var_r*var_r;        
+            float sum = xx + yy + zz + RR - rr;
+    
+            float value = sum*sum - 4.0*RR*(xx+yy);
+            return value;
         }
         `
     }
