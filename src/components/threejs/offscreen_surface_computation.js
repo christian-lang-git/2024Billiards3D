@@ -237,6 +237,8 @@ class OffscreenSurfaceComputation {
         LocalGrid computeLocalGrid(vec3 position);
         FlowResults computeFlowResults(LocalGrid local_grid);
         PhaseState computeFlow(PhaseState seed_state);
+        vec3 reflecion(vec3 direction, vec3 normal);
+        vec3 reflecion_regular(vec3 direction, vec3 normal);
         float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type);
 
         float evaluateSurface(vec3 position);
@@ -326,15 +328,30 @@ class OffscreenSurfaceComputation {
         }   
 
         LocalGrid computeLocalGrid(vec3 position){
+
+            //compute local axes
+            vec3 gradient = evaluateGradient(position);
+            vec3 normal = normalize(gradient);
+            vec3 normal_negated = -normal;
+            vec3 tangent_a = computeTangentA(position);    
+            vec3 tangent_b = cross(normal_negated, tangent_a);
+    
+            //initial positioning of nodes in 4 directions
+            float kernel_distance = 0.01;
+            vec3 point_tangent_a_forward = position + tangent_a * kernel_distance;
+            vec3 point_tangent_a_backward = position - tangent_a * kernel_distance;
+            vec3 point_tangent_b_forward = position + tangent_b * kernel_distance;
+            vec3 point_tangent_b_backward = position - tangent_b * kernel_distance;
+    
+            //local grid
             LocalGrid local_grid;
+            local_grid.center.position = position;
 
-            //TODO
-
-            PhaseState center;
-            PhaseState xp;
-            PhaseState xn;
-            PhaseState yp;
-            PhaseState yn;
+            //move nodes to surface via gradient
+            local_grid.xp.position = moveToSurface(point_tangent_a_forward);
+            local_grid.xn.position = moveToSurface(point_tangent_a_backward);
+            local_grid.yp.position = moveToSurface(point_tangent_b_forward);
+            local_grid.yn.position = moveToSurface(point_tangent_b_backward);
 
             //compute grid distances for finite differences
             local_grid.dist_x = distance(local_grid.xp.position, local_grid.xn.position);
@@ -353,12 +370,42 @@ class OffscreenSurfaceComputation {
         }
         
         PhaseState computeFlow(PhaseState seed_state){
-            PhaseState result;
+            PhaseState current_state;
+            PhaseState next_state;
+            next_state.position = vec3(seed_state.position);
+            next_state.direction = vec3(seed_state.direction);
 
-            //TODO
+            for(int i=0; i<number_of_intersections; i++){
+                //get current state
+                current_state.position = vec3(next_state.position);
+                current_state.direction = vec3(next_state.direction);
+                
+                //intersection --> next state
+                next_state = findIntersectionFromInside(current_state);        
+                
+                //reflect --> next direction
+                vec3 gradient = evaluateGradient(next_state.position);
+                vec3 normal = normalize(gradient);
+                next_state.direction = reflecion(current_state.direction, normal);  
+    
+                //arc length
+                //vec3 difference = next_state.position - current_state.position;
+                //float segment_length = length(difference);
+                //next_position_data.arc_length = current_position_data.arc_length + segment_length;
+                //this.arc_length = next_position_data.arc_length; 
+            }  
 
-            return result;
+            return next_state;
         }
+
+        vec3 reflecion(vec3 direction, vec3 normal){    
+            return reflecion_regular(direction, normal);
+        }
+    
+        vec3 reflecion_regular(vec3 direction, vec3 normal){
+            float d = dot(direction, normal);
+            return direction - 2.0*d*normal;//reflection_direction: r=d-2(d dot n)n with direction d and normal n
+        }    
         
         float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type){
             //build Cauchy-Green
