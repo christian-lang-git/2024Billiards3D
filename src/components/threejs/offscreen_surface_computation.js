@@ -59,7 +59,12 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh.material.uniforms.var_c.value = this.simulationParameters.var_c;
         this.dummy_plane_mesh.material.uniforms.var_R.value = this.simulationParameters.var_R;
         this.dummy_plane_mesh.material.uniforms.var_r.value = this.simulationParameters.var_r;
-        
+        //bisection variables        
+        this.dummy_plane_mesh.material.uniforms.number_of_intersections.value = this.simulationParameters.number_of_intersections;
+        this.dummy_plane_mesh.material.uniforms.number_of_bisection_steps.value = this.simulationParameters.number_of_bisection_steps;
+        this.dummy_plane_mesh.material.uniforms.step_size.value = this.simulationParameters.step_size;
+        this.dummy_plane_mesh.material.uniforms.max_steps.value = this.simulationParameters.max_steps;
+                
         //compute some values like one_div_aa
         var a = this.simulationParameters.var_a;
         var b = this.simulationParameters.var_b;
@@ -168,6 +173,12 @@ class OffscreenSurfaceComputation {
             one_div_aa: { type: 'float', value: 1.0 },//computed later
             one_div_bb: { type: 'float', value: 1.0 },//computed later
             one_div_cc: { type: 'float', value: 1.0 },//computed later
+            number_of_intersections: { type: 'int', value: 2 },
+            number_of_bisection_steps: { type: 'int', value: 8 },
+            step_size: { type: 'float', value: 1.0 },
+            max_steps: { type: 'int', value: 100 },
+
+            
         }
     }
 
@@ -227,6 +238,7 @@ class OffscreenSurfaceComputation {
         FlowResults computeFlowResults(LocalGrid local_grid);
         PhaseState computeFlow(PhaseState seed_state);
         float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type);
+
         float evaluateSurface(vec3 position);
         float evaluateSurfaceEllipsoid(vec3 position);
         float evaluateSurfaceTorus(vec3 position);
@@ -238,6 +250,12 @@ class OffscreenSurfaceComputation {
         vec3 computeTangentA(vec3 position);
         vec3 computeTangentAEllipsoid(vec3 position);
         vec3 computeTangentATorus(vec3 position);
+
+        vec3 bisectSurface(vec3 pos_inside, vec3 pos_outside);
+        PhaseState findIntersection(PhaseState phase_state);
+        PhaseState findIntersectionFromInside(PhaseState phase_state);
+        PhaseState findIntersectionFromOutside(PhaseState phase_state);
+        vec3 moveToSurface(vec3 position);
   
         void main() {
             //coordinates in pixel in total texture starting bottom left
@@ -310,7 +328,7 @@ class OffscreenSurfaceComputation {
         LocalGrid computeLocalGrid(vec3 position){
             LocalGrid local_grid;
 
-            //TODO 
+            //TODO
 
             PhaseState center;
             PhaseState xp;
@@ -337,7 +355,7 @@ class OffscreenSurfaceComputation {
         PhaseState computeFlow(PhaseState seed_state){
             PhaseState result;
 
-            //TODO 
+            //TODO
 
             return result;
         }
@@ -486,6 +504,122 @@ class OffscreenSurfaceComputation {
             float dir_x = y;
             float dir_y = -x;
             return normalize(vec3(dir_x, dir_y, 0));
+        }
+
+        vec3 bisectSurface(vec3 pos_inside, vec3 pos_outside){  
+            //console.warn("bisectSurface pos_inside, pos_outside", pos_inside, pos_outside);  
+            float value_outside = evaluateSurface(pos_outside);    
+            
+            for(int i=0; i<number_of_bisection_steps; i++){
+                //get and evaluate center point
+                vec3 pos = (pos_inside + pos_outside) * 0.5;
+                float value = evaluateSurface(pos);
+    
+                //compare
+                if((value>0.0) == (value_outside>0.0)){
+                    //center and outside have same sign
+                    pos_outside = vec3(pos);
+                }else{
+                    //center and inside have same sign
+                    pos_inside = vec3(pos);
+                }
+            }    
+
+            return pos_inside;//approximate intersection_position but always on the inside
+        }
+
+        PhaseState findIntersection(PhaseState phase_state){        
+            float value = evaluateSurface(phase_state.position);
+            if(value < 0.0){            
+                return findIntersectionFromInside(phase_state);
+            }
+            if(value > 0.0){            
+                return findIntersectionFromOutside(phase_state);
+            }
+            return phase_state;
+        }
+    
+        PhaseState findIntersectionFromInside(PhaseState phase_state){            
+            vec3 position = phase_state.position;
+            vec3 direction = phase_state.direction;
+
+            vec3 pos_inside = vec3(position);
+            vec3 pos_outside = vec3(position);
+            bool found_outside = false;
+            
+            for(int i=1; i<max_steps; i++)
+            {            
+                float scale = float(i) * step_size;   
+                vec3 pos = position + scale * direction;
+                float value = evaluateSurface(pos);
+                if(value < 0.0){   
+                    //inside object             
+                    pos_inside = vec3(pos);
+                }
+                else{
+                    //outside object    
+                    pos_outside = vec3(pos);
+                    found_outside = true;
+                    break;
+                }
+            }
+    
+            if(found_outside){
+                vec3 new_position = bisectSurface(pos_inside, pos_outside);
+                phase_state.position = new_position;
+            }    
+
+            return phase_state;
+        }
+    
+        PhaseState findIntersectionFromOutside(PhaseState phase_state){
+            vec3 position = phase_state.position;
+            vec3 direction = phase_state.direction;
+
+            vec3 pos_inside = vec3(position);
+            vec3 pos_outside = vec3(position);
+            bool found_inside = false;
+            
+            for(int i=1; i<max_steps; i++)
+            {            
+                float scale = float(i) * step_size;   
+                vec3 pos = position + scale * direction;
+                float value = evaluateSurface(pos);
+                if(value > 0.0){   
+                    //outside object            
+                    pos_outside = vec3(pos);
+                }
+                else{
+                    //inside object      
+                    pos_inside = vec3(pos);
+                    found_inside = true;
+                    break;
+                }
+            }
+    
+            if(found_inside){
+                vec3 new_position = bisectSurface(pos_inside, pos_outside);
+                phase_state.position = new_position;
+            }
+             
+            return phase_state;
+        }
+
+        vec3 moveToSurface(vec3 position){
+            vec3 gradient = evaluateGradient(position);
+            vec3 direction = normalize(gradient);    
+    
+            float value = evaluateSurface(position);
+            PhaseState phase_state;
+            phase_state.position = position;
+            if(value > 0.0){
+                phase_state.direction = -direction;//NEGATED DIRECTION
+                return findIntersectionFromOutside(phase_state).position;
+            }
+            else if(value < 0.0){
+                phase_state.direction = direction;
+                return findIntersectionFromInside(phase_state).position;
+            }
         }
         `
     }
