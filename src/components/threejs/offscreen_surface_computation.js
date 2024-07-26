@@ -64,6 +64,10 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh.material.uniforms.number_of_bisection_steps.value = this.simulationParameters.number_of_bisection_steps;
         this.dummy_plane_mesh.material.uniforms.step_size.value = this.simulationParameters.step_size;
         this.dummy_plane_mesh.material.uniforms.max_steps.value = this.simulationParameters.max_steps;
+        //seed variables
+        this.dummy_plane_mesh.material.uniforms.seed_direction.value.x = this.simulationParameters.seed_direction_x;
+        this.dummy_plane_mesh.material.uniforms.seed_direction.value.y = this.simulationParameters.seed_direction_y;
+        this.dummy_plane_mesh.material.uniforms.seed_direction.value.z = this.simulationParameters.seed_direction_z;
                 
         //compute some values like one_div_aa
         var a = this.simulationParameters.var_a;
@@ -177,7 +181,7 @@ class OffscreenSurfaceComputation {
             number_of_bisection_steps: { type: 'int', value: 8 },
             step_size: { type: 'float', value: 1.0 },
             max_steps: { type: 'int', value: 100 },
-
+            seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
             
         }
     }
@@ -235,6 +239,7 @@ class OffscreenSurfaceComputation {
         };
 
         LocalGrid computeLocalGrid(vec3 position);
+        vec3 getSeedDirectionAtPosition(vec3 position);
         FlowResults computeFlowResults(LocalGrid local_grid);
         PhaseState computeFlow(PhaseState seed_state);
         vec3 reflecion(vec3 direction, vec3 normal);
@@ -352,12 +357,24 @@ class OffscreenSurfaceComputation {
             local_grid.xn.position = moveToSurface(point_tangent_a_backward);
             local_grid.yp.position = moveToSurface(point_tangent_b_forward);
             local_grid.yn.position = moveToSurface(point_tangent_b_backward);
+            
+            //set seed directions
+            local_grid.center.direction = getSeedDirectionAtPosition(local_grid.center.position);
+            local_grid.xp.direction = getSeedDirectionAtPosition(local_grid.xp.position);
+            local_grid.xn.direction = getSeedDirectionAtPosition(local_grid.xn.position);
+            local_grid.yp.direction = getSeedDirectionAtPosition(local_grid.yp.position);
+            local_grid.yn.direction = getSeedDirectionAtPosition(local_grid.yn.position);
 
             //compute grid distances for finite differences
             local_grid.dist_x = distance(local_grid.xp.position, local_grid.xn.position);
             local_grid.dist_y = distance(local_grid.yp.position, local_grid.yn.position);
 
             return local_grid;
+        }
+
+        vec3 getSeedDirectionAtPosition(vec3 position){
+            //TODO: for now only constant seed direction --> next: local coordinates
+            return normalize(seed_direction);
         }
         
         FlowResults computeFlowResults(LocalGrid local_grid){            

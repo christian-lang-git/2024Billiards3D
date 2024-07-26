@@ -1038,6 +1038,9 @@ class MarchingCubesMesh{
             outputColor = vec4(1.0, 0.0, 0.0, 1.0);   
             //as a test: output coordinates
             outputColor = vec4(vftle.x, vftle.y, vftle.z, 1.0);   
+
+            float value = vftle.y;
+            outputColor = vec4(value/10.0, 0, 0, 1.0);   
         }            
         `
         ;
