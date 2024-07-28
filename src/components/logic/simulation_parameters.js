@@ -55,7 +55,7 @@ class SimulationParameters {
         this.activeBehavior = Constants.BEHAVIOR_CONTROL_CAMERA;
         this.activeBehaviorLastFrame = Constants.BEHAVIOR_CONTROL_CAMERA;
         this.rendering_texture_mode = Constants.TEXTURE_MODE_SPECIALIZED;
-        this.rendering_specialized_mode = Constants.TEXTURE_MODE_SPECIALIZED_GRAVITATIONAL_FORCE;
+        this.rendering_specialized_mode = Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE;
         this.return_layer = Constants.LAYER_INDEX_FIRST_RETURN;
         this.rendering_raw_mode = Constants.OFFSCREEN_RENDERER_GRAVITATIONAL_FORCE;
         this.rendering_raw_mode_layer = 0;

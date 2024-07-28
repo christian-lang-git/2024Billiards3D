@@ -421,6 +421,9 @@ class SceneWrapperVisualization {
     changeDisplayedTextureSpecialized(textureRenderer){
         var offscreenRenderer;
         var offscreenRendererBackwards;
+        offscreenRenderer = this.offscreenRendererSeedsAndReturns;
+        offscreenRendererBackwards = this.offscreenRendererSeedsAndReturnsBackwards;
+        /*
         switch (this.simulationParameters.rendering_specialized_mode) {
             case Constants.TEXTURE_MODE_SPECIALIZED_GRAVITATIONAL_FORCE:
                 offscreenRenderer = this.offscreenRendererGravitationalForce;
@@ -481,7 +484,7 @@ class SceneWrapperVisualization {
             default:
                 console.error("Error: Unknown rendering_specialized_mode", this.simulationParameters.rendering_specialized_mode);
                 break;
-        }
+        }*/
         textureRenderer.changeDisplayedTexture(offscreenRenderer.renderTarget.texture);
         textureRenderer.changeDisplayedTextureBackwards(offscreenRendererBackwards.renderTarget.texture);
     }

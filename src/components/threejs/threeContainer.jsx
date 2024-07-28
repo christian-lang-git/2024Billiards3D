@@ -267,7 +267,7 @@ class ThreeContainer extends Component {
     updateParametersRendering(){
         const { uiState } = this.context;
         var max_radius_bodies = uiState.UI_STATE_RENDERING_BODIES_MAX_RADIUS_BODIES;
-        var radius_center_of_mass = uiState.UI_STATE_RENDERING_BODIES_RADIUS_CENTER_OF_MASS;
+        var radius_center_of_mass = uiState.UI_STATE_RENDERING_RADIUS_ORIGIN;
         var radius_clicked_position = uiState.UI_STATE_RENDERING_CLICKED_POSITION_RADIUS;
         var radius_clicked_position_aux = uiState.UI_STATE_RENDERING_CLICKED_POSITION_RADIUS_AUX;
         var radius_clicked_position_aux_sphere = uiState.UI_STATE_RENDERING_CLICKED_POSITION_RADIUS_AUX_SPHERE;

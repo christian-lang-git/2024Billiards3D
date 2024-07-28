@@ -636,7 +636,7 @@ class TextureRenderer {
         this.uniforms["displayedTextureBackwards"] = { type: 'sampler3D', value: null };
         this.uniforms["colorMapsTexture"] = { type: 'sampler2D', value: null };
         this.uniforms["rendering_texture_mode"] = { type: 'int', value: parseInt(Constants.TEXTURE_MODE_SPECIALIZED) };
-        this.uniforms["rendering_specialized_mode"] = { type: 'int', value: parseInt(Constants.TEXTURE_MODE_SPECIALIZED_GRAVITATIONAL_FORCE) };
+        this.uniforms["rendering_specialized_mode"] = { type: 'int', value: parseInt(Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR) };
         this.uniforms["return_layer"] = { type: 'int', value: Constants.LAYER_INDEX_FIRST_RETURN };
         this.uniforms["rendering_raw_mode_layer"] = { type: 'int', value: 0 };
         this.uniforms["rendering_forward"] = { type: 'bool', value: true };        

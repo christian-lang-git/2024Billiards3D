@@ -37,24 +37,6 @@ class TabRendering extends Component {
         return uiState.UI_STATE_RENDERING_TEXTURE_MODE === Constants.TEXTURE_MODE_SPECIALIZED;
     };
 
-    shouldRenderReturnNumber = () => {
-        const { uiState } = this.context;
-        return uiState.UI_STATE_RENDERING_TEXTURE_MODE === Constants.TEXTURE_MODE_SPECIALIZED
-            &&
-            (
-                uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_ADVECTION_TIME
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_ARC_LENGTH
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_RELATIVE
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_RELATIVE_MAGNITUDE
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE     
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE_BOTH    
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_SUCCESS       
-                || uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIST_BODIES                  
-            );
-    };
-
     shouldRenderFtleType = () => {
         const { uiState } = this.context;
         return uiState.UI_STATE_RENDERING_TEXTURE_MODE === Constants.TEXTURE_MODE_SPECIALIZED
@@ -119,12 +101,6 @@ class TabRendering extends Component {
                                     {this.shouldRenderDirection() && (
                                         <LabeledSelectRenderingDirection />
                                     )}
-                                    {this.shouldRenderReturnNumber() && (
-                                        <LabeledField
-                                            name="UI_STATE_RENDERING_RETURN_NUMBER"
-                                            labelText={"return number"}
-                                        />
-                                    )}
                                     {this.shouldRenderRawModeVirtual() && (
                                         <div className="grid grid-cols-2">
                                             <LabeledField
@@ -157,8 +133,8 @@ class TabRendering extends Component {
                                 <AccordionTrigger>Spheres</AccordionTrigger>
                                 <AccordionContent>
                                     <LabeledField
-                                        name="UI_STATE_RENDERING_BODIES_MAX_RADIUS_BODIES"
-                                        labelText={"max radius bodies"}
+                                        name="UI_STATE_RENDERING_RADIUS_ORIGIN"
+                                        labelText={"radius origin"}
                                     />
                                     <Label className="font-medium">radius clicked position</Label>
                                     <div className="grid grid-cols-3">

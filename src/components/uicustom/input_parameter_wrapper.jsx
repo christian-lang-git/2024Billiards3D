@@ -89,7 +89,7 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_CAMERA_FAR", "far", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_FTLE_TYPE", "ftype", Constants.TYPE_INT);
         new InputWrapper(this, "UI_STATE_RENDERING_BODIES_MAX_RADIUS_BODIES", "radb", Constants.TYPE_STRING);
-        new InputWrapper(this, "UI_STATE_RENDERING_BODIES_RADIUS_CENTER_OF_MASS", "radcm", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_RENDERING_RADIUS_ORIGIN", "rado", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_SCALAR_MIN", "smin", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_SCALAR_MAX", "smax", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_OPACITY", "opa", Constants.TYPE_STRING);

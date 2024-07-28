@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { vec3 } from "gl-matrix/esm";
 
+import * as Constants from "@/components/utility/constants";
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import * as LINALG from "@/components/glsl/linalg";
 import * as UTILITY from "@/components/glsl/utility";
@@ -426,6 +427,11 @@ class MarchingCubesMesh{
         this.textured_material.transparent = true;
         //this.textured_material.opacity = 0.5;
         this.textured_material.opacity = 1.0;
+
+        
+        var green = 0x34a853;
+        this.single_color_material =  new THREE.MeshStandardMaterial( {color: green, side: THREE.DoubleSide, wireframe: false, transparent: true} );
+        this.single_color_material.opacity = 1.0;
     }
 
     UpdateParametersCheckBuildRequired(){
@@ -706,9 +712,7 @@ class MarchingCubesMesh{
             geometry.computeVertexNormals();
         }
 
-        var green = 0x34a853;
         //var colorMaterial =  new THREE.MeshLambertMaterial( {color: green, side: THREE.DoubleSide, wireframe: false} );
-        var material =  new THREE.MeshStandardMaterial( {color: green, side: THREE.DoubleSide, wireframe: false, transparent: true} );
 
         //this.mesh = new THREE.Mesh( geometry, material );
         this.mesh = new THREE.Mesh( geometry, this.textured_material );
@@ -1049,6 +1053,25 @@ class MarchingCubesMesh{
             ftle_index: { type: 'int', value: 0 },
             opacity: { type: 'float', value: 1 },
         }
+    }
+
+    updateMaterial(){
+        console.warn("rendering_specialized_mode", this.simulationParameters.rendering_specialized_mode);
+        switch (this.simulationParameters.rendering_specialized_mode) {
+            case Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR:
+                console.warn("case 0");
+                this.mesh.material = this.single_color_material;    
+                break;
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE:
+                console.warn("case 1");
+                this.mesh.material = this.textured_material;                
+                break;
+            default:
+                console.error("Error: Unknown rendering_specialized_mode", this.simulationParameters.rendering_specialized_mode);
+                break;
+        }
+
+        this.single_color_material.opacity = this.simulationParameters.opacity;
     }
 
     updateUniforms() {
