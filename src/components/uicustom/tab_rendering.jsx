@@ -49,11 +49,12 @@ class TabRendering extends Component {
 
     shouldRenderDirection = () => {
         const { uiState } = this.context;
-        return ! //NEGATED
-        (
-            uiState.UI_STATE_RENDERING_TEXTURE_MODE === Constants.TEXTURE_MODE_SPECIALIZED 
-            && uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE_BOTH
-        );
+        return uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE;
+    };
+
+    shouldRenderScalarRange = () => {
+        const { uiState } = this.context;
+        return uiState.UI_STATE_RENDERING_SPECIALIZED_MODE === Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE;
     };
 
 
@@ -112,17 +113,19 @@ class TabRendering extends Component {
                                                 labelText={"y texture index"}
                                             />
                                         </div>
+                                    )}                                    
+                                    {this.shouldRenderScalarRange() && (
+                                        <div className="grid grid-cols-2">
+                                            <LabeledField
+                                                name="UI_STATE_RENDERING_SCALAR_MIN"
+                                                labelText={"min scalar"}
+                                            />
+                                            <LabeledField
+                                                name="UI_STATE_RENDERING_SCALAR_MAX"
+                                                labelText={"max scalar"}
+                                            />
+                                        </div>
                                     )}
-                                    <div className="grid grid-cols-2">
-                                        <LabeledField
-                                            name="UI_STATE_RENDERING_SCALAR_MIN"
-                                            labelText={"min scalar"}
-                                        />
-                                        <LabeledField
-                                            name="UI_STATE_RENDERING_SCALAR_MAX"
-                                            labelText={"max scalar"}
-                                        />
-                                    </div>
                                     <LabeledField
                                         name="UI_STATE_RENDERING_OPACITY"
                                         labelText={"opacity"}
