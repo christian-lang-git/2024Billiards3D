@@ -129,7 +129,8 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
     }
 
     updateMarchingCubesMesh(){
-        this.marchingCubesMesh.mesh.material.opacity = this.simulationParameters.opacity;
+        //this.marchingCubesMesh.mesh.material.opacity = this.simulationParameters.opacity;
+        this.marchingCubesMesh.updateUniforms();
     }
 
     computeAdditionalStuff(){        
