@@ -965,9 +965,9 @@ class MarchingCubesMesh{
     }
 
     setAttributeFTLE(readBuffer){ 
-        console.warn("### readBuffer", readBuffer);            
+        //console.warn("### readBuffer", readBuffer);            
         this.mesh.geometry.setAttribute( 'ftle', new THREE.BufferAttribute(readBuffer, 4) );
-        console.warn("### this.mesh.geometry", this.mesh.geometry);  
+        //console.warn("### this.mesh.geometry", this.mesh.geometry);  
     }
 
     //this shader is responsible for rendering the vertex data computed by OffscreenSurfaceComputation 

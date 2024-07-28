@@ -82,7 +82,7 @@ class OffscreenSurfaceComputation {
     }
 
     updateRenderTarget() {
-        console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
+        //console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
         var total_w = this.width * this.getNumPixelsPerNodeX();
         var total_h = this.height * this.getNumPixelsPerNodeY();
 
@@ -145,7 +145,7 @@ class OffscreenSurfaceComputation {
             
         }
         this.texture_vertices.needsUpdate = true;
-        console.warn("### this.texture_vertices_data", this.texture_vertices_data);
+        //console.warn("### this.texture_vertices_data", this.texture_vertices_data);
         
         //computation in shader
         this.setUniforms();
@@ -155,7 +155,7 @@ class OffscreenSurfaceComputation {
         //read results
         const readBuffer = new Float32Array(this.width * this.height * 4);
         this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width, this.height, readBuffer);
-        console.warn("### readBuffer", readBuffer);
+        //console.warn("### readBuffer", readBuffer);
 
         //send results to mesh
         this.marchingCubesMesh.setAttributeFTLE(readBuffer);
