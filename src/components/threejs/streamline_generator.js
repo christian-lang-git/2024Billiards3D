@@ -315,7 +315,10 @@ class Streamline {
         
         this.mesh.geometry.attributes.position.needsUpdate = true;
         this.mesh.geometry.computeVertexNormals();
-
+        
+        var tube_color = this.simulationParameters.tube_color;
+        this.mesh.material.color = new THREE.Color(tube_color);
+        this.mesh.material.emissive = new THREE.Color(tube_color);
     }
 
     calculateHamiltonian(x, y, z, px, py, pz, mu, n){
