@@ -1,51 +1,6 @@
 const glsl = x => x[0];
 const SHADER_MODULE_BILLIARD = glsl`
 
-LocalGrid computeLocalGrid(vec3 position){
-
-    //compute local axes
-    vec3 gradient = evaluateGradient(position);
-    vec3 normal = normalize(gradient);
-    vec3 normal_negated = -normal;
-    vec3 tangent_a = computeTangentA(position);    
-    vec3 tangent_b = cross(normal_negated, tangent_a);
-
-    //initial positioning of nodes in 4 directions
-    float kernel_distance = 0.01;
-    vec3 point_tangent_a_forward = position + tangent_a * kernel_distance;
-    vec3 point_tangent_a_backward = position - tangent_a * kernel_distance;
-    vec3 point_tangent_b_forward = position + tangent_b * kernel_distance;
-    vec3 point_tangent_b_backward = position - tangent_b * kernel_distance;
-
-    //local grid
-    LocalGrid local_grid;
-    local_grid.center.position = position;
-
-    //move nodes to surface via gradient
-    local_grid.xp.position = moveToSurface(point_tangent_a_forward);
-    local_grid.xn.position = moveToSurface(point_tangent_a_backward);
-    local_grid.yp.position = moveToSurface(point_tangent_b_forward);
-    local_grid.yn.position = moveToSurface(point_tangent_b_backward);
-    
-    //set seed directions
-    local_grid.center.direction = getSeedDirectionAtPosition(local_grid.center.position);
-    local_grid.xp.direction = getSeedDirectionAtPosition(local_grid.xp.position);
-    local_grid.xn.direction = getSeedDirectionAtPosition(local_grid.xn.position);
-    local_grid.yp.direction = getSeedDirectionAtPosition(local_grid.yp.position);
-    local_grid.yn.direction = getSeedDirectionAtPosition(local_grid.yn.position);
-
-    //compute grid distances for finite differences
-    local_grid.dist_x = distance(local_grid.xp.position, local_grid.xn.position);
-    local_grid.dist_y = distance(local_grid.yp.position, local_grid.yn.position);
-
-    return local_grid;
-}
-
-vec3 getSeedDirectionAtPosition(vec3 position){
-    //TODO: for now only constant seed direction --> next: local coordinates
-    return normalize(seed_direction);
-}
-
 FlowResults computeFlowResults(LocalGrid local_grid){            
     FlowResults flow_results;
     flow_results.xp = computeFlow(local_grid.xp);

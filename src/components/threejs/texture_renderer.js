@@ -162,7 +162,7 @@ class TextureRenderer {
             int y_offset = rendering_raw_mode_y_texture_index * int(planeDimensionsPixel.y);
 
             //testing correct pixel access if theta_down
-            
+            /*
             if(x_pixel < 10 && y_pixel < 10){
                 outputColor = vec4(0.0, 1.0, 0.0, 1.0);                
                 return;
@@ -171,7 +171,7 @@ class TextureRenderer {
                 outputColor = vec4(0.0, 0.0, 1.0, 1.0);                
                 return;
             }
-            
+            */
 
 
             //testing: output seed direction
@@ -185,7 +185,7 @@ class TextureRenderer {
 
 
 
-            
+
 
             /*
 
