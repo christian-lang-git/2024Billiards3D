@@ -162,7 +162,7 @@ class TextureRenderer {
             int y_offset = rendering_raw_mode_y_texture_index * int(planeDimensionsPixel.y);
 
             //testing correct pixel access if theta_down
-            /*
+            
             if(x_pixel < 10 && y_pixel < 10){
                 outputColor = vec4(0.0, 1.0, 0.0, 1.0);                
                 return;
@@ -171,7 +171,23 @@ class TextureRenderer {
                 outputColor = vec4(0.0, 0.0, 1.0, 1.0);                
                 return;
             }
-            */
+            
+
+
+            //testing: output seed direction
+            bool forward = true;
+            int x_virtual = 1;
+            int y_virtual = 0;
+            int z_layer = 0;
+            vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
+            outputColor = vec4(normalMappingVec3(data.xyz), opacity);
+
+
+
+
+            
+
+            /*
 
             ivec3 pointer;
             vec4 data;
@@ -191,6 +207,7 @@ class TextureRenderer {
                     outputColor = vec4(data.x, data.y, data.z, data.a);
                     break;
             }
+                    */
         `
             + this.fragmentShaderMethodComputation() +
             glsl`

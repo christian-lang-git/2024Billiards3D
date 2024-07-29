@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { vec3 } from "gl-matrix/esm";
-import { OffscreenRenderer } from "@/components/threejs/offscreen_renderer"
+import { OffscreenGridComputation } from "@/components/threejs/offscreen_grid_computation";
 
 
 

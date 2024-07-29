@@ -55,16 +55,6 @@ class OffscreenGridComputation {
 
     updateTexturedPlane() {
         this.setAdditionalUniforms();        
-        this.dummy_plane_mesh.material.uniforms.mu.value = this.simulationParameters.mu;
-        this.dummy_plane_mesh.material.uniforms.angular_velocity.value = this.simulationParameters.angular_velocity;
-        this.dummy_plane_mesh.material.uniforms.primary_x.value = this.simulationParameters.getPrimaryX();
-        this.dummy_plane_mesh.material.uniforms.secondary_x.value = this.simulationParameters.getSecondaryX();
-        this.dummy_plane_mesh.material.uniforms.primary_mass.value = this.simulationParameters.getPrimaryMass();
-        this.dummy_plane_mesh.material.uniforms.secondary_mass.value = this.simulationParameters.getSecondaryMass();
-        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.x = this.simulationParameters.domain_min_x;
-        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.y = this.simulationParameters.domain_min_y;
-        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.x = this.simulationParameters.domain_dimension_x;
-        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.y = this.simulationParameters.domain_dimension_y;
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.getPlaneDimensionX();
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.getPlaneDimensionY();
 
@@ -151,15 +141,6 @@ class OffscreenGridComputation {
     generateUniforms() {
         this.uniforms = {
             target_layer_index: { type: 'int', value: 0 },
-            mu: { type: 'float', value: 0.1 },
-            angular_velocity: { type: 'float', value: 1.0 },
-            primary_x: { type: 'float', value: 0.0 },
-            secondary_x: { type: 'float', value: 0.0 },
-            primary_mass: { type: 'float', value: 0.0 },
-            secondary_mass: { type: 'float', value: 0.0 },
-            planeCenter: { type: 'vec2', value: new THREE.Vector2(0, 0) },
-            planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1, -1) },
-            planeDimensions: { type: 'vec2', value: new THREE.Vector2(2, 2) },
             planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) }
         }
         this.addAdditionalUniforms();
@@ -201,10 +182,6 @@ class OffscreenGridComputation {
             //x and y indices of virtual texture e.g., (0,0) is the top left texture
             int virtual_texture_x = int(x_pixel) / int(planeDimensionsPixel.x);
             int virtual_texture_y = int(y_pixel) / int(planeDimensionsPixel.y);
-
-            //world coordinates in virtual texture (when position is variable and direction is constant)
-            float world_x = planeCornerBL.x + (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0)) * planeDimensions.x;
-            float world_y = planeCornerBL.y + (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0)) * planeDimensions.y;
 
             //angles in virtual texture (when position is constant and direction is variable)
             //ISO convention (i.e. for physics: radius r, inclination theta, azimuth phi) --> https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates

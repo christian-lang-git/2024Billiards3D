@@ -73,7 +73,6 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.updateOrigin();
         this.updateClickedPosition();   
         this.updateStreamlineModel();  
-        this.updateTexturedPlane();
         this.updateAxes();
         this.updateMarchingCubesMesh();
     }

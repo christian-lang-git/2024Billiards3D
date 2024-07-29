@@ -16,6 +16,7 @@ import { SceneWrapperVisualization } from "@/components/threejs/sceneWrapperVisu
 import { ColorMaps } from "@/components/colormaps/colormaps"
 import Emitter from '@/components/utility/emitter';
 import { clamp } from "@/components/utility/utility";
+import { OffscreenGridComputationSeeds } from "@/components/threejs/offscreen_grid_computation_seeds";
 
 /**
  * This class is responsible for the scene that shows the main visualization
@@ -32,8 +33,11 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         this.camera_sphere = camera_sphere;
         this.controls_sphere = controls_sphere;
         var useAnglePlane = true;
+        var mode_constant_direction = false;
         this.textureRenderer = new TextureRendererPlane(Constants.RENDERER_ID_AUX, renderer, this.simulationParameters, this.colorMaps, scene, useAnglePlane);
         this.textureRendererSphere = new TextureRendererSphere(Constants.RENDERER_ID_AUX, renderer, this.simulationParameters, this.colorMaps, this.scene_sphere, useAnglePlane);
+        this.offscreenGridComputationSeeds = new OffscreenGridComputationSeeds(renderer, this.simulationParameters, useAnglePlane, mode_constant_direction);
+        this.offscreenGridComputationSeeds.initialize();
     }
 
     initializeAdditionalObjects(){
@@ -73,6 +77,25 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         this.repositionSeedSpheres();
     }
 
+    updateTexturedPlane(){
+        if(this.textureRenderer === undefined){
+            return;
+        }
+
+        var min_x = this.getTexturedPlaneMinX();
+        var max_x = this.getTexturedPlaneMaxX();
+        var min_y = this.getTexturedPlaneMinY();
+        var max_y = this.getTexturedPlaneMaxY();
+        var scale_x = max_x - min_x;
+        var scale_y = max_y - min_y;
+        var pos_x = 0.5 * (min_x + max_x);
+        var pos_y = 0.5 * (min_y + max_y);
+
+        this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationSeeds.renderTarget.texture);
+        this.textureRenderer.updateTransform(pos_x, pos_y, scale_x, scale_y);
+        this.textureRenderer.updateTexturedMesh();
+    }
+
     updateTexturedSphere(){
         var min_x = this.getTexturedPlaneMinX();
         var max_x = this.getTexturedPlaneMaxX();
@@ -83,7 +106,7 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var pos_x = 0.5 * (min_x + max_x);
         var pos_y = 0.5 * (min_y + max_y);
 
-        this.changeDisplayedTexture(this.textureRendererSphere);
+        this.textureRendererSphere.changeDisplayedTexture(this.offscreenGridComputationSeeds.renderTarget.texture);
         this.textureRendererSphere.updateTexturedMesh();
     }
 
@@ -191,6 +214,9 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
     }
 
     computeAdditionalStuff(){
+        this.offscreenGridComputationSeeds.updateTexturedPlane();
+        this.offscreenGridComputationSeeds.compute();
+
         var subdivide = false;
         this.textureRendererSphere.spherelikeGrid.updateGrid(subdivide ,this.offscreenRendererSeedsAndReturns.getPlaneDimensionX(), this.offscreenRendererSeedsAndReturns.getPlaneDimensionY());
     }
