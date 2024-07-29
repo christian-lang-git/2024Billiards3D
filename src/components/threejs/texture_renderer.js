@@ -88,6 +88,7 @@ class TextureRenderer {
         this.textured_mesh.material.uniforms.planeDimensionsPixel.value.y = this.getPlaneDimensionY();
 
         this.textured_mesh.material.uniforms.constant_hamiltonian.value = this.simulationParameters.seed_energy;
+        this.textured_mesh.material.uniforms.ftle_index.value = this.simulationParameters.rendering_ftle_type;      
         
         return;
     }
@@ -103,7 +104,8 @@ class TextureRenderer {
             planeCenter: { type: 'vec2', value: new THREE.Vector2(0, 0) },
             planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1, -1) },
             planeDimensions: { type: 'vec2', value: new THREE.Vector2(2, 2) },
-            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) }
+            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
+            ftle_index: { type: 'int', value: 0 },
         }
         this.addAdditionalUniforms();
     }
@@ -139,6 +141,7 @@ class TextureRenderer {
         vec3 mapScalarToColorWithInterval(float scalar, float minValue, float maxValue);
         vec3 normalMappingVec2(vec2 vector);
         vec3 normalMappingVec3(vec3 vector);
+        void coloringFTLE(float x_frac, float y_frac);
 
         void main() {
 
@@ -184,30 +187,7 @@ class TextureRenderer {
 
 
 
-
-
-
-            /*
-
-            ivec3 pointer;
-            vec4 data;
-            outputColor = vec4(0.0, 0.0, 0.0, 1.0);
-            switch (rendering_texture_mode) {
-                case 0://specialized
-                    RenderSpecializedMode(x_frac, y_frac);
-                    break;
-                case 1://raw texture output of virtual texture
-                    pointer = ivec3(x_pixel+x_offset, y_pixel+y_offset, rendering_raw_mode_layer);
-                    data = rendering_forward ? texelFetch(displayedTexture, pointer, 0) : texelFetch(displayedTextureBackwards, pointer, 0);
-                    outputColor = vec4(data.x, data.y, data.z, data.a);
-                    break;
-                case 2://raw texture output of all virtual textures
-                    pointer = ivec3(x_pixel_total, y_pixel_total, rendering_raw_mode_layer);
-                    data = rendering_forward ? texelFetch(displayedTexture, pointer, 0) : texelFetch(displayedTextureBackwards, pointer, 0);
-                    outputColor = vec4(data.x, data.y, data.z, data.a);
-                    break;
-            }
-                    */
+            coloringFTLE(x_frac, y_frac);
         `
             + this.fragmentShaderMethodComputation() +
             glsl`
@@ -556,6 +536,29 @@ class TextureRenderer {
             vec3 mapped = 0.5 * normal + 0.5;
 
             return mapped;
+        }
+
+        void coloringFTLE(float x_frac, float y_frac){
+            //access texture
+            bool forward = true;
+            int x_virtual = 0;
+            int y_virtual = 0;
+            int z_layer = 0;
+            vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
+
+            //ftle
+            float scalar = data[ftle_index];//TODO: change when we use backward
+            float scalar_min = 0.0;
+            float scalar_max = 10.0;
+
+            //map to either red or blue
+            float t = (scalar - scalar_min) / (scalar_max - scalar_min);
+            t = clamp(t, 0.0, 1.0);
+
+            //color on white background
+            vec3 col_forward = vec3(1.0, 1.0-t, 1.0-t);
+            vec3 col_backwards = vec3(1.0-t, 1.0-t, 1.0);
+            outputColor = forward ? vec4(col_forward, opacity) : vec4(col_backwards, opacity);
         }
 
         ` + "\n" 

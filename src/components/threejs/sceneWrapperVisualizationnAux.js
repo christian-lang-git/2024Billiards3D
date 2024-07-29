@@ -18,6 +18,7 @@ import Emitter from '@/components/utility/emitter';
 import { clamp } from "@/components/utility/utility";
 import { OffscreenGridComputationSeeds } from "@/components/threejs/offscreen_grid_computation_seeds";
 import { OffscreenGridComputationFlowMap } from "@/components/threejs/offscreen_grid_computation_flow_map";
+import { OffscreenGridComputationFTLE } from "@/components/threejs/offscreen_grid_computation_ftle";
 
 /**
  * This class is responsible for the scene that shows the main visualization
@@ -41,11 +42,14 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var forward = true;
         this.offscreenGridComputationSeeds = new OffscreenGridComputationSeeds(renderer, this.simulationParameters, useAnglePlane, mode_constant_direction);
         this.offscreenGridComputationFlowMap = new OffscreenGridComputationFlowMap(renderer, this.simulationParameters, useAnglePlane, forward);
+        this.offscreenGridComputationFTLE = new OffscreenGridComputationFTLE(renderer, this.simulationParameters, useAnglePlane);
         
         this.offscreenGridComputationFlowMap.link(this.offscreenGridComputationSeeds);
+        this.offscreenGridComputationFTLE.link(this.offscreenGridComputationFlowMap);
 
         this.offscreenGridComputationSeeds.initialize();
         this.offscreenGridComputationFlowMap.initialize();
+        this.offscreenGridComputationFTLE.initialize();
     }
 
     initializeAdditionalObjects(){
@@ -99,7 +103,8 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var pos_x = 0.5 * (min_x + max_x);
         var pos_y = 0.5 * (min_y + max_y);
 
-        this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
+        //this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
+        this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);
         this.textureRenderer.updateTransform(pos_x, pos_y, scale_x, scale_y);
         this.textureRenderer.updateTexturedMesh();
     }
@@ -226,6 +231,8 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         this.offscreenGridComputationSeeds.compute();
         this.offscreenGridComputationFlowMap.updateTexturedPlane();
         this.offscreenGridComputationFlowMap.compute();
+        this.offscreenGridComputationFTLE.updateTexturedPlane();
+        this.offscreenGridComputationFTLE.compute();        
 
         var subdivide = false;
         this.textureRendererSphere.spherelikeGrid.updateGrid(subdivide ,this.offscreenRendererSeedsAndReturns.getPlaneDimensionX(), this.offscreenRendererSeedsAndReturns.getPlaneDimensionY());

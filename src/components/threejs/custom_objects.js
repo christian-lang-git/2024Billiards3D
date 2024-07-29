@@ -999,9 +999,21 @@ class MarchingCubesMesh{
 
         varying vec4 vftle;
         out vec4 outputColor;
+
+        void coloringFTLE();
   
         void main() {
+            switch (rendering_specialized_mode) {
+                case 1://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
+                    coloringFTLE();                    
+                    break;            
+                default:
+                    break;
+            }
 
+        }    
+        
+        void coloringFTLE(){
             //ftle
             float scalar = vftle[ftle_index];//TODO: change when we use backward
             float scalar_min = 0.0;
@@ -1016,7 +1028,7 @@ class MarchingCubesMesh{
             vec3 col_forward = vec3(1.0, 1.0-t, 1.0-t);
             vec3 col_backwards = vec3(1.0-t, 1.0-t, 1.0);
             outputColor = forward ? vec4(col_forward, opacity) : vec4(col_backwards, opacity);
-        }            
+        }
         `
         ;
     }
@@ -1052,6 +1064,7 @@ class MarchingCubesMesh{
         this.uniforms = {
             ftle_index: { type: 'int', value: 0 },
             opacity: { type: 'float', value: 1 },
+            rendering_specialized_mode : { type: 'int', value: parseInt(Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR) }
         }
     }
 
@@ -1076,7 +1089,8 @@ class MarchingCubesMesh{
 
     updateUniforms() {
         this.textured_material.uniforms.ftle_index.value = this.simulationParameters.rendering_ftle_type;      
-        this.textured_material.uniforms.opacity.value = this.simulationParameters.opacity;   
+        this.textured_material.uniforms.opacity.value = this.simulationParameters.opacity;      
+        this.textured_material.uniforms.rendering_specialized_mode.value = this.simulationParameters.rendering_specialized_mode;   
     }
 }
 
