@@ -83,6 +83,8 @@ class SimulationParameters {
         this.formula_implicit_surface_dy = "";
         this.formula_implicit_surface_dz = "";
         this.print();
+
+        this.use_local_direction = true;
     }
 
     generateSurfaces(){        

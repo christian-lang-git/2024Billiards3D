@@ -1167,11 +1167,13 @@ class LocalCoordinates{
         this.point_tangent_a_backward = vec3.fromValues(0,0,0);
         this.point_tangent_b_forward = vec3.fromValues(0,0,0);
         this.point_tangent_b_backward = vec3.fromValues(0,0,0);
-        this.axis0 = new TubeVector(scene, simulationParameters, 0xffff00);
-        this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
-        this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
-        this.axis3 = new TubeVector(scene, simulationParameters, 0x0000ff);
-        this.build_spheres();
+        if(this.scene){
+            this.axis0 = new TubeVector(scene, simulationParameters, 0xffff00);
+            this.axis1 = new TubeVector(scene, simulationParameters, 0xff0000);
+            this.axis2 = new TubeVector(scene, simulationParameters, 0x00ff00);
+            this.axis3 = new TubeVector(scene, simulationParameters, 0x0000ff);
+            this.build_spheres();
+        }
     }
 
     build_spheres(){

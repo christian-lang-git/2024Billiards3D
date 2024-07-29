@@ -28,8 +28,8 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         super(Constants.RENDERER_ID_MAIN, renderer, scene, camera, controls, raycaster, true, false);
         console.warn("CONSTRUCTOR SceneWrapperVisualizationMain");
         this.marchingCubesMesh = new MarchingCubesMesh(scene, this.simulationParameters);
-        this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters)
-        this.offscreen_surface_computation = new OffscreenSurfaceComputation(renderer, this.simulationParameters, this.marchingCubesMesh);
+        this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters);
+        this.offscreen_surface_computation = new OffscreenSurfaceComputation(renderer, this.simulationParameters, this.marchingCubesMesh);        
     }
 
     initializeAdditionalObjects(){

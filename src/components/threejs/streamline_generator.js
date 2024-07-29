@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
 import { computeOrthogonalVector } from "@/components/utility/utility";
+import { LocalCoordinates } from "./custom_objects";
 
 class PointData {
     constructor() {
@@ -36,6 +37,7 @@ class Streamline {
         vec3.normalize(this.seed_direction_normalized, this.seed_direction);
 
         this.existsInScene = false;
+        this.local_coordinates = new LocalCoordinates(null, this.simulationParameters);
     }
 
     setSeed(position, direction) {
@@ -149,6 +151,30 @@ class Streamline {
         //console.warn("reflection_direction", reflection_direction);  
     }    
 
+    GetRealSeedDirection(){
+        var direction = vec3.create();
+        if(this.simulationParameters.use_local_direction){
+            if(this.local_coordinates){
+                this.local_coordinates.updateData(this.seed_position[0], this.seed_position[1], this.seed_position[2]);
+
+                var tangent_a = this.local_coordinates.tangent_a;
+                var tangent_b = this.local_coordinates.tangent_b;
+                var normal_negated = this.local_coordinates.normal_negated;
+                var scale = this.seed_direction_normalized;
+
+                var dir_x = tangent_a[0] * scale[0] + tangent_b[0] * scale[1] + normal_negated[0] * scale[2];
+                var dir_y = tangent_a[1] * scale[0] + tangent_b[1] * scale[1] + normal_negated[1] * scale[2];
+                var dir_z = tangent_a[2] * scale[0] + tangent_b[2] * scale[1] + normal_negated[2] * scale[2];
+                vec3.set(direction, dir_x, dir_y, dir_z);
+            }else{
+                //console.warn("no local_coordinates");
+            }
+        }else{            
+            vec3.copy(direction, this.seed_direction_normalized)
+        }
+        return direction;
+    }
+
     calculate(number_of_intersections){
         var new_number_of_allocated_points = number_of_intersections + 1;
         if(this.number_of_allocated_points != new_number_of_allocated_points){
@@ -164,7 +190,7 @@ class Streamline {
         //initial position
         var current_position_data = new PointData();
         vec3.copy(current_position_data.position, this.seed_position);
-        vec3.copy(current_position_data.direction, this.seed_direction_normalized);
+        current_position_data.direction = this.GetRealSeedDirection();
         this.list_point_data.push(current_position_data);
 
         for(var i=1; i<this.number_of_allocated_points; i++){
