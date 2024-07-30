@@ -154,21 +154,17 @@ class Streamline {
     GetRealSeedDirection(){
         var direction = vec3.create();
         if(this.simulationParameters.use_local_direction){
-            if(this.local_coordinates){
-                this.local_coordinates.updateData(this.seed_position[0], this.seed_position[1], this.seed_position[2]);
+            this.local_coordinates.updateData(this.seed_position[0], this.seed_position[1], this.seed_position[2]);
 
-                var tangent_a = this.local_coordinates.tangent_a;
-                var tangent_b = this.local_coordinates.tangent_b;
-                var normal_negated = this.local_coordinates.normal_negated;
-                var scale = this.seed_direction_normalized;
+            var tangent_a = this.local_coordinates.tangent_a;
+            var tangent_b = this.local_coordinates.tangent_b;
+            var normal_negated = this.local_coordinates.normal_negated;
+            var scale = this.seed_direction_normalized;
 
-                var dir_x = tangent_a[0] * scale[0] + tangent_b[0] * scale[1] + normal_negated[0] * scale[2];
-                var dir_y = tangent_a[1] * scale[0] + tangent_b[1] * scale[1] + normal_negated[1] * scale[2];
-                var dir_z = tangent_a[2] * scale[0] + tangent_b[2] * scale[1] + normal_negated[2] * scale[2];
-                vec3.set(direction, dir_x, dir_y, dir_z);
-            }else{
-                //console.warn("no local_coordinates");
-            }
+            var dir_x = tangent_a[0] * scale[0] + tangent_b[0] * scale[1] + normal_negated[0] * scale[2];
+            var dir_y = tangent_a[1] * scale[0] + tangent_b[1] * scale[1] + normal_negated[1] * scale[2];
+            var dir_z = tangent_a[2] * scale[0] + tangent_b[2] * scale[1] + normal_negated[2] * scale[2];
+            vec3.set(direction, dir_x, dir_y, dir_z);
         }else{            
             vec3.copy(direction, this.seed_direction_normalized)
         }
