@@ -52,6 +52,7 @@ class InputParameterWrapper extends Component{
         this.waiting_for_completion = Constants.NUM_ELEMENTS_THAT_REQUIRE_INITIALIZATION;
         
         new InputWrapper(this, "UI_STATE_DATA_SURFACE_TYPE", "st", Constants.TYPE_INT);
+        new InputWrapper(this, "UI_STATE_DATA_LOCAL_DIRECTION", "ldir", Constants.TYPE_BOOL);
         new InputWrapper(this, "UI_STATE_DATA_FORMULA_SURFACE_IMPLICIT", "imp", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_VAR_A", "v_a", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_VAR_B", "v_b", Constants.TYPE_STRING);

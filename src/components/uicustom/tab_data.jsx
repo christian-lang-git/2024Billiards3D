@@ -14,6 +14,8 @@ import * as Constants from "@/components/utility/constants";
 import LabeledField from "@/components/uicustom/labeledfield";
 import LabeledSelect from "@/components/uicustom/labeledSelect";
 import LabeledSelectSurfaceType from "@/components/uicustom/labeledSelectSurfaceType";
+import LabeledSelectLocalDirection from "@/components/uicustom/labeledSelectLocalDirection";
+
 import { Input } from "@/components/ui/input"
 import {
     Select,
@@ -109,7 +111,8 @@ class TabData extends Component {
                             </AccordionItem>
                             <AccordionItem value="selection">
                                 <AccordionTrigger>Selection</AccordionTrigger>
-                                <AccordionContent>                                    
+                                <AccordionContent>       
+                                    <LabeledSelectLocalDirection/>                             
                                     <Label className="font-medium">constant seed direction (left view)</Label>
                                     <div className="grid grid-cols-3">
                                     <LabeledField

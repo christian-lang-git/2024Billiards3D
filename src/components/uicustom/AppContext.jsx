@@ -6,6 +6,7 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
     const [uiState, setUiState] = useState({
         UI_STATE_DATA_SURFACE_TYPE: Constants.SURFACE_TYPE_TORUS,
+        UI_STATE_DATA_LOCAL_DIRECTION: true,
         UI_STATE_DATA_VAR_A: "3.5",
         UI_STATE_DATA_VAR_B: "2.5",
         UI_STATE_DATA_VAR_C: "1.5",

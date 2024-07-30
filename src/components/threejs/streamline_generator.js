@@ -165,7 +165,7 @@ class Streamline {
             var dir_y = tangent_a[1] * scale[0] + tangent_b[1] * scale[1] + normal_negated[1] * scale[2];
             var dir_z = tangent_a[2] * scale[0] + tangent_b[2] * scale[1] + normal_negated[2] * scale[2];
             vec3.set(direction, dir_x, dir_y, dir_z);
-        }else{            
+        }else{         
             vec3.copy(direction, this.seed_direction_normalized)
         }
         return direction;

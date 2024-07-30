@@ -67,6 +67,7 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh.material.uniforms.step_size.value = this.simulationParameters.step_size;
         this.dummy_plane_mesh.material.uniforms.max_steps.value = this.simulationParameters.max_steps;
         //seed variables
+        this.dummy_plane_mesh.material.uniforms.use_local_direction.value = this.simulationParameters.use_local_direction;
         this.dummy_plane_mesh.material.uniforms.seed_direction.value.x = this.simulationParameters.seed_direction_x;
         this.dummy_plane_mesh.material.uniforms.seed_direction.value.y = this.simulationParameters.seed_direction_y;
         this.dummy_plane_mesh.material.uniforms.seed_direction.value.z = this.simulationParameters.seed_direction_z;
@@ -184,7 +185,7 @@ class OffscreenSurfaceComputation {
             step_size: { type: 'float', value: 1.0 },
             max_steps: { type: 'int', value: 100 },
             seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
-            
+            use_local_direction: { type: 'bool', value: true },
         }
     }
 
@@ -322,8 +323,30 @@ class OffscreenSurfaceComputation {
         }
         
         vec3 getSeedDirectionAtPosition(vec3 position){
-            //TODO: for now only constant seed direction --> next: local coordinates
-            return normalize(seed_direction);
+            vec3 seed_direction_normalized = normalize(seed_direction);
+            float dir_x = seed_direction_normalized.x;
+            float dir_y = seed_direction_normalized.y;
+            float dir_z = seed_direction_normalized.z;
+            
+            if(use_local_direction){
+                float scale_x = dir_x;
+                float scale_y = dir_y;
+                float scale_z = dir_z;
+
+                //compute local axes
+                vec3 gradient = evaluateGradient(position);
+                vec3 normal = normalize(gradient);
+                vec3 normal_negated = -normal;
+                vec3 tangent_a = computeTangentA(position);    
+                vec3 tangent_b = cross(normal_negated, tangent_a);
+                            
+                dir_x = tangent_a[0] * scale_x + tangent_b[0] * scale_y + normal_negated[0] * scale_z;
+                dir_y = tangent_a[1] * scale_x + tangent_b[1] * scale_y + normal_negated[1] * scale_z;
+                dir_z = tangent_a[2] * scale_x + tangent_b[2] * scale_y + normal_negated[2] * scale_z;                
+            }                
+
+            vec3 direction = vec3(dir_x, dir_y, dir_z);
+            return normalize(direction);
         }
 
         
