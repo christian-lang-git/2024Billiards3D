@@ -80,8 +80,12 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Y", "ny", Constants.TYPE_STRING);        
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MIN_Z", "zmin", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_DOMAIN_MAX_Z", "zmax", Constants.TYPE_STRING);
-        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Z", "nz", Constants.TYPE_STRING);
-        new InputWrapper(this, "UI_STATE_DATA_ANGLE_PIXELS_X", "ax", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_DOMAIN_PIXELS_Z", "nz", Constants.TYPE_STRING);              
+        new InputWrapper(this, "UI_STATE_DATA_ANGLE_MIN_X", "axmin", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_ANGLE_MAX_X", "axmax", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_ANGLE_PIXELS_X", "ax", Constants.TYPE_STRING);              
+        new InputWrapper(this, "UI_STATE_DATA_ANGLE_MIN_Y", "aymin", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_ANGLE_MAX_Y", "aymax", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_DATA_ANGLE_PIXELS_Y", "ay", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_CAMERA_CONTROLS_ROTATESPEED", "rot", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_CAMERA_CONTROLS_PANSPEED", "pan", Constants.TYPE_STRING);

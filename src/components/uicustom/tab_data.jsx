@@ -222,10 +222,28 @@ class TabData extends Component {
                                         labelText={"grid nodes z"}
                                     />
                                     </div>
-                                    <div className="grid grid-cols-2">
+                                    <div className="grid grid-cols-3">
+                                    <LabeledField
+                                        name="UI_STATE_DATA_ANGLE_MIN_X"
+                                        labelText={"min theta"}
+                                    />
+                                    <LabeledField
+                                        name="UI_STATE_DATA_ANGLE_MAX_X"
+                                        labelText={"max theta"}
+                                    />
                                     <LabeledField
                                         name="UI_STATE_DATA_ANGLE_PIXELS_X"
                                         labelText={"grid nodes theta"}
+                                    />
+                                    </div>
+                                    <div className="grid grid-cols-3">
+                                    <LabeledField
+                                        name="UI_STATE_DATA_ANGLE_MIN_Y"
+                                        labelText={"min phi"}
+                                    />
+                                    <LabeledField
+                                        name="UI_STATE_DATA_ANGLE_MAX_Y"
+                                        labelText={"max phi"}
                                     />
                                     <LabeledField
                                         name="UI_STATE_DATA_ANGLE_PIXELS_Y"

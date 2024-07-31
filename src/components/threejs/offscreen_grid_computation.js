@@ -57,6 +57,12 @@ class OffscreenGridComputation {
         this.setAdditionalUniforms();        
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.getPlaneDimensionX();
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.getPlaneDimensionY();
+        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.x = this.simulationParameters.angle_min_x;
+        this.dummy_plane_mesh.material.uniforms.planeCornerBL.value.y = this.simulationParameters.angle_min_y;
+        this.dummy_plane_mesh.material.uniforms.planeCornerTR.value.x = this.simulationParameters.angle_max_x;
+        this.dummy_plane_mesh.material.uniforms.planeCornerTR.value.y = this.simulationParameters.angle_max_y;
+        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.x = this.simulationParameters.angle_dimension_x;
+        this.dummy_plane_mesh.material.uniforms.planeDimensions.value.y = this.simulationParameters.angle_dimension_y;
 
         var update_size = false;
         if (this.getPlaneDimensionX() != this.width) {
@@ -141,7 +147,10 @@ class OffscreenGridComputation {
     generateUniforms() {
         this.uniforms = {
             target_layer_index: { type: 'int', value: 0 },
-            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) }
+            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
+            planeCornerBL: { type: 'vec2', value: new THREE.Vector2(0, 0) },
+            planeCornerTR: { type: 'vec2', value: new THREE.Vector2(1, 1) },
+            planeDimensions: { type: 'vec2', value: new THREE.Vector2(1, 1) }
         }
         this.addAdditionalUniforms();
     }
@@ -185,8 +194,17 @@ class OffscreenGridComputation {
 
             //angles in virtual texture (when position is constant and direction is variable)
             //ISO convention (i.e. for physics: radius r, inclination theta, azimuth phi) --> https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
-            float theta_radians = PI * (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
-            float phi_radians = 2.0 * PI * (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
+            //float theta_radians = PI * (float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
+            //float phi_radians = 2.0 * PI * (float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0));//TODO REPLACE planeDimensionsPixel with dimension of other grid
+
+            float t_x = float(x_pixel_mod) / (planeDimensionsPixel.x - 1.0);
+            float t_y = float(y_pixel_mod) / (planeDimensionsPixel.y - 1.0);
+            float theta = mix(planeCornerBL.x, planeCornerTR.x, t_x);
+            float phi = mix(planeCornerBL.y, planeCornerTR.y, t_y);
+            float theta_radians = PI * (theta);//TODO REPLACE planeDimensionsPixel with dimension of other grid
+            float phi_radians = 2.0 * PI * (phi);//TODO REPLACE planeDimensionsPixel with dimension of other grid
+
+
         `
             + this.fragmentShaderMethodComputation() +
             `

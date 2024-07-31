@@ -253,8 +253,14 @@ class ThreeContainer extends Component {
         var domain_max_z = uiState.UI_STATE_DATA_DOMAIN_MAX_Z;
         var domain_pixels_z = uiState.UI_STATE_DATA_DOMAIN_PIXELS_Z;
 
+        var angle_min_x = uiState.UI_STATE_DATA_ANGLE_MIN_X;
+        var angle_max_x = uiState.UI_STATE_DATA_ANGLE_MAX_X;
         var angle_pixels_x = uiState.UI_STATE_DATA_ANGLE_PIXELS_X;
+        var angle_min_y = uiState.UI_STATE_DATA_ANGLE_MIN_Y;
+        var angle_max_y = uiState.UI_STATE_DATA_ANGLE_MAX_Y;
         var angle_pixels_y = uiState.UI_STATE_DATA_ANGLE_PIXELS_Y;
+
+        
 
         var surface_type = uiState.UI_STATE_DATA_SURFACE_TYPE;
         var local_direction = uiState.UI_STATE_DATA_LOCAL_DIRECTION;
@@ -264,7 +270,7 @@ class ThreeContainer extends Component {
         var var_R = uiState.UI_STATE_DATA_VAR_BIG_R;
         var var_r = uiState.UI_STATE_DATA_VAR_SMALL_R;
 
-        this.sceneWrapper.updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, kernel_distance, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y);
+        this.sceneWrapper.updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, kernel_distance, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_min_x, angle_max_x, angle_pixels_x, angle_min_y, angle_max_y, angle_pixels_y);
     }
 
     updateParametersRendering(){

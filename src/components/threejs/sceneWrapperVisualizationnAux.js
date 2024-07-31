@@ -61,19 +61,19 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
     }
 
     getTexturedPlaneMinX(){
-        return 0;
+        return this.simulationParameters.angle_min_x;
     }
 
     getTexturedPlaneMaxX(){
-        return 1;
+        return this.simulationParameters.angle_max_x;
     }
 
     getTexturedPlaneMinY(){
-        return 0;
+        return this.simulationParameters.angle_min_y;
     }
 
     getTexturedPlaneMaxY(){
-        return 1;
+        return this.simulationParameters.angle_max_y;
     }
 
     getDefaultCameraDistance(){
@@ -102,6 +102,17 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var scale_y = max_y - min_y;
         var pos_x = 0.5 * (min_x + max_x);
         var pos_y = 0.5 * (min_y + max_y);
+
+        var theta_down = this.simulationParameters.auxGridDirection == Constants.AUX_GRID_DIRECTION_THETA_DOWN_PHI_RIGHT;
+        if(theta_down){
+            var tmp = scale_x;
+            scale_x = scale_y;
+            scale_y = tmp;
+            
+            var tmp = pos_x;
+            pos_x = pos_y;
+            pos_y = 1-tmp;
+        }
 
         //this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
         this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);
