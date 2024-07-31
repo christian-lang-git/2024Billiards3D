@@ -67,7 +67,7 @@ class TabData extends Component {
                 <ScrollArea className="flex-1 overflow-y-auto">
                     <div className="pl-2 pr-4 pb-2">
                         <Accordion type="multiple" className="w-full" collapsible="true"
-                            defaultValue={["surface", "selection", "integration", "domain", "streamline", "ftle", "geometry"]}
+                            defaultValue={["surface", "selection", "integration", "ftle", "domain"]}
                         >
                             <AccordionItem value="surface">
                                 <AccordionTrigger>Surface</AccordionTrigger>
@@ -166,6 +166,15 @@ class TabData extends Component {
                                         labelText={"bisection steps"}
                                     />
                                     </div>    
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="ftle">
+                                <AccordionTrigger>FTLE</AccordionTrigger>
+                                <AccordionContent>
+                                    <LabeledField
+                                        name="UI_STATE_DATA_KERNEL_DISTANCE"
+                                        labelText={"kernel distance"}
+                                    />
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="domain">

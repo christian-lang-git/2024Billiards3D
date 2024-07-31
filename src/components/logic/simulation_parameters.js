@@ -85,6 +85,7 @@ class SimulationParameters {
         this.print();
 
         this.use_local_direction = true;
+        this.kernel_distance = 0.01;
     }
 
     generateSurfaces(){        

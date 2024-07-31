@@ -229,7 +229,7 @@ class SceneWrapperVisualization {
 
 
 
-    updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
+    updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, kernel_distance, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_pixels_x, angle_pixels_y) {
         this.simulationParameters.mu = parseFloat(mu);
         this.simulationParameters.use_local_direction = local_direction;
         this.simulationParameters.angular_velocity = parseFloat(angular_velocity);
@@ -244,6 +244,7 @@ class SceneWrapperVisualization {
         this.simulationParameters.max_steps = parseInt(max_steps);        
         this.simulationParameters.number_of_intersections = parseInt(number_of_intersections);
         this.simulationParameters.number_of_bisection_steps = parseInt(number_of_bisection_steps);        
+        this.simulationParameters.kernel_distance = parseFloat(kernel_distance);        
 
         this.simulationParameters.domain_min_x = parseFloat(domain_min_x);    
         this.simulationParameters.domain_max_x = parseFloat(domain_max_x);    

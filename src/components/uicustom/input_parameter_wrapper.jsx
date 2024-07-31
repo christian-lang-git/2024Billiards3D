@@ -119,6 +119,8 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_AUX_CONTENT", "auxc", Constants.TYPE_INT_EMIT_SELECT_CHANGED);
         new InputWrapper(this, "UI_STATE_AUX_GRID_DIRECTION", "auxgd", Constants.TYPE_INT_EMIT_SELECT_CHANGED);
         new InputWrapper(this, "UI_STATE_RENDERING_SCALE_VERTICES", "scalev", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_DATA_KERNEL_DISTANCE", "kd", Constants.TYPE_STRING);
+        
     }
 
     componentDidMount() {

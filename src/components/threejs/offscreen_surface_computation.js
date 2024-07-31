@@ -81,7 +81,10 @@ class OffscreenSurfaceComputation {
         var one_div_cc = 1 / (c * c);
         this.dummy_plane_mesh.material.uniforms.one_div_aa.value = one_div_aa;
         this.dummy_plane_mesh.material.uniforms.one_div_bb.value = one_div_bb;
-        this.dummy_plane_mesh.material.uniforms.one_div_cc.value = one_div_cc;     
+        this.dummy_plane_mesh.material.uniforms.one_div_cc.value = one_div_cc;   
+        
+        this.dummy_plane_mesh.material.uniforms.kernel_distance.value = this.simulationParameters.kernel_distance;
+        
     }
 
     updateRenderTarget() {
@@ -186,6 +189,7 @@ class OffscreenSurfaceComputation {
             max_steps: { type: 'int', value: 100 },
             seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
             use_local_direction: { type: 'bool', value: true },
+            kernel_distance: { type: 'float', value: 0.01 },            
         }
     }
 
@@ -292,7 +296,6 @@ class OffscreenSurfaceComputation {
             vec3 tangent_b = cross(normal_negated, tangent_a);
         
             //initial positioning of nodes in 4 directions
-            float kernel_distance = 0.01;
             vec3 point_tangent_a_forward = position + tangent_a * kernel_distance;
             vec3 point_tangent_a_backward = position - tangent_a * kernel_distance;
             vec3 point_tangent_b_forward = position + tangent_b * kernel_distance;
