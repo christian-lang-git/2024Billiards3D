@@ -548,8 +548,6 @@ class TextureRenderer {
 
             //ftle
             float scalar = data[ftle_index];//TODO: change when we use backward
-            float scalar_min = 0.0;
-            float scalar_max = 10.0;
 
             //map to either red or blue
             float t = (scalar - scalar_min) / (scalar_max - scalar_min);

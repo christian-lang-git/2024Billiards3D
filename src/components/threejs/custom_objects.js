@@ -1016,8 +1016,6 @@ class MarchingCubesMesh{
         void coloringFTLE(){
             //ftle
             float scalar = vftle[ftle_index];//TODO: change when we use backward
-            float scalar_min = 0.0;
-            float scalar_max = 10.0;
             bool forward = true;//TODO: change to uniform when we use backward
 
             //map to either red or blue
@@ -1064,6 +1062,8 @@ class MarchingCubesMesh{
         this.uniforms = {
             ftle_index: { type: 'int', value: 0 },
             opacity: { type: 'float', value: 1 },
+            scalar_min: { type: 'float', value: 0 },
+            scalar_max: { type: 'float', value: 10 },
             rendering_specialized_mode : { type: 'int', value: parseInt(Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR) }
         }
     }
@@ -1090,6 +1090,8 @@ class MarchingCubesMesh{
     updateUniforms() {
         this.textured_material.uniforms.ftle_index.value = this.simulationParameters.rendering_ftle_type;      
         this.textured_material.uniforms.opacity.value = this.simulationParameters.opacity;      
+        this.textured_material.uniforms.scalar_min.value = this.simulationParameters.scalar_min;
+        this.textured_material.uniforms.scalar_max.value = this.simulationParameters.scalar_max;
         this.textured_material.uniforms.rendering_specialized_mode.value = this.simulationParameters.rendering_specialized_mode;   
     }
 }
