@@ -39,15 +39,6 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
         texture.magFilter = THREE.NearestFilter;
         texture.unpackAlignment = 1;
         this.renderTarget.texture = texture;
-
-        //the input texture (vertex positions)
-        this.texture_vertices_data = new Float32Array(size);
-        this.texture_vertices = new THREE.DataTexture(this.texture_vertices_data, total_w, total_h);            
-        this.texture_vertices.format = THREE.RGBAFormat;
-        this.texture_vertices.type = THREE.FloatType;
-        this.texture_vertices.minFilter = THREE.LinearFilter;
-        this.texture_vertices.magFilter = THREE.NearestFilter;
-        this.texture_vertices.unpackAlignment = 1;
     }
 
     compute() {
@@ -67,20 +58,6 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
             this.height = num_pixels_y;         
             this.updateRenderTarget();
         }
-
-        //write vertex positions into texture
-        for (var i = 0; i < vertex_count; i++) {
-            var index = 3*i;
-            var index_new = 4*i;            
-
-            this.texture_vertices_data[index_new] = attribute_position.array[index];
-            this.texture_vertices_data[index_new+1] = attribute_position.array[index+1];
-            this.texture_vertices_data[index_new+2] = attribute_position.array[index+2];
-            this.texture_vertices_data[index_new+3] = 1;
-            
-        }
-        this.texture_vertices.needsUpdate = true;
-        //console.warn("### this.texture_vertices_data", this.texture_vertices_data);
         
         //computation in shader
         this.setUniforms();
@@ -102,7 +79,7 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
     generateUniforms() {
         this.uniforms = {      
             planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
-            input_texture_positions: { type: 'sampler2D', value: this.texture_vertices},      
+            input_texture_positions: { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices},      
             surface_type: { type: 'int', value: 2 },
             var_a: { type: 'float', value: 3.5 },
             var_b: { type: 'float', value: 2.5 },

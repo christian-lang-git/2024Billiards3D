@@ -52,7 +52,7 @@ class OffscreenSurfaceComputation {
 
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.x = this.width;
         this.dummy_plane_mesh.material.uniforms.planeDimensionsPixel.value.y = this.height;
-        this.dummy_plane_mesh.material.uniforms.input_texture_positions.value = this.texture_vertices;
+        this.dummy_plane_mesh.material.uniforms.input_texture_positions.value = this.marchingCubesMesh.texture_vertices;
 
         //surface variables
         this.dummy_plane_mesh.material.uniforms.surface_type.value = this.simulationParameters.surface_type;
@@ -173,7 +173,7 @@ class OffscreenSurfaceComputation {
     generateUniforms() {
         this.uniforms = {      
             planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
-            input_texture_positions: { type: 'sampler2D', value: this.texture_vertices},      
+            input_texture_positions: { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices},      
             surface_type: { type: 'int', value: 2 },
             var_a: { type: 'float', value: 3.5 },
             var_b: { type: 'float', value: 2.5 },

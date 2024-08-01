@@ -317,6 +317,57 @@ class MarchingCubesMesh{
         this.scene.add(this.mesh);
 
         console.warn("vertices.length", vertices.length);
+
+        //for computing flow map:
+        this.fillDataTextures();
+    }
+
+    updateDataTextures() {
+        //console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
+        var total_w = this.width_vertex_textures;
+        var total_h = this.height_vertex_textures;        
+        const size = total_w * total_h * 4; // RGBA
+
+        //the input texture (vertex positions) for the flow map 
+        this.texture_vertices_data = new Float32Array(size);
+        this.texture_vertices = new THREE.DataTexture(this.texture_vertices_data, total_w, total_h);            
+        this.texture_vertices.format = THREE.RGBAFormat;
+        this.texture_vertices.type = THREE.FloatType;
+        this.texture_vertices.minFilter = THREE.LinearFilter;
+        this.texture_vertices.magFilter = THREE.NearestFilter;
+        this.texture_vertices.unpackAlignment = 1; 
+    }
+
+    fillDataTextures(){
+        //helper values
+        var attribute_position = this.mesh.geometry.attributes.position;
+        var vertex_count = attribute_position.count;
+
+        //compute required texture size
+        var num_pixels_x = Math.ceil(Math.sqrt(vertex_count));
+        var num_pixels_y = Math.ceil(vertex_count / num_pixels_x);
+        var num_pixels = num_pixels_x * num_pixels_y;
+
+        //check and update texture size
+        if(num_pixels != this.num_pixels){
+            this.num_pixels = num_pixels;   
+            this.width_vertex_textures = num_pixels_x;      
+            this.height_vertex_textures = num_pixels_y;         
+            this.updateDataTextures();
+        }
+
+        //write vertex positions into texture
+        for (var i = 0; i < vertex_count; i++) {
+            var index = 3*i;
+            var index_new = 4*i;            
+
+            this.texture_vertices_data[index_new] = attribute_position.array[index];
+            this.texture_vertices_data[index_new+1] = attribute_position.array[index+1];
+            this.texture_vertices_data[index_new+2] = attribute_position.array[index+2];
+            this.texture_vertices_data[index_new+3] = 1;
+            
+        }
+        this.texture_vertices.needsUpdate = true;
     }
 
     build_old(){
