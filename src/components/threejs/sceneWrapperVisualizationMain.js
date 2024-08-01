@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { ObjectArrow, ObjectAxes, MarchingCubesMesh, LocalCoordinates } from "./custom_objects";
+import { ObjectArrow, ObjectAxes, LocalCoordinates } from "./custom_objects";
+import { MarchingCubesMesh } from "./marching_cubes_mesh";
 import { vec3 } from "gl-matrix/esm";
 import { SimulationParameters } from "@/components/logic/simulation_parameters";
 import { getMousePositionInCanvasNDC } from "@/components/utility/mouseHelper";
