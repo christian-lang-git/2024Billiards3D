@@ -9,7 +9,7 @@ import * as UTILITY from "@/components/glsl/utility";
 
 const glsl = x => x[0];
 
-class OffscreenSurfaceComputationAll {
+class OffscreenSurfaceComputation {
 
     constructor(renderer, simulationParameters, marchingCubesMesh) {
         this.renderer = renderer;
@@ -19,7 +19,7 @@ class OffscreenSurfaceComputationAll {
     }
 
     initialize() {
-        console.warn("INITIALIZE OffscreenSurfaceComputationAll");
+        console.warn("INITIALIZE OffscreenSurfaceComputation");
 
         this.width = 100;
         this.height = 100;
@@ -411,4 +411,4 @@ class OffscreenSurfaceComputationAll {
 
 }
 
-export { OffscreenSurfaceComputationAll }
+export { OffscreenSurfaceComputation }
