@@ -115,9 +115,22 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         }
 
         //this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
-        this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);
+        this.changeDisplayedTexture();
         this.textureRenderer.updateTransform(pos_x, pos_y, scale_x, scale_y);
         this.textureRenderer.updateTexturedMesh();
+    }
+
+    changeDisplayedTexture(){
+        switch (this.simulationParameters.rendering_specialized_mode) {
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE:
+                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);                
+                break;
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED:
+                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
+                break;
+            default:
+                break;
+        }
     }
 
     updateTexturedSphere(){

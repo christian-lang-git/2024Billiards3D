@@ -89,8 +89,8 @@ class OffscreenSurfaceComputation {
 
     updateRenderTarget() {
         //console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
-        var total_w = this.width * this.getNumPixelsPerNodeX();
-        var total_h = this.height * this.getNumPixelsPerNodeY();
+        var total_w = this.width;
+        var total_h = this.height;
 
         this.renderTarget = new THREE.WebGLRenderTarget(total_w, total_h, {
             minFilter: THREE.LinearFilter,
@@ -110,18 +110,9 @@ class OffscreenSurfaceComputation {
         texture.magFilter = THREE.NearestFilter;
         texture.unpackAlignment = 1;
         this.renderTarget.texture = texture;
-
-        //the input texture (vertex positions)
-        this.texture_vertices_data = new Float32Array(size);
-        this.texture_vertices = new THREE.DataTexture(this.texture_vertices_data, total_w, total_h);            
-        this.texture_vertices.format = THREE.RGBAFormat;
-        this.texture_vertices.type = THREE.FloatType;
-        this.texture_vertices.minFilter = THREE.LinearFilter;
-        this.texture_vertices.magFilter = THREE.NearestFilter;
-        this.texture_vertices.unpackAlignment = 1;
     }
 
-    compute() {
+    computeWrapper(){
         //helper values
         var attribute_position = this.marchingCubesMesh.mesh.geometry.attributes.position;
         var vertex_count = attribute_position.count;
@@ -139,32 +130,16 @@ class OffscreenSurfaceComputation {
             this.updateRenderTarget();
         }
 
-        //write vertex positions into texture
-        for (var i = 0; i < vertex_count; i++) {
-            var index = 3*i;
-            var index_new = 4*i;            
+        this.compute();
+    }
 
-            this.texture_vertices_data[index_new] = attribute_position.array[index];
-            this.texture_vertices_data[index_new+1] = attribute_position.array[index+1];
-            this.texture_vertices_data[index_new+2] = attribute_position.array[index+2];
-            this.texture_vertices_data[index_new+3] = 1;
-            
-        }
-        this.texture_vertices.needsUpdate = true;
-        //console.warn("### this.texture_vertices_data", this.texture_vertices_data);
-        
-        //computation in shader
-        this.setUniforms();
-        this.renderer.setRenderTarget(this.renderTarget);
-        this.renderer.render(this.bufferScene, this.bufferCamera);
-
+    writeToAttributeWrapper(){
         //read results
         const readBuffer = new Float32Array(this.width * this.height * 4);
         this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width, this.height, readBuffer);
-        //console.warn("### readBuffer", readBuffer);
 
         //send results to mesh
-        this.marchingCubesMesh.setAttributeFTLE(readBuffer);
+        this.writeToAttribute(readBuffer);
 
         //cleanup
         this.renderer.setRenderTarget(null);
@@ -229,131 +204,13 @@ class OffscreenSurfaceComputation {
 
             //x and y indices of virtual texture e.g., (0,0) is the top left texture
             int virtual_texture_x = int(x_pixel) / int(planeDimensionsPixel.x);
-            int virtual_texture_y = int(y_pixel) / int(planeDimensionsPixel.y);
-
-            //reading seed position
-            ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
-            vec4 value = texelFetch(input_texture_positions, pointer, 0);
-            vec3 position = value.xyz;
-            bool no_value = value.w < 0.5;
-
-            //early termination if this pixel is padding (i.e., not associated with any vertex)
-            if(no_value){
-                outputColor = vec4(0,0,0,0);
-                return;
-            }
-
-            //------------------------------------------------------------------------------------------------------
-
-            //generate a local grid from the seed position
-
-            LocalGrid local_grid = computeLocalGrid(position);
-
-            //------------------------------------------------------------------------------------------------------
-
-            //compute flowmap for all 4 seeds of the local grid
-
-            FlowResults flow_results = computeFlowResults(local_grid);
-
-            //------------------------------------------------------------------------------------------------------
-
-            //finite differences
-            //finite differences in x direction
-            vec3 dpos_dx = (flow_results.xp.position - flow_results.xn.position) / local_grid.dist_x;
-            vec3 dvel_dx = (flow_results.xp.direction - flow_results.xn.direction) / local_grid.dist_x;
-            //finite differences in y direction
-            vec3 dpos_dy = (flow_results.yp.position - flow_results.yn.position) / local_grid.dist_y;
-            vec3 dvel_dy = (flow_results.yp.direction - flow_results.yn.direction) / local_grid.dist_y;
-
-            //------------------------------------------------------------------------------------------------------
-
-            //psftle computation
-            float psftle = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 0);
-            float psftle_pos = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 1);
-            float psftle_vel = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 2);
-            outputColor = vec4(psftle,psftle_pos,psftle_vel,1);
-
-            //TESTING: output coordinates
-            //outputColor = value;
-            
-            //TESTING: output evaluateSurface
-            //outputColor = vec4(abs(evaluateSurface(position))*100.0,0,0,1);
-
-            //TESTING: positive values? --> no
-            //float v = evaluateSurface(position);
-            //if(v > 0.0){
-            //    outputColor = vec4(1,0,0,1);
-            //}
-        }   
-
-        LocalGrid computeLocalGrid(vec3 position){
-
-            //compute local axes
-            vec3 gradient = evaluateGradient(position);
-            vec3 normal = normalize(gradient);
-            vec3 normal_negated = -normal;
-            vec3 tangent_a = computeTangentA(position);    
-            vec3 tangent_b = cross(normal_negated, tangent_a);
-        
-            //initial positioning of nodes in 4 directions
-            vec3 point_tangent_a_forward = position + tangent_a * kernel_distance;
-            vec3 point_tangent_a_backward = position - tangent_a * kernel_distance;
-            vec3 point_tangent_b_forward = position + tangent_b * kernel_distance;
-            vec3 point_tangent_b_backward = position - tangent_b * kernel_distance;
-        
-            //local grid
-            LocalGrid local_grid;
-            local_grid.center.position = position;
-        
-            //move nodes to surface via gradient
-            local_grid.xp.position = moveToSurface(point_tangent_a_forward);
-            local_grid.xn.position = moveToSurface(point_tangent_a_backward);
-            local_grid.yp.position = moveToSurface(point_tangent_b_forward);
-            local_grid.yn.position = moveToSurface(point_tangent_b_backward);
-            
-            //set seed directions
-            local_grid.center.direction = getSeedDirectionAtPosition(local_grid.center.position);
-            local_grid.xp.direction = getSeedDirectionAtPosition(local_grid.xp.position);
-            local_grid.xn.direction = getSeedDirectionAtPosition(local_grid.xn.position);
-            local_grid.yp.direction = getSeedDirectionAtPosition(local_grid.yp.position);
-            local_grid.yn.direction = getSeedDirectionAtPosition(local_grid.yn.position);
-        
-            //compute grid distances for finite differences
-            local_grid.dist_x = distance(local_grid.xp.position, local_grid.xn.position);
-            local_grid.dist_y = distance(local_grid.yp.position, local_grid.yn.position);
-        
-            return local_grid;
-        }
-        
-        vec3 getSeedDirectionAtPosition(vec3 position){
-            vec3 seed_direction_normalized = normalize(seed_direction);
-            float dir_x = seed_direction_normalized.x;
-            float dir_y = seed_direction_normalized.y;
-            float dir_z = seed_direction_normalized.z;
-            
-            if(use_local_direction){
-                float scale_x = dir_x;
-                float scale_y = dir_y;
-                float scale_z = dir_z;
-
-                //compute local axes
-                vec3 gradient = evaluateGradient(position);
-                vec3 normal = normalize(gradient);
-                vec3 normal_negated = -normal;
-                vec3 tangent_a = computeTangentA(position);    
-                vec3 tangent_b = cross(normal_negated, tangent_a);
-                            
-                dir_x = tangent_a[0] * scale_x + tangent_b[0] * scale_y + normal_negated[0] * scale_z;
-                dir_y = tangent_a[1] * scale_x + tangent_b[1] * scale_y + normal_negated[1] * scale_z;
-                dir_z = tangent_a[2] * scale_x + tangent_b[2] * scale_y + normal_negated[2] * scale_z;                
-            }                
-
-            vec3 direction = vec3(dir_x, dir_y, dir_z);
-            return normalize(direction);
-        }
-
-        
-        ` + BILLIARD.SHADER_MODULE_BILLIARD;
+            int virtual_texture_y = int(y_pixel) / int(planeDimensionsPixel.y);            
+        `
+            + this.fragmentShaderMethodComputation() +
+            `
+        }    
+        `
+        + this.fragmentShaderAdditionalMethodDefinitions();
     }
 
     /**
@@ -389,24 +246,13 @@ class OffscreenSurfaceComputation {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * A texture can output a single vec4 for each pixel.
-     * If more data per grid node is required, multiple pixels per grid node can be used.
-     * 
-     * @returns the number of "virtual textures" on the x axis, setting this value to 2 doubles the available data per node
-     */
-    getNumPixelsPerNodeX() {
-        return 1;
+    compute() {
+        //override in child class
     }
 
-    /**
-     * A texture can output a single vec4 for each pixel.
-     * If more data per grid node is required, multiple pixels per grid node can be used.
-     * 
-     * @returns the number of "virtual textures" on the y axis, setting this value to 2 doubles the available data per node
-     */
-    getNumPixelsPerNodeY() {
-        return 1;
+    fragmentShaderMethodComputation(){
+        //override in child class
+        return "";
     }
 
 }

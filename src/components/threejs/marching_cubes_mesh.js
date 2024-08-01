@@ -349,8 +349,8 @@ class MarchingCubesMesh{
         var num_pixels = num_pixels_x * num_pixels_y;
 
         //check and update texture size
-        if(num_pixels != this.num_pixels){
-            this.num_pixels = num_pixels;   
+        if(num_pixels != this.num_pixels_vertex_textures){
+            this.num_pixels_vertex_textures = num_pixels;   
             this.width_vertex_textures = num_pixels_x;      
             this.height_vertex_textures = num_pixels_y;         
             this.updateDataTextures();
@@ -617,6 +617,12 @@ class MarchingCubesMesh{
         console.warn("vertices.length", vertices.length);
     }
 
+    setAttributeResultPosition(readBuffer){ 
+        //console.warn("### readBuffer", readBuffer);            
+        this.mesh.geometry.setAttribute( 'result_position', new THREE.BufferAttribute(readBuffer, 4) );
+        //console.warn("### this.mesh.geometry", this.mesh.geometry);  
+    }
+
     setAttributeFTLE(readBuffer){ 
         //console.warn("### readBuffer", readBuffer);            
         this.mesh.geometry.setAttribute( 'ftle', new THREE.BufferAttribute(readBuffer, 4) );
@@ -626,11 +632,14 @@ class MarchingCubesMesh{
     //this shader is responsible for rendering the vertex data computed by OffscreenSurfaceComputation 
     vertexShader() {
         return glsl`
+        attribute vec4 result_position;
         attribute vec4 ftle;
+        varying vec4 vresult_position; 
         varying vec4 vftle; 
     
         void main() {
           vftle = ftle; 
+          vresult_position = result_position; 
     
           vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * modelViewPosition; 
@@ -646,22 +655,35 @@ class MarchingCubesMesh{
             + UTILITY.SHADER_MODULE_UTILITY + "\n" 
             + glsl`
 
+        varying vec4 vresult_position;
         varying vec4 vftle;
         out vec4 outputColor;
 
         void coloringFTLE();
+        void coloringReturnPositionNormalized();
   
         void main() {
             switch (rendering_specialized_mode) {
                 case 1://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
                     coloringFTLE();                    
-                    break;            
+                    break;      
+                case 2://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
+                    coloringReturnPositionNormalized();                  
+                    break;        
                 default:
                     break;
             }
 
         }    
         
+        vec3 normalMappingVec3(vec3 vector){
+
+            vec3 normal = normalize(vector);
+            vec3 mapped = 0.5 * normal + 0.5;
+
+            return mapped;
+        }
+
         void coloringFTLE(){
             //ftle
             float scalar = vftle[ftle_index];//TODO: change when we use backward
@@ -674,7 +696,12 @@ class MarchingCubesMesh{
             //color on white background
             vec3 col_forward = vec3(1.0, 1.0-t, 1.0-t);
             vec3 col_backwards = vec3(1.0-t, 1.0-t, 1.0);
-            outputColor = forward ? vec4(col_forward, opacity) : vec4(col_backwards, opacity);
+            outputColor = forward ? vec4(col_forward, opacity) : vec4(col_backwards, opacity);            
+        }
+
+        void coloringReturnPositionNormalized(){
+
+            outputColor = vec4(normalMappingVec3(normalize(vresult_position.xyz)), opacity);
         }
         `
         ;
@@ -728,6 +755,10 @@ class MarchingCubesMesh{
                 console.warn("case 1");
                 this.mesh.material = this.textured_material;                
                 break;
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED:
+                    console.warn("case 2");
+                    this.mesh.material = this.textured_material;                
+                    break;
             default:
                 console.error("Error: Unknown rendering_specialized_mode", this.simulationParameters.rendering_specialized_mode);
                 break;

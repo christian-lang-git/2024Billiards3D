@@ -142,6 +142,7 @@ class TextureRenderer {
         vec3 normalMappingVec2(vec2 vector);
         vec3 normalMappingVec3(vec3 vector);
         void coloringFTLE(float x_frac, float y_frac);
+        void coloringReturnPositionNormalized(float x_frac, float y_frac);        
 
         void main() {
 
@@ -176,18 +177,25 @@ class TextureRenderer {
             }
             */
 
-
             //testing: output seed direction
             bool forward = true;
             int x_virtual = 1;
             int y_virtual = 0;
             int z_layer = 0;
             vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
-            outputColor = vec4(normalMappingVec3(data.xyz), opacity);
+            outputColor = vec4(normalMappingVec3(data.xyz), opacity);          
 
-
-
-            coloringFTLE(x_frac, y_frac);
+            switch (rendering_specialized_mode) {
+                case 1://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
+                    coloringFTLE(x_frac, y_frac);                  
+                    break;      
+                case 2://TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED
+                    coloringReturnPositionNormalized(x_frac, y_frac);                  
+                    break;        
+                default:
+                    outputColor = vec4(0.2039, 0.6588, 0.3255, opacity);          
+                    break;
+            }
         `
             + this.fragmentShaderMethodComputation() +
             glsl`
@@ -557,6 +565,15 @@ class TextureRenderer {
             vec3 col_forward = vec3(1.0, 1.0-t, 1.0-t);
             vec3 col_backwards = vec3(1.0-t, 1.0-t, 1.0);
             outputColor = forward ? vec4(col_forward, opacity) : vec4(col_backwards, opacity);
+        }
+
+        void coloringReturnPositionNormalized(float x_frac, float y_frac){
+            bool forward = true;
+            int x_virtual = 0;
+            int y_virtual = 0;
+            int z_layer = 0;
+            vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
+            outputColor = vec4(normalMappingVec3(data.xyz), opacity);
         }
 
         ` + "\n" 

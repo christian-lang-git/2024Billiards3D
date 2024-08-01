@@ -16,64 +16,17 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
         super(renderer, simulationParameters, marchingCubesMesh);
     }
 
-    updateRenderTarget() {
-        //console.warn("### UPDATE RENDER TARGET SIZE", this.width, this.height, this.num_pixels);
-        var total_w = this.width * this.getNumPixelsPerNodeX();
-        var total_h = this.height * this.getNumPixelsPerNodeY();
-
-        this.renderTarget = new THREE.WebGLRenderTarget(total_w, total_h, {
-            minFilter: THREE.LinearFilter,
-            magFilter: THREE.NearestFilter,//THREE.LinearFilter
-            format: THREE.RGBAFormat,
-            type: THREE.FloatType
-        });
-        
-        const size = total_w * total_h * 4; // RGBA
-        const data = new Float32Array(size);
-
-        //the output texture
-        const texture = new THREE.DataTexture(data, total_w, total_h);            
-        texture.format = THREE.RGBAFormat;
-        texture.type = THREE.FloatType;
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.NearestFilter;
-        texture.unpackAlignment = 1;
-        this.renderTarget.texture = texture;
-    }
-
-    compute() {
-        //helper values
-        var attribute_position = this.marchingCubesMesh.mesh.geometry.attributes.position;
-        var vertex_count = attribute_position.count;
-
-        //compute required texture size
-        var num_pixels_x = Math.ceil(Math.sqrt(vertex_count));
-        var num_pixels_y = Math.ceil(vertex_count / num_pixels_x);
-        var num_pixels = num_pixels_x * num_pixels_y;
-
-        //check and update texture size
-        if(num_pixels != this.num_pixels){
-            this.num_pixels = num_pixels;   
-            this.width = num_pixels_x;      
-            this.height = num_pixels_y;         
-            this.updateRenderTarget();
-        }
-        
+    compute() {   
         //computation in shader
         this.setUniforms();
         this.renderer.setRenderTarget(this.renderTarget);
         this.renderer.render(this.bufferScene, this.bufferCamera);
 
-        //read results
-        const readBuffer = new Float32Array(this.width * this.height * 4);
-        this.renderer.readRenderTargetPixels(this.renderTarget, 0, 0, this.width, this.height, readBuffer);
-        //console.warn("### readBuffer", readBuffer);
+        this.writeToAttributeWrapper();
+    }
 
-        //send results to mesh
-        this.marchingCubesMesh.setAttributeFTLE(readBuffer);
-
-        //cleanup
-        this.renderer.setRenderTarget(null);
+    writeToAttribute(readBuffer){
+        this.marchingCubesMesh.setAttributeResultPosition(readBuffer);
     }
 
     generateUniforms() {
@@ -99,99 +52,35 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
         }
     }
 
-    vertexShader() {
+    fragmentShaderMethodComputation(){
         return glsl`
-        varying vec3 vUv; 
-    
-        void main() {
-          vUv = position; 
-    
-          vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-          gl_Position = projectionMatrix * modelViewPosition; 
+        //reading seed position
+        ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
+        vec4 value = texelFetch(input_texture_positions, pointer, 0);
+        vec3 position = value.xyz;
+        bool no_value = value.w < 0.5;
+
+        //early termination if this pixel is padding (i.e., not associated with any vertex)
+        if(no_value){
+            outputColor = vec4(0,0,0,0);
+            return;
         }
+
+        //compute flow
+        PhaseState seed_state;
+        seed_state.position = position;
+        seed_state.direction = getSeedDirectionAtPosition(position);
+        PhaseState result_state = computeFlow(seed_state);
+        
+        //output position
+        vec3 result_position = result_state.position;
+        outputColor = vec4(result_position.x,result_position.y,result_position.z,1);
+
         `
     }
 
-    fragmentShader() {
-        return "" +
-            this.getUniformsString() + "\n" + 
-            BILLIARD_DECLARATIONS.SHADER_MODULE_BILLIARD_DECLARATIONS + "\n" +
-            LINALG.SHADER_MODULE_LINALG + "\n" + UTILITY.SHADER_MODULE_UTILITY + "\n" +
-            glsl`
-        varying vec3 vUv;
-
-        const float G = 1.0;//TODO
-        const float PI = 3.1415926535897932384626433832795;
-        out vec4 outputColor;
-  
-        void main() {
-            //coordinates in pixel in total texture starting bottom left
-            float x_pixel = floor(gl_FragCoord[0]);//x
-            float y_pixel = floor(gl_FragCoord[1]);//y
-
-            //coordinates in pixel in virtual texture
-            int x_pixel_mod = int(x_pixel) % int(planeDimensionsPixel.x);
-            int y_pixel_mod = int(y_pixel) % int(planeDimensionsPixel.y);
-
-            //x and y indices of virtual texture e.g., (0,0) is the top left texture
-            int virtual_texture_x = int(x_pixel) / int(planeDimensionsPixel.x);
-            int virtual_texture_y = int(y_pixel) / int(planeDimensionsPixel.y);
-
-            //reading seed position
-            ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
-            vec4 value = texelFetch(input_texture_positions, pointer, 0);
-            vec3 position = value.xyz;
-            bool no_value = value.w < 0.5;
-
-            //early termination if this pixel is padding (i.e., not associated with any vertex)
-            if(no_value){
-                outputColor = vec4(0,0,0,0);
-                return;
-            }
-
-            //------------------------------------------------------------------------------------------------------
-
-            //generate a local grid from the seed position
-
-            LocalGrid local_grid = computeLocalGrid(position);
-
-            //------------------------------------------------------------------------------------------------------
-
-            //compute flowmap for all 4 seeds of the local grid
-
-            FlowResults flow_results = computeFlowResults(local_grid);
-
-            //------------------------------------------------------------------------------------------------------
-
-            //finite differences
-            //finite differences in x direction
-            vec3 dpos_dx = (flow_results.xp.position - flow_results.xn.position) / local_grid.dist_x;
-            vec3 dvel_dx = (flow_results.xp.direction - flow_results.xn.direction) / local_grid.dist_x;
-            //finite differences in y direction
-            vec3 dpos_dy = (flow_results.yp.position - flow_results.yn.position) / local_grid.dist_y;
-            vec3 dvel_dy = (flow_results.yp.direction - flow_results.yn.direction) / local_grid.dist_y;
-
-            //------------------------------------------------------------------------------------------------------
-
-            //psftle computation
-            float psftle = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 0);
-            float psftle_pos = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 1);
-            float psftle_vel = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 2);
-            outputColor = vec4(psftle,psftle_pos,psftle_vel,1);
-
-            //TESTING: output coordinates
-            //outputColor = value;
-            
-            //TESTING: output evaluateSurface
-            //outputColor = vec4(abs(evaluateSurface(position))*100.0,0,0,1);
-
-            //TESTING: positive values? --> no
-            //float v = evaluateSurface(position);
-            //if(v > 0.0){
-            //    outputColor = vec4(1,0,0,1);
-            //}
-        }   
-
+    fragmentShaderAdditionalMethodDefinitions(){
+        return BILLIARD.SHADER_MODULE_BILLIARD + glsl`
         LocalGrid computeLocalGrid(vec3 position){
 
             //compute local axes
@@ -257,36 +146,7 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
             vec3 direction = vec3(dir_x, dir_y, dir_z);
             return normalize(direction);
         }
-
-        
-        ` + BILLIARD.SHADER_MODULE_BILLIARD;
-    }
-
-    /**
-     * Automatically generates the shader code for uniforms from the method generateUniforms()
-     * The example: 
-     * 
-     *  this.uniforms = {
-     *      planeCenter: { type: 'vec2', value: new THREE.Vector2(0,0) },
-     *      planeCornerBL: { type: 'vec2', value: new THREE.Vector2(-1,-1) },
-     *      planeDimensions: { type: 'vec2', value: new THREE.Vector2(2,2) },
-     *      planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100,100) }
-     *  };
-     *  
-     * results in:
-     *       
-     *      uniform vec2 planeCenter; 
-     *      uniform vec2 planeCornerBL; 
-     *      uniform vec2 planeDimensions; 
-     *      uniform vec2 planeDimensionsPixel; 
-     * 
-     * @returns shader code for all uniforms
-     */
-    getUniformsString() {
-        return Object.keys(this.uniforms).map(key => {
-            const type = this.uniforms[key].type;
-            return `uniform ${type} ${key};`;
-        }).join('\n');
+        `
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,25 +155,6 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputation {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * A texture can output a single vec4 for each pixel.
-     * If more data per grid node is required, multiple pixels per grid node can be used.
-     * 
-     * @returns the number of "virtual textures" on the x axis, setting this value to 2 doubles the available data per node
-     */
-    getNumPixelsPerNodeX() {
-        return 1;
-    }
-
-    /**
-     * A texture can output a single vec4 for each pixel.
-     * If more data per grid node is required, multiple pixels per grid node can be used.
-     * 
-     * @returns the number of "virtual textures" on the y axis, setting this value to 2 doubles the available data per node
-     */
-    getNumPixelsPerNodeY() {
-        return 1;
-    }
 
 }
 

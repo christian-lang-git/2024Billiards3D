@@ -5,6 +5,7 @@ import * as Constants from "@/components/utility/constants";
 const options = [ 
     { value: Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR, label: 'single color' },    
     { value: Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE, label: 'FTLE' },
+    { value: Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED, label: 'stop position [normalized]' },    
 ];
 
 const LabeledSelectSpecializedMode = () => (

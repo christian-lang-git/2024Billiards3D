@@ -135,7 +135,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
 
     computeAdditionalStuff(){        
         this.marchingCubesMesh.build();
-        this.offscreen_surface_computation.compute();
+        this.offscreen_surface_computation.computeWrapper();
     }
 }
 
