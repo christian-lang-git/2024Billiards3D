@@ -270,23 +270,14 @@ class MarchingCubesMesh{
                 var index2 = marchingOBJ.triTable[cubeindex + i + 1];
                 var index3 = marchingOBJ.triTable[cubeindex + i + 2];
                 
-                //geometry_data.vertices.push( vlist[index1].clone() );  
                 var tmp = vlist[index1].clone()     
-                geometry_data.addVertex(x, y, z, index1, tmp.x, tmp.y, tmp.z);
-                //geometry_data.vertices.push( vlist[index2].clone() );   
+                var v_index_0 = geometry_data.addVertex(x, y, z, index1, tmp.x, tmp.y, tmp.z);
                 var tmp = vlist[index2].clone()
-                geometry_data.addVertex(x, y, z, index2, tmp.x, tmp.y, tmp.z);
-                //geometry_data.vertices.push( vlist[index3].clone() );   
+                var v_index_1 = geometry_data.addVertex(x, y, z, index2, tmp.x, tmp.y, tmp.z);                
                 var tmp = vlist[index3].clone()
-                geometry_data.addVertex(x, y, z, index3, tmp.x, tmp.y, tmp.z);
+                var v_index_2 = geometry_data.addVertex(x, y, z, index3, tmp.x, tmp.y, tmp.z);
+                geometry_data.addTriangle(v_index_0, v_index_1, v_index_2);
 
-                //var face = new THREE.Face3(vertexIndex, vertexIndex+1, vertexIndex+2);                
-                //geometry_data.faces.push( face );
-                //geometry_data.indices.push( vertexIndex );
-                //geometry_data.indices.push( vertexIndex+1 );
-                //geometry_data.indices.push( vertexIndex+2 );
-
-                //geometry_data.faceVertexUvs[ 0 ].push( [ new THREE.Vector2(0,0), new THREE.Vector2(0,1), new THREE.Vector2(1,1) ] );
                 //TODO: handle uv
                 geometry_data.uv.push(0);
                 geometry_data.uv.push(0);
@@ -299,6 +290,7 @@ class MarchingCubesMesh{
             }
         }
 
+        geometry_data.generateNeighbors();
         geometry_data.MoveVerticesToSurface();
 
         const indices = Array.from(geometry_data.indices);

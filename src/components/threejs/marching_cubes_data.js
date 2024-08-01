@@ -2,6 +2,14 @@ import * as THREE from "three";
 import { vec3 } from "gl-matrix/esm";
 import * as Constants from "@/components/utility/constants";
 
+class Triangle{
+    constructor(v_index_0, v_index_1, v_index_2){
+        this.v_index_0 = v_index_0;
+        this.v_index_1 = v_index_1;
+        this.v_index_2 = v_index_2;
+    }
+}
+
 class MarchingCubesData{
     
     constructor(simulationParameters){
@@ -10,6 +18,7 @@ class MarchingCubesData{
         this.vertices = [];
         this.normals = [];
         this.indices = [];
+        this.triangles = [];
         this.uv = [];
         this.next_vertex_index = 0;
     }
@@ -106,6 +115,37 @@ class MarchingCubesData{
         }
 
         this.indices.push(vertexIndex);
+        return vertexIndex;
+    }
+
+    addTriangle(v_index_0, v_index_1, v_index_2){
+        this.triangles.push(new Triangle(v_index_0, v_index_1, v_index_2));
+    }
+
+    generateNeighbors(){
+        this.neighbors = Array.from({ length: this.vertices.length }, () => new Set());
+
+        for(var i=0; i<this.triangles.length; i++){
+            var triangle = this.triangles[i];
+            //console.warn("triangle", triangle)
+            this.neighbors[triangle.v_index_0].add(triangle.v_index_1);
+            this.neighbors[triangle.v_index_0].add(triangle.v_index_2);
+            this.neighbors[triangle.v_index_1].add(triangle.v_index_0);
+            this.neighbors[triangle.v_index_1].add(triangle.v_index_2);
+            this.neighbors[triangle.v_index_2].add(triangle.v_index_0);
+            this.neighbors[triangle.v_index_2].add(triangle.v_index_1);
+        }
+        //console.warn("this.neighbors", this.neighbors)
+
+        /*
+        var max_count = 0;
+        for(var i=0; i<this.vertices.length; i++){
+            var count = this.neighbors[i].size;
+            max_count = Math.max(count, max_count);
+        }
+        console.warn("max_count", max_count)
+        */
+
     }
 
     MoveVerticesToSurface(){
