@@ -6,6 +6,7 @@ const options = [
     { value: Constants.TEXTURE_MODE_SPECIALIZED_SINGLE_COLOR, label: 'single color' },    
     { value: Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE, label: 'FTLE' },
     { value: Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED, label: 'stop position [normalized]' },    
+    { value: Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED, label: 'stop direction [normalized]' },    
 ];
 
 const LabeledSelectSpecializedMode = () => (

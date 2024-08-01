@@ -142,7 +142,8 @@ class TextureRenderer {
         vec3 normalMappingVec2(vec2 vector);
         vec3 normalMappingVec3(vec3 vector);
         void coloringFTLE(float x_frac, float y_frac);
-        void coloringReturnPositionNormalized(float x_frac, float y_frac);        
+        void coloringReturnPositionNormalized(float x_frac, float y_frac);      
+        void coloringReturnDirectionNormalized(float x_frac, float y_frac);       
 
         void main() {
 
@@ -191,7 +192,10 @@ class TextureRenderer {
                     break;      
                 case 2://TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED
                     coloringReturnPositionNormalized(x_frac, y_frac);                  
-                    break;        
+                    break;    
+                case 3://TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED
+                    coloringReturnDirectionNormalized(x_frac, y_frac);                  
+                    break;                        
                 default:
                     outputColor = vec4(0.2039, 0.6588, 0.3255, opacity);          
                     break;
@@ -575,6 +579,16 @@ class TextureRenderer {
             vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
             outputColor = vec4(normalMappingVec3(data.xyz), opacity);
         }
+
+        void coloringReturnDirectionNormalized(float x_frac, float y_frac){
+            bool forward = true;
+            int x_virtual = 1;
+            int y_virtual = 0;
+            int z_layer = 0;
+            vec4 data = InterpolateVec4Wrapper(forward, x_frac, y_frac, x_virtual, y_virtual, z_layer);
+            outputColor = vec4(normalMappingVec3(data.xyz), opacity);
+        }
+        
 
         ` + "\n" 
         + TEXTURE_ACCESS.SHADER_MODULE_TEXTURE_ACCESS

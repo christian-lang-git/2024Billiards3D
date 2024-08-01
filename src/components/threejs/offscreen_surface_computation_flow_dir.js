@@ -10,7 +10,7 @@ import { OffscreenSurfaceComputationFlow } from "@/components/threejs/offscreen_
 
 const glsl = x => x[0];
 
-class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputationFlow {
+class OffscreenSurfaceComputationFlowDir extends OffscreenSurfaceComputationFlow {
 
     constructor(renderer, simulationParameters, marchingCubesMesh) {
         super(renderer, simulationParameters, marchingCubesMesh);
@@ -18,16 +18,16 @@ class OffscreenSurfaceComputationFlowPos extends OffscreenSurfaceComputationFlow
 
     fragmentShaderMethodComputationOutput(){
         return glsl`
-        //output position
-        vec3 result_position = result_state.position;
-        outputColor = vec4(result_position.x,result_position.y,result_position.z,1);
+        //output direction
+        vec3 result_direction = result_state.direction;
+        outputColor = vec4(result_direction.x,result_direction.y,result_direction.z,1);
         `
     }
 
     writeToAttribute(readBuffer){
-        this.marchingCubesMesh.setAttributeResultPosition(readBuffer);
+        this.marchingCubesMesh.setAttributeResultDirection(readBuffer);
     }
 
 }
 
-export { OffscreenSurfaceComputationFlowPos }
+export { OffscreenSurfaceComputationFlowDir }

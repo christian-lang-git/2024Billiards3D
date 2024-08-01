@@ -16,6 +16,7 @@ import { SceneWrapperVisualization } from "@/components/threejs/sceneWrapperVisu
 import { ColorMaps } from "@/components/colormaps/colormaps"
 import Emitter from '@/components/utility/emitter';
 import { OffscreenSurfaceComputationFlowPos } from "./offscreen_surface_computation_flow_pos";
+import { OffscreenSurfaceComputationFlowDir } from "./offscreen_surface_computation_flow_dir";
 
 /**
  * This class is responsible for the scene that shows the main visualization
@@ -30,7 +31,8 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         console.warn("CONSTRUCTOR SceneWrapperVisualizationMain");
         this.marchingCubesMesh = new MarchingCubesMesh(scene, this.simulationParameters);
         this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters);
-        this.offscreen_surface_computation = new OffscreenSurfaceComputationFlowPos(renderer, this.simulationParameters, this.marchingCubesMesh);        
+        this.offscreen_surface_computation_flow_pos = new OffscreenSurfaceComputationFlowPos(renderer, this.simulationParameters, this.marchingCubesMesh);    
+        this.offscreen_surface_computation_flow_dir = new OffscreenSurfaceComputationFlowDir(renderer, this.simulationParameters, this.marchingCubesMesh);        
     }
 
     initializeAdditionalObjects(){
@@ -135,7 +137,8 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
 
     computeAdditionalStuff(){        
         this.marchingCubesMesh.build();
-        this.offscreen_surface_computation.computeWrapper();
+        this.offscreen_surface_computation_flow_pos.computeWrapper();
+        this.offscreen_surface_computation_flow_dir.computeWrapper();
     }
 }
 

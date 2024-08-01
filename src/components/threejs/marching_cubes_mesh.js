@@ -623,6 +623,12 @@ class MarchingCubesMesh{
         //console.warn("### this.mesh.geometry", this.mesh.geometry);  
     }
 
+    setAttributeResultDirection(readBuffer){ 
+        //console.warn("### readBuffer", readBuffer);            
+        this.mesh.geometry.setAttribute( 'result_direction', new THREE.BufferAttribute(readBuffer, 4) );
+        //console.warn("### this.mesh.geometry", this.mesh.geometry);  
+    }
+
     setAttributeFTLE(readBuffer){ 
         //console.warn("### readBuffer", readBuffer);            
         this.mesh.geometry.setAttribute( 'ftle', new THREE.BufferAttribute(readBuffer, 4) );
@@ -633,13 +639,16 @@ class MarchingCubesMesh{
     vertexShader() {
         return glsl`
         attribute vec4 result_position;
+        attribute vec4 result_direction;
         attribute vec4 ftle;
         varying vec4 vresult_position; 
+        varying vec4 vresult_direction; 
         varying vec4 vftle; 
     
         void main() {
-          vftle = ftle; 
           vresult_position = result_position; 
+          vresult_direction = result_direction; 
+          vftle = ftle; 
     
           vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * modelViewPosition; 
@@ -656,19 +665,24 @@ class MarchingCubesMesh{
             + glsl`
 
         varying vec4 vresult_position;
+        varying vec4 vresult_direction;
         varying vec4 vftle;
         out vec4 outputColor;
 
         void coloringFTLE();
         void coloringReturnPositionNormalized();
+        void coloringReturnDirectionNormalized();
   
         void main() {
             switch (rendering_specialized_mode) {
                 case 1://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
                     coloringFTLE();                    
                     break;      
-                case 2://TEXTURE_MODE_SPECIALIZED_RETURN_FTLE
+                case 2://TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED
                     coloringReturnPositionNormalized();                  
+                    break;    
+                case 3://TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED
+                    coloringReturnDirectionNormalized();                  
                     break;        
                 default:
                     break;
@@ -700,8 +714,11 @@ class MarchingCubesMesh{
         }
 
         void coloringReturnPositionNormalized(){
-
             outputColor = vec4(normalMappingVec3(normalize(vresult_position.xyz)), opacity);
+        }
+
+        void coloringReturnDirectionNormalized(){
+            outputColor = vec4(normalMappingVec3(normalize(vresult_direction.xyz)), opacity);
         }
         `
         ;
@@ -756,9 +773,13 @@ class MarchingCubesMesh{
                 this.mesh.material = this.textured_material;                
                 break;
             case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED:
-                    console.warn("case 2");
-                    this.mesh.material = this.textured_material;                
-                    break;
+                console.warn("case 2");
+                this.mesh.material = this.textured_material;                
+                break;
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED:
+                console.warn("case 3");
+                this.mesh.material = this.textured_material;                
+                break;
             default:
                 console.error("Error: Unknown rendering_specialized_mode", this.simulationParameters.rendering_specialized_mode);
                 break;

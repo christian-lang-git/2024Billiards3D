@@ -128,6 +128,9 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
             case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED:
                 this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
                 break;
+            case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED:
+                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
+                break;
             default:
                 break;
         }
