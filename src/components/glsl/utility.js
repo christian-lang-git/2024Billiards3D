@@ -57,41 +57,43 @@ vec3 computeBackwardDifference(sampler3D texture, ivec3 pointer, ivec3 offset_ba
 }
 
 /**
- * Intended for use with PSFTLE return maps, i.e., we only care about 2 position components but 3 velocity components
- * Ignores the 3rd component of the position
+ * Intended for use with PSFTLE for billiards, i.e., we care about all 3 position components and all 3 velocity components
  */
 mat2 BuildCauchyGreen(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy){
     /*
-                                    A =     
-                                    | x_dx x_dy |
-                                    | y_dx y_dy |
-                                    | u_dx u_dy |
-                                    | v_dx v_dy |
-                                    | w_dx w_dy |
+                                        A =     
+                                        | x_dx x_dy |
+                                        | y_dx y_dy |
+                                        | z_dx z_dy |
+                                        | u_dx u_dy |
+                                        | v_dx v_dy |
+                                        | w_dx w_dy |
     
     AT =
-    | x_dx y_dx u_dx v_dx w_dx |    | a b |
-    | x_dy y_dy u_dy v_dy w_dy |    | c d |
+    | x_dx y_dx z_dx u_dx v_dx w_dx |   | a b |
+    | x_dy y_dy z_dy u_dy v_dy w_dy |   | c d |
 
 
     */
     float x_dx = dpos_dx.x;
     float y_dx = dpos_dx.y;
+    float z_dx = dpos_dx.z;
     float u_dx = dvel_dx.x;
     float v_dx = dvel_dx.y;
     float w_dx = dvel_dx.z;
 
     float x_dy = dpos_dy.x;
     float y_dy = dpos_dy.y;
+    float z_dy = dpos_dy.z;
     float u_dy = dvel_dy.x;
     float v_dy = dvel_dy.y;
     float w_dy = dvel_dy.z;
 
-    float a = x_dx*x_dx + y_dx*y_dx + u_dx*u_dx + v_dx*v_dx + w_dx*w_dx;
-    float b = x_dx*x_dy + y_dx*y_dy + u_dx*u_dy + v_dx*v_dy + w_dx*w_dy;
+    float a = x_dx*x_dx + y_dx*y_dx + z_dx*z_dx + u_dx*u_dx + v_dx*v_dx + w_dx*w_dx;
+    float b = x_dx*x_dy + y_dx*y_dy + z_dx*z_dy + u_dx*u_dy + v_dx*v_dy + w_dx*w_dy;
     //float c = x_dy*x_dx + y_dy*y_dx + u_dy*u_dx + v_dy*v_dx + w_dy*w_dx;
     float c = b;//symmetry
-    float d = x_dy*x_dy + y_dy*y_dy + u_dy*u_dy + v_dy*v_dy + w_dy*w_dy;
+    float d = x_dy*x_dy + y_dy*y_dy + z_dy*z_dy + u_dy*u_dy + v_dy*v_dy + w_dy*w_dy;
     
     mat2 matrix;//column major order, matrix[0] references the first column
     matrix[0] = vec2(a, c);
@@ -101,33 +103,35 @@ mat2 BuildCauchyGreen(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy){
 }
 
 /**
- * Intended for use with PSFTLE return maps, i.e., we only care about 2 position components but 3 velocity components
- * Ignores the 3rd component of the position
+ * Intended for use with PSFTLE for billiards, i.e., we care about all 3 position components and all 3 velocity components
  * This version only cares about position
  */
 mat2 BuildCauchyGreenPos(vec3 dpos_dx, vec3 dpos_dy){
     /*
-                    A =     
-                    | x_dx x_dy |
-                    | y_dx y_dy |
+                            A =     
+                            | x_dx x_dy |
+                            | y_dx y_dy |
+                            | z_dx z_dy |
     
     AT =
-    | x_dx y_dx |   | a b |
-    | x_dy y_dy |   | c d |
+    | x_dx y_dx z_dx |      | a b |
+    | x_dy y_dy z_dy |      | c d |
 
 
     */
     float x_dx = dpos_dx.x;
     float y_dx = dpos_dx.y;
+    float z_dx = dpos_dx.z;
 
     float x_dy = dpos_dy.x;
     float y_dy = dpos_dy.y;
+    float z_dy = dpos_dy.z;
 
-    float a = x_dx*x_dx + y_dx*y_dx;
-    float b = x_dx*x_dy + y_dx*y_dy;
+    float a = x_dx*x_dx + y_dx*y_dx + z_dx*z_dx;
+    float b = x_dx*x_dy + y_dx*y_dy + z_dx*z_dy;
     //float c = x_dy*x_dx + y_dy*y_dx;
     float c = b;//symmetry
-    float d = x_dy*x_dy + y_dy*y_dy;
+    float d = x_dy*x_dy + y_dy*y_dy + z_dy*z_dy;
     
     mat2 matrix;//column major order, matrix[0] references the first column
     matrix[0] = vec2(a, c);
@@ -137,8 +141,8 @@ mat2 BuildCauchyGreenPos(vec3 dpos_dx, vec3 dpos_dy){
 }
 
 /**
- * Intended for use with PSFTLE return maps, i.e., we only care about 2 position components but 3 velocity components
- * Ignores the 3rd component of the position
+ * Intended for use with PSFTLE for billiards, i.e., we care about all 3 position components and all 3 velocity components
+ * This version only cares about velocity
  */
 mat2 BuildCauchyGreenVel(vec3 dvel_dx, vec3 dvel_dy){
     /*
