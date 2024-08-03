@@ -24,11 +24,13 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
     addAdditionalUniforms(){
         this.uniforms["input_texture_flow_pos"] = { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices};//set to placeholder because real doesnt exist yet
         this.uniforms["input_texture_flow_dir"] = { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices};//set to placeholder because real doesnt exist yet
+        this.uniforms["input_texture_neighbors"] = { type: 'sampler3D', value: this.marchingCubesMesh.texture_neighbors};
     }
 
     setAdditionalUniforms(){
         this.dummy_plane_mesh.material.uniforms.input_texture_flow_pos.value = this.offscreen_surface_computation_flow_pos.renderTarget.texture;    
-        this.dummy_plane_mesh.material.uniforms.input_texture_flow_dir.value = this.offscreen_surface_computation_flow_dir.renderTarget.texture;       
+        this.dummy_plane_mesh.material.uniforms.input_texture_flow_dir.value = this.offscreen_surface_computation_flow_dir.renderTarget.texture;     
+        this.dummy_plane_mesh.material.uniforms.input_texture_neighbors.value = this.marchingCubesMesh.texture_neighbors;         
     }
 
     compute() {   
@@ -56,6 +58,16 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         if(no_value){
             outputColor = vec4(0,0,0,0);
             return;
+        }
+
+        //test input_texture_neighbors
+        ivec3 pointer_neighbors = ivec3(x_pixel_mod, y_pixel_mod, 0);
+        pointer_neighbors = ivec3(1, 0, 0);//TEST
+        vec4 neighbors4 = texelFetch(input_texture_neighbors, pointer_neighbors, 0);
+
+        if(neighbors4[0] == 0.0 && neighbors4[1] == 2.0 && neighbors4[2] == 30.0 && neighbors4[3] == 29.0){
+            outputColor = vec4(1,0,0,1);//TEST
+            return;//TEST
         }
 
         //output position
