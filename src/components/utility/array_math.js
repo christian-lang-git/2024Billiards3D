@@ -38,6 +38,14 @@ class ArrayMath {
         var mat_C_rows = 0;
         var mat_C_cols = 0;
 
+        var vec_b = new Array(48);
+        var vec_b_rows = 3;
+        var vec_b_cols = 1;
+
+        var mat_D = new Array(48);
+        var mat_D_rows = 0;
+        var mat_D_cols = 0;
+
         //test values A
         mat_A[0] = 11; 
         mat_A[1] = 21; 
@@ -53,6 +61,11 @@ class ArrayMath {
         mat_B[3] = 112; 
         mat_B[4] = 122; 
         mat_B[5] = 132; 
+
+        //test values vec b
+        vec_b[0] = 101; 
+        vec_b[1] = 102; 
+        vec_b[2] = 103; 
 
         console.warn("#AM TEST A -----------------------------------------");
         this.AM_PrintMatrix(mat_A, mat_A_rows, mat_A_cols);
@@ -85,6 +98,18 @@ class ArrayMath {
         mat_C_cols = out.mat_C_cols;
         this.AM_PrintMatrix(mat_C, mat_C_rows, mat_C_cols);
         this.AM_PrintWolfram(mat_C, mat_C_rows, mat_C_cols);
+
+        console.warn("#AM TEST b -----------------------------------------");
+        this.AM_PrintMatrix(vec_b, vec_b_rows, vec_b_cols);
+        this.AM_PrintWolfram(vec_b, vec_b_rows, vec_b_cols);
+
+        console.warn("#AM TEST D=Cb -----------------------------------------");
+        var out = this.AM_Multiply(mat_C, mat_C_rows, mat_C_cols, vec_b, vec_b_rows, vec_b_cols, mat_D, mat_D_rows, mat_D_cols);
+        mat_D = out.mat_C;
+        mat_D_rows = out.mat_C_rows;
+        mat_D_cols = out.mat_C_cols;
+        this.AM_PrintMatrix(mat_D, mat_D_rows, mat_D_cols);
+        this.AM_PrintWolfram(mat_D, mat_D_rows, mat_D_cols);
     }
 
     AM_PrintMatrix(mat, mat_rows, mat_cols){
@@ -148,7 +173,7 @@ class ArrayMath {
      * Multiply matrices: C = A * B
      */
     AM_Multiply(mat_A, mat_A_rows, mat_A_cols, mat_B, mat_B_rows, mat_B_cols, mat_C, mat_C_rows, mat_C_cols){
-        //swap row and col counts for transposed matrix;
+        //set row and col counts for result matrix;
         mat_C_rows = mat_A_rows;
         mat_C_cols = mat_B_cols;
         for(var i=0; i<mat_C_rows; i++){
