@@ -30,7 +30,15 @@ class ArrayMath {
         var mat_ATA_rows = 0;
         var mat_ATA_cols = 0;
 
-        //test values
+        var mat_B = new Array(48);
+        var mat_B_rows = 3;
+        var mat_B_cols = 2;
+
+        var mat_C = new Array(48);
+        var mat_C_rows = 0;
+        var mat_C_cols = 0;
+
+        //test values A
         mat_A[0] = 11; 
         mat_A[1] = 21; 
         mat_A[2] = 12; 
@@ -38,9 +46,19 @@ class ArrayMath {
         mat_A[4] = 13; 
         mat_A[5] = 23; 
 
+        //test values B
+        mat_B[0] = 111; 
+        mat_B[1] = 121; 
+        mat_B[2] = 131; 
+        mat_B[3] = 112; 
+        mat_B[4] = 122; 
+        mat_B[5] = 132; 
+
+        console.warn("#AM TEST A -----------------------------------------");
         this.AM_PrintMatrix(mat_A, mat_A_rows, mat_A_cols);
         this.AM_PrintWolfram(mat_A, mat_A_rows, mat_A_cols);
 
+        console.warn("#AM TEST AT -----------------------------------------");
         var out = this.AM_Transpose(mat_A, mat_A_rows, mat_A_cols, mat_AT, mat_AT_rows, mat_AT_cols);
         mat_AT = out.mat_AT;
         mat_AT_rows = out.mat_AT_rows;
@@ -48,12 +66,25 @@ class ArrayMath {
         this.AM_PrintMatrix(mat_AT, mat_AT_rows, mat_AT_cols);
         this.AM_PrintWolfram(mat_AT, mat_AT_rows, mat_AT_cols);
 
+        console.warn("#AM TEST ATA -----------------------------------------");
         var out = this.AM_Multiply(mat_AT, mat_AT_rows, mat_AT_cols, mat_A, mat_A_rows, mat_A_cols, mat_ATA, mat_ATA_rows, mat_ATA_cols);
         mat_ATA = out.mat_C;
         mat_ATA_rows = out.mat_C_rows;
         mat_ATA_cols = out.mat_C_cols;
         this.AM_PrintMatrix(mat_ATA, mat_ATA_rows, mat_ATA_cols);
         this.AM_PrintWolfram(mat_ATA, mat_ATA_rows, mat_ATA_cols);
+
+        console.warn("#AM TEST B -----------------------------------------");
+        this.AM_PrintMatrix(mat_B, mat_B_rows, mat_B_cols);
+        this.AM_PrintWolfram(mat_B, mat_B_rows, mat_B_cols);
+
+        console.warn("#AM TEST C=BA -----------------------------------------");
+        var out = this.AM_Multiply(mat_B, mat_B_rows, mat_B_cols, mat_A, mat_A_rows, mat_A_cols, mat_C, mat_C_rows, mat_C_cols);
+        mat_C = out.mat_C;
+        mat_C_rows = out.mat_C_rows;
+        mat_C_cols = out.mat_C_cols;
+        this.AM_PrintMatrix(mat_C, mat_C_rows, mat_C_cols);
+        this.AM_PrintWolfram(mat_C, mat_C_rows, mat_C_cols);
     }
 
     AM_PrintMatrix(mat, mat_rows, mat_cols){
