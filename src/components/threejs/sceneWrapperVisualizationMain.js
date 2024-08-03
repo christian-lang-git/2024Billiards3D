@@ -17,6 +17,8 @@ import { ColorMaps } from "@/components/colormaps/colormaps"
 import Emitter from '@/components/utility/emitter';
 import { OffscreenSurfaceComputationFlowPos } from "./offscreen_surface_computation_flow_pos";
 import { OffscreenSurfaceComputationFlowDir } from "./offscreen_surface_computation_flow_dir";
+import { OffscreenSurfaceComputationFtle } from "./offscreen_surface_computation_ftle";
+
 import { ArrayMath } from "@/components/utility/array_math";
 
 /**
@@ -33,8 +35,8 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.marchingCubesMesh = new MarchingCubesMesh(scene, this.simulationParameters);
         this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters);
         this.offscreen_surface_computation_flow_pos = new OffscreenSurfaceComputationFlowPos(renderer, this.simulationParameters, this.marchingCubesMesh);    
-        this.offscreen_surface_computation_flow_dir = new OffscreenSurfaceComputationFlowDir(renderer, this.simulationParameters, this.marchingCubesMesh);     
-        
+        this.offscreen_surface_computation_flow_dir = new OffscreenSurfaceComputationFlowDir(renderer, this.simulationParameters, this.marchingCubesMesh);
+        this.offscreen_surface_computation_flow_ftle = new OffscreenSurfaceComputationFtle(renderer, this.simulationParameters, this.marchingCubesMesh);              
         new ArrayMath();
     }
 
@@ -142,6 +144,7 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.marchingCubesMesh.build();
         this.offscreen_surface_computation_flow_pos.computeWrapper();
         this.offscreen_surface_computation_flow_dir.computeWrapper();
+        this.offscreen_surface_computation_flow_ftle.computeWrapper();        
     }
 }
 

@@ -185,7 +185,9 @@ class OffscreenSurfaceComputation {
         return "" +
             this.getUniformsString() + "\n" + 
             BILLIARD_DECLARATIONS.SHADER_MODULE_BILLIARD_DECLARATIONS + "\n" +
-            LINALG.SHADER_MODULE_LINALG + "\n" + UTILITY.SHADER_MODULE_UTILITY + "\n" +
+            LINALG.SHADER_MODULE_LINALG + "\n" + 
+            UTILITY.SHADER_MODULE_UTILITY + "\n" +
+            this.fragmentShaderAdditionalMethodDeclarations() + "\n"+
             glsl`
         varying vec3 vUv;
 
@@ -238,6 +240,16 @@ class OffscreenSurfaceComputation {
             const type = this.uniforms[key].type;
             return `uniform ${type} ${key};`;
         }).join('\n');
+    }
+
+    fragmentShaderAdditionalMethodDeclarations(){
+        //override in child class
+        return "";
+    }
+
+    fragmentShaderAdditionalMethodDefinitions(){
+        //override in child class
+        return "";
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
