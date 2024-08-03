@@ -319,7 +319,7 @@ class MarchingCubesMesh{
         console.warn("vertices.length", vertices.length);
 
         //for computing flow map:
-        this.fillDataTextures();
+        this.fillDataTextures(geometry_data);
     }
 
     updateDataTextures() {
@@ -336,9 +336,23 @@ class MarchingCubesMesh{
         this.texture_vertices.minFilter = THREE.LinearFilter;
         this.texture_vertices.magFilter = THREE.NearestFilter;
         this.texture_vertices.unpackAlignment = 1; 
+
+        
+        //the input texture (neighbor indices) for derivatives during ftle
+        //for each vertex index, the RGBA represents 4 neighbors. 4 slices --> 16 neighbors.
+        var total_z = 4;
+        const size_neighbors = size * total_z;
+        this.texture_neighbors_data = new Float32Array(size_neighbors);
+        this.texture_neighbors = new THREE.Data3DTexture(this.texture_neighbors_data, total_w, total_h, total_z);            
+        this.texture_neighbors.format = THREE.RGBAFormat;
+        this.texture_neighbors.type = THREE.FloatType;
+        this.texture_neighbors.minFilter = THREE.LinearFilter;
+        this.texture_neighbors.magFilter = THREE.NearestFilter;
+        this.texture_neighbors.unpackAlignment = 1;
+        
     }
 
-    fillDataTextures(){
+    fillDataTextures(geometry_data){
         //helper values
         var attribute_position = this.mesh.geometry.attributes.position;
         var vertex_count = attribute_position.count;
@@ -356,6 +370,12 @@ class MarchingCubesMesh{
             this.updateDataTextures();
         }
 
+        this.fillDataTextureVertices(attribute_position, vertex_count);
+        this.fillDataTextureNeighbors(geometry_data, vertex_count, num_pixels);
+
+    }
+
+    fillDataTextureVertices(attribute_position, vertex_count){
         //write vertex positions into texture
         for (var i = 0; i < vertex_count; i++) {
             var index = 3*i;
@@ -369,6 +389,53 @@ class MarchingCubesMesh{
         }
         this.texture_vertices.needsUpdate = true;
     }
+
+    fillDataTextureNeighbors(geometry_data, vertex_count, num_pixels){
+        //write neighbor indices into texture
+        var layer_offset = num_pixels * 4;//RGBA
+        for (var i = 0; i < vertex_count; i++) {
+            //console.warn("#N --------------------------------");
+            var pixel_index = 4*i;       
+            //console.warn("#N pixel_index", pixel_index);
+            
+            var neighbor_set = geometry_data.neighbors[i];
+            //console.warn("#N neighbor_set", neighbor_set);
+            var layer_index = 0;
+            var rgba_index = 0;
+            for (const value of neighbor_set) {
+                if(rgba_index == 4){
+                    rgba_index=0;
+                    layer_index++;
+                }
+                var index = pixel_index + rgba_index + layer_index * layer_offset;
+                this.texture_neighbors_data[index] = value;
+                //console.warn("#N", layer_index, rgba_index, index, value);
+
+                //prepare next
+                rgba_index++;
+            }
+            //fill rest with -1
+            while(true){
+                if(rgba_index == 4){
+                    rgba_index=0;
+                    layer_index++;
+                }
+                if(layer_index > 3){
+                    break;
+                }
+                var index = pixel_index + rgba_index + layer_index * layer_offset;
+                this.texture_neighbors_data[index] = -1;
+                //console.warn("#N", layer_index, rgba_index, index, -1);
+
+                //prepare next
+                rgba_index++;
+            }        
+        }
+        this.texture_neighbors.needsUpdate = true;
+        console.warn("#N texture_neighbors_data", this.texture_neighbors_data);
+        //console.warn("#N texture_neighbors_data[133956]", this.texture_neighbors_data[133956]);
+    }
+
 
     build_old(){
         this.UpdateParametersCheckBuildRequired();

@@ -21,6 +21,7 @@ class MarchingCubesData{
         this.triangles = [];
         this.uv = [];
         this.next_vertex_index = 0;
+        this.neighbors = null;//generateNeighbors()
     }
 
     getKey(x, y, z, edgeIndex){        
