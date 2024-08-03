@@ -50,6 +50,10 @@ class ArrayMath {
         var mat_E_rows = 3;
         var mat_E_cols = 3;
 
+        var mat_Einv = new Array(48);
+        var mat_Einv_rows = 3;
+        var mat_Einv_cols = 3;
+
         //test values A
         mat_A[0] = 11; 
         mat_A[1] = 21; 
@@ -130,12 +134,19 @@ class ArrayMath {
         this.AM_PrintMatrix(mat_D, mat_D_rows, mat_D_cols);
         this.AM_PrintWolfram(mat_D, mat_D_rows, mat_D_cols);
 
-        console.warn("#AM TEST b -----------------------------------------");
+        console.warn("#AM TEST E -----------------------------------------");
         this.AM_PrintMatrix(mat_E, mat_E_rows, mat_E_cols);
         this.AM_PrintWolfram(mat_E, mat_E_rows, mat_E_cols);
         var det = this.AM_Mat3Det(mat_E);
         console.warn("#AM det:", det);//-7400
         
+        console.warn("#AM TEST Einv -----------------------------------------");
+        var out = this.AM_Mat3Inv(mat_E, mat_Einv);
+        mat_Einv = out.mat;
+        this.AM_PrintMatrix(mat_Einv, mat_Einv_rows, mat_Einv_cols);
+        this.AM_PrintWolfram(mat_Einv, mat_Einv_rows, mat_Einv_cols);
+        var det = this.AM_Mat3Det(mat_Einv);
+        console.warn("#AM det:", det);//-7400
     }
 
     AM_PrintMatrix(mat, mat_rows, mat_cols){
@@ -239,6 +250,44 @@ class ArrayMath {
                 a_0_2 * (a_1_0 * a_2_1 - a_1_1 * a_2_0);
     }
 
+    AM_Mat3Inv(mat_A, mat_B){
+        var a_0_0 = mat_A[0];
+        var a_1_0 = mat_A[1];
+        var a_2_0 = mat_A[2];
+        var a_0_1 = mat_A[3];
+        var a_1_1 = mat_A[4];
+        var a_2_1 = mat_A[5];
+        var a_0_2 = mat_A[6];
+        var a_1_2 = mat_A[7];
+        var a_2_2 = mat_A[8];
+
+        var out = {};
+        out.mat = mat_B;
+        out.mat_rows = 3;
+        out.mat_cols = 3;
+        
+        var d = this.AM_Mat3Det(mat_A);
+        if (d == 0.0) {
+            console.error("Error: Inverting singular matrix");
+            //return false;
+            out.success = false;
+            return out;
+        }
+        mat_B[0] = (a_1_1 * a_2_2 - a_1_2 * a_2_1) / d;
+        mat_B[1] = (a_1_2 * a_2_0 - a_1_0 * a_2_2) / d;
+        mat_B[2] = (a_1_0 * a_2_1 - a_1_1 * a_2_0) / d;
+        mat_B[3] = (a_2_1 * a_0_2 - a_2_2 * a_0_1) / d;
+        mat_B[4] = (a_2_2 * a_0_0 - a_2_0 * a_0_2) / d;
+        mat_B[5] = (a_2_0 * a_0_1 - a_2_1 * a_0_0) / d;
+        mat_B[6] = (a_0_1 * a_1_2 - a_0_2 * a_1_1) / d;
+        mat_B[7] = (a_0_2 * a_1_0 - a_0_0 * a_1_2) / d;
+        mat_B[8] = (a_0_0 * a_1_1 - a_0_1 * a_1_0) / d;
+        
+        //return true;
+        out.success = true;
+        out.mat = mat_B;
+        return out;
+    }
     /*
     CreateMatrix(row_count, column_count){
         var matrix = new ArrayMatrix();
