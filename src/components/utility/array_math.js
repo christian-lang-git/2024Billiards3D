@@ -46,6 +46,10 @@ class ArrayMath {
         var mat_D_rows = 0;
         var mat_D_cols = 0;
 
+        var mat_E = new Array(48);
+        var mat_E_rows = 3;
+        var mat_E_cols = 3;
+
         //test values A
         mat_A[0] = 11; 
         mat_A[1] = 21; 
@@ -67,6 +71,17 @@ class ArrayMath {
         vec_b[1] = 102; 
         vec_b[2] = 103; 
 
+        //test values E
+        mat_E[0] = 11; 
+        mat_E[1] = 20; 
+        mat_E[2] = 40; 
+        mat_E[3] = 20; 
+        mat_E[4] = 50; 
+        mat_E[5] = 80; 
+        mat_E[6] = 40; 
+        mat_E[7] = 80; 
+        mat_E[8] = 100; 
+
         console.warn("#AM TEST A -----------------------------------------");
         this.AM_PrintMatrix(mat_A, mat_A_rows, mat_A_cols);
         this.AM_PrintWolfram(mat_A, mat_A_rows, mat_A_cols);
@@ -86,6 +101,8 @@ class ArrayMath {
         mat_ATA_cols = out.mat_C_cols;
         this.AM_PrintMatrix(mat_ATA, mat_ATA_rows, mat_ATA_cols);
         this.AM_PrintWolfram(mat_ATA, mat_ATA_rows, mat_ATA_cols);
+        var det = this.AM_Mat3Det(mat_ATA);
+        console.warn("#AM det:", det);
 
         console.warn("#AM TEST B -----------------------------------------");
         this.AM_PrintMatrix(mat_B, mat_B_rows, mat_B_cols);
@@ -98,6 +115,8 @@ class ArrayMath {
         mat_C_cols = out.mat_C_cols;
         this.AM_PrintMatrix(mat_C, mat_C_rows, mat_C_cols);
         this.AM_PrintWolfram(mat_C, mat_C_rows, mat_C_cols);
+        var det = this.AM_Mat3Det(mat_C);
+        console.warn("#AM det:", det);
 
         console.warn("#AM TEST b -----------------------------------------");
         this.AM_PrintMatrix(vec_b, vec_b_rows, vec_b_cols);
@@ -110,6 +129,13 @@ class ArrayMath {
         mat_D_cols = out.mat_C_cols;
         this.AM_PrintMatrix(mat_D, mat_D_rows, mat_D_cols);
         this.AM_PrintWolfram(mat_D, mat_D_rows, mat_D_cols);
+
+        console.warn("#AM TEST b -----------------------------------------");
+        this.AM_PrintMatrix(mat_E, mat_E_rows, mat_E_cols);
+        this.AM_PrintWolfram(mat_E, mat_E_rows, mat_E_cols);
+        var det = this.AM_Mat3Det(mat_E);
+        console.warn("#AM det:", det);//-7400
+        
     }
 
     AM_PrintMatrix(mat, mat_rows, mat_cols){
@@ -195,6 +221,22 @@ class ArrayMath {
         out.mat_C_rows = mat_C_rows;
         out.mat_C_cols = mat_C_cols;
         return out;
+    }
+
+    AM_Mat3Det(mat){
+        var a_0_0 = mat[0];
+        var a_1_0 = mat[1];
+        var a_2_0 = mat[2];
+        var a_0_1 = mat[3];
+        var a_1_1 = mat[4];
+        var a_2_1 = mat[5];
+        var a_0_2 = mat[6];
+        var a_1_2 = mat[7];
+        var a_2_2 = mat[8];
+        
+        return  a_0_0 * (a_1_1 * a_2_2 - a_1_2 * a_2_1) +
+                a_0_1 * (a_1_2 * a_2_0 - a_1_0 * a_2_2) +
+                a_0_2 * (a_1_0 * a_2_1 - a_1_1 * a_2_0);
     }
 
     /*
