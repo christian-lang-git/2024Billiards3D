@@ -16,6 +16,21 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         super(renderer, simulationParameters, marchingCubesMesh);
     }
 
+    link(offscreen_surface_computation_flow_pos, offscreen_surface_computation_flow_dir){
+        this.offscreen_surface_computation_flow_pos = offscreen_surface_computation_flow_pos;
+        this.offscreen_surface_computation_flow_dir = offscreen_surface_computation_flow_dir;
+    }
+
+    addAdditionalUniforms(){
+        this.uniforms["input_texture_flow_pos"] = { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices};//set to placeholder because real doesnt exist yet
+        this.uniforms["input_texture_flow_dir"] = { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices};//set to placeholder because real doesnt exist yet
+    }
+
+    setAdditionalUniforms(){
+        this.dummy_plane_mesh.material.uniforms.input_texture_flow_pos.value = this.offscreen_surface_computation_flow_pos.renderTarget.texture;    
+        this.dummy_plane_mesh.material.uniforms.input_texture_flow_dir.value = this.offscreen_surface_computation_flow_dir.renderTarget.texture;       
+    }
+
     compute() {   
         //computation in shader
         this.setUniforms();
@@ -29,34 +44,11 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         this.marchingCubesMesh.setAttributeFTLE(readBuffer);        
     }
 
-    generateUniforms() {
-        this.uniforms = {      
-            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
-            input_texture_positions: { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices},      
-            surface_type: { type: 'int', value: 2 },
-            var_a: { type: 'float', value: 3.5 },
-            var_b: { type: 'float', value: 2.5 },
-            var_c: { type: 'float', value: 1.5 },
-            var_R: { type: 'float', value: 2.0 },
-            var_r: { type: 'float', value: 1.0 },
-            one_div_aa: { type: 'float', value: 1.0 },//computed later
-            one_div_bb: { type: 'float', value: 1.0 },//computed later
-            one_div_cc: { type: 'float', value: 1.0 },//computed later
-            number_of_intersections: { type: 'int', value: 2 },
-            number_of_bisection_steps: { type: 'int', value: 8 },
-            step_size: { type: 'float', value: 1.0 },
-            max_steps: { type: 'int', value: 100 },
-            seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
-            use_local_direction: { type: 'bool', value: true },
-            kernel_distance: { type: 'float', value: 0.01 },            
-        }
-    }
-
     fragmentShaderMethodComputation(){
         return glsl`
         //reading seed position
         ivec2 pointer = ivec2(x_pixel_mod, y_pixel_mod);
-        vec4 value = texelFetch(input_texture_positions, pointer, 0);
+        vec4 value = texelFetch(input_texture_flow_pos, pointer, 0);
         vec3 position = value.xyz;
         bool no_value = value.w < 0.5;
 
@@ -66,15 +58,8 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
             return;
         }
 
-        //compute flow
-        PhaseState seed_state;
-        seed_state.position = position;
-        seed_state.direction = getSeedDirectionAtPosition(position);
-        PhaseState result_state = computeFlow(seed_state); 
-
         //output position
-        vec3 result_position = result_state.position;
-        outputColor = vec4(result_position.x,result_position.y,result_position.z,1);
+        outputColor = vec4(position.x,position.y,position.z,1);
 
         //TODO: copied method from flow, change to FTLE
         ` 

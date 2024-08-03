@@ -85,6 +85,15 @@ class OffscreenSurfaceComputation {
         
         this.dummy_plane_mesh.material.uniforms.kernel_distance.value = this.simulationParameters.kernel_distance;
         
+        this.setAdditionalUniforms();
+    }
+
+    addAdditionalUniforms(){
+        //override in child class
+    }
+
+    setAdditionalUniforms(){
+        //override in child class
     }
 
     updateRenderTarget() {
@@ -166,6 +175,8 @@ class OffscreenSurfaceComputation {
             use_local_direction: { type: 'bool', value: true },
             kernel_distance: { type: 'float', value: 0.01 },            
         }
+
+        this.addAdditionalUniforms();
     }
 
     vertexShader() {

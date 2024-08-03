@@ -36,7 +36,10 @@ class SceneWrapperVisualizationMain extends SceneWrapperVisualization{
         this.local_coordinates = new LocalCoordinates(scene, this.simulationParameters);
         this.offscreen_surface_computation_flow_pos = new OffscreenSurfaceComputationFlowPos(renderer, this.simulationParameters, this.marchingCubesMesh);    
         this.offscreen_surface_computation_flow_dir = new OffscreenSurfaceComputationFlowDir(renderer, this.simulationParameters, this.marchingCubesMesh);
-        this.offscreen_surface_computation_flow_ftle = new OffscreenSurfaceComputationFtle(renderer, this.simulationParameters, this.marchingCubesMesh);              
+        this.offscreen_surface_computation_flow_ftle = new OffscreenSurfaceComputationFtle(renderer, this.simulationParameters, this.marchingCubesMesh);   
+        
+        this.offscreen_surface_computation_flow_ftle.link(this.offscreen_surface_computation_flow_pos, this.offscreen_surface_computation_flow_dir);
+
         new ArrayMath();
     }
 

@@ -33,29 +33,6 @@ class OffscreenSurfaceComputationFlow extends OffscreenSurfaceComputation {
         //ovverride in child class
     }
 
-    generateUniforms() {
-        this.uniforms = {      
-            planeDimensionsPixel: { type: 'vec2', value: new THREE.Vector2(100, 100) },
-            input_texture_positions: { type: 'sampler2D', value: this.marchingCubesMesh.texture_vertices},      
-            surface_type: { type: 'int', value: 2 },
-            var_a: { type: 'float', value: 3.5 },
-            var_b: { type: 'float', value: 2.5 },
-            var_c: { type: 'float', value: 1.5 },
-            var_R: { type: 'float', value: 2.0 },
-            var_r: { type: 'float', value: 1.0 },
-            one_div_aa: { type: 'float', value: 1.0 },//computed later
-            one_div_bb: { type: 'float', value: 1.0 },//computed later
-            one_div_cc: { type: 'float', value: 1.0 },//computed later
-            number_of_intersections: { type: 'int', value: 2 },
-            number_of_bisection_steps: { type: 'int', value: 8 },
-            step_size: { type: 'float', value: 1.0 },
-            max_steps: { type: 'int', value: 100 },
-            seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
-            use_local_direction: { type: 'bool', value: true },
-            kernel_distance: { type: 'float', value: 0.01 },            
-        }
-    }
-
     fragmentShaderMethodComputation(){
         return glsl`
         //reading seed position
