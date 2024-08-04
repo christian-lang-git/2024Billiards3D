@@ -36,6 +36,7 @@ PhaseState computeFlow(PhaseState seed_state);
 vec3 reflecion(vec3 direction, vec3 normal);
 vec3 reflecion_regular(vec3 direction, vec3 normal);
 float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int type);
+float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, vec3 dpos_dz, vec3 dvel_dz, int type);
 
 float evaluateSurface(vec3 position);
 float evaluateSurfaceEllipsoid(vec3 position);

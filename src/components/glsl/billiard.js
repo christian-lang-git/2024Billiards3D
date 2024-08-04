@@ -73,6 +73,31 @@ float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, int 
     return ftle;
 }
 
+float computePSFTLE(vec3 dpos_dx, vec3 dvel_dx, vec3 dpos_dy, vec3 dvel_dy, vec3 dpos_dz, vec3 dvel_dz, int type){
+    //build Cauchy-Green
+    mat3 C;
+    if(type == 0){//0 = psftle
+        C = BuildCauchyGreen(dpos_dx, dvel_dx, dpos_dy, dvel_dy, dpos_dz, dvel_dz);
+    }
+    else if(type == 1){//1 = psftle_pos
+        C = BuildCauchyGreenPos(dpos_dx, dpos_dy, dpos_dz);
+    }
+    else if(type == 2){//2 = psftle_vel
+        C = BuildCauchyGreenVel(dvel_dx, dvel_dy, dvel_dz);
+    }
+
+    //biggest eigenvalue lambda_max
+    vec3 lambdas = vec3(0,0,0);
+    mat3eigenvalues(C, lambdas);
+    float lambda_max = max(lambdas.x, max(lambdas.y, lambdas.z));
+
+    //FTLE
+    float advection_time = 1.0;//TODO SCALING?
+    float ftle = 1.0 / advection_time * log(sqrt(lambda_max));
+
+    return ftle;
+}
+
 float evaluateSurface(vec3 position){
     switch (surface_type) {
         case 0://custom
