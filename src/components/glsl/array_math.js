@@ -1,7 +1,7 @@
 const glsl = x => x[0];
 const SHADER_MODULE_ARRAY_MATH = glsl`
 
-void AM_Transpose(float mat_A[], int mat_A_rows, int mat_A_cols, inout float mat_AT[], inout int mat_AT_rows, inout int mat_AT_cols){
+void AM_Transpose(float mat_A[MATRIX_SIZE], int mat_A_rows, int mat_A_cols, inout float mat_AT[MATRIX_SIZE], inout int mat_AT_rows, inout int mat_AT_cols){
     //swap row and col counts for transposed matrix;
     mat_AT_rows = mat_A_cols;
     mat_AT_cols = mat_A_rows;
@@ -17,14 +17,14 @@ void AM_Transpose(float mat_A[], int mat_A_rows, int mat_A_cols, inout float mat
 /**
  * Multiply matrices: C = A * B
  */
-void AM_Multiply(float mat_A[], int mat_A_rows, int mat_A_cols, float mat_B[], int mat_B_rows, int mat_B_cols, inout float mat_C[], inout int mat_C_rows, inout int mat_C_cols){
+void AM_Multiply(float mat_A[MATRIX_SIZE], int mat_A_rows, int mat_A_cols, float mat_B[MATRIX_SIZE], int mat_B_rows, int mat_B_cols, inout float mat_C[MATRIX_SIZE], inout int mat_C_rows, inout int mat_C_cols){
     //set row and col counts for result matrix;
     mat_C_rows = mat_A_rows;
     mat_C_cols = mat_B_cols;
     for(int i=0; i<mat_C_rows; i++){
         for(int j=0; j<mat_C_cols; j++){
             int index_c = i + j * mat_C_rows;
-            float value = 0;
+            float value = 0.0;
             for(int k=0; k<mat_A_cols; k++){
                 int index_a = i + k * mat_A_rows;
                 int index_b = k + j * mat_B_rows;
@@ -35,7 +35,7 @@ void AM_Multiply(float mat_A[], int mat_A_rows, int mat_A_cols, float mat_B[], i
     }
 }
 
-float AM_Mat3Det(float mat[]){
+float AM_Mat3Det(float mat[MATRIX_SIZE]){
     float a_0_0 = mat[0];
     float a_1_0 = mat[1];
     float a_2_0 = mat[2];
@@ -51,7 +51,7 @@ float AM_Mat3Det(float mat[]){
             a_0_2 * (a_1_0 * a_2_1 - a_1_1 * a_2_0);
 }
 
-bool AM_Mat3Inv(float mat_A[], inout float mat_B[]){
+bool AM_Mat3Inv(float mat_A[MATRIX_SIZE], inout float mat_B[MATRIX_SIZE]){
     float a_0_0 = mat_A[0];
     float a_1_0 = mat_A[1];
     float a_2_0 = mat_A[2];
@@ -82,4 +82,4 @@ bool AM_Mat3Inv(float mat_A[], inout float mat_B[]){
 
 `;
 
-export { SHADER_MODULE_BILLIARD }
+export { SHADER_MODULE_ARRAY_MATH }
