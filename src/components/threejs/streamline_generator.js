@@ -183,6 +183,7 @@ class Streamline {
         this.success = true;
         var difference = vec3.create();
         var normal = vec3.create();
+        var normal_negated = vec3.create();
         //initial position
         var current_position_data = new PointData();
         vec3.copy(current_position_data.position, this.seed_position);
@@ -200,7 +201,9 @@ class Streamline {
             //reflect --> next direction
             this.simulationParameters.evaluateGradient(next_position_data.position, normal);
             vec3.normalize(normal, normal);
-            this.reflect(current_position_data.direction, normal, next_position_data.direction);  
+            vec3.negate(normal_negated, normal);//negated normal points inside
+            
+            this.reflect(current_position_data.direction, normal_negated, next_position_data.direction);  
 
             //arc length
             vec3.subtract(difference, next_position_data.position, current_position_data.position);

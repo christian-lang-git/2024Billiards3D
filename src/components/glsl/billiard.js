@@ -26,7 +26,7 @@ PhaseState computeFlow(PhaseState seed_state){
         
         //reflect --> next direction
         vec3 gradient = evaluateGradient(next_state.position);
-        vec3 normal = normalize(gradient);
+        vec3 normal = -normalize(gradient);//negated normal so that it points inside
         next_state.direction = reflecion(current_state.direction, normal);  
 
         //arc length
@@ -39,10 +39,12 @@ PhaseState computeFlow(PhaseState seed_state){
     return next_state;
 }
 
+//normal pointing inside
 vec3 reflecion(vec3 direction, vec3 normal){    
     return reflecion_regular(direction, normal);
 }
 
+//normal pointing inside
 vec3 reflecion_regular(vec3 direction, vec3 normal){
     float d = dot(direction, normal);
     return direction - 2.0*d*normal;//reflection_direction: r=d-2(d dot n)n with direction d and normal n
