@@ -115,21 +115,21 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         }
 
         //this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
-        this.changeDisplayedTexture();
+        this.changeDisplayedTexture(this.textureRenderer);
         this.textureRenderer.updateTransform(pos_x, pos_y, scale_x, scale_y);
         this.textureRenderer.updateTexturedMesh();
     }
 
-    changeDisplayedTexture(){
+    changeDisplayedTexture(textureRenderer){
         switch (this.simulationParameters.rendering_specialized_mode) {
             case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_FTLE:
-                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);                
+                textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFTLE.renderTarget.texture);                
                 break;
             case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_POSITION_NORMALIZED:
-                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
+                textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
                 break;
             case Constants.TEXTURE_MODE_SPECIALIZED_RETURN_DIRECTION_NORMALIZED:
-                this.textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
+                textureRenderer.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);                
                 break;
             default:
                 break;
@@ -146,7 +146,8 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         var pos_x = 0.5 * (min_x + max_x);
         var pos_y = 0.5 * (min_y + max_y);
 
-        this.textureRendererSphere.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
+        //this.textureRendererSphere.changeDisplayedTexture(this.offscreenGridComputationFlowMap.renderTarget.texture);
+        this.changeDisplayedTexture(this.textureRendererSphere);
         this.textureRendererSphere.updateTexturedMesh();
     }
 
