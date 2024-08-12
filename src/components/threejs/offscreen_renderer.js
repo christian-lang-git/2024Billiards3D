@@ -23,6 +23,22 @@ class OffscreenRenderer {
         return this.useAnglePlane ? this.simulationParameters.angle_pixels_y : this.simulationParameters.domain_pixels_y;
     }
 
+    getAnlgeMinX(){
+        return this.simulationParameters.angle_min_x;
+    }
+
+    getAnlgeMinY(){
+        return this.simulationParameters.angle_min_y;
+    }
+
+    getAnlgeMaxX(){
+        return this.simulationParameters.angle_max_x;
+    }
+
+    getAnlgeMaxY(){
+        return this.simulationParameters.angle_max_y;
+    }
+
     initialize() {
         console.warn("INITIALIZE OffscreenRenderer");
 

@@ -4,6 +4,7 @@ import { vec3 } from "gl-matrix/esm";
 import * as Constants from "@/components/utility/constants";
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {evaluate} from "mathjs";
+import { lerp } from "@/components/utility/utility";
 
 const glsl = x => x[0];
 
@@ -146,22 +147,40 @@ class SpherelikeGrid{
         this.scene = scene;
         this.pixels_x = 0;
         this.pixels_y = 0;
+        this.angle_min_x = 0;
+        this.angle_min_y = 0;
+        this.angle_max_x = 1;
+        this.angle_max_y = 1;
         this.subdivide = false;    
         this.material = material; 
     }
 
-    updateGrid(subdivide, pixels_x, pixels_y){
-        var no_change = subdivide == this.subdivide && pixels_x == this.pixels_x && pixels_y == this.pixels_y;
+    updateGrid(subdivide, pixels_x, pixels_y, angle_min_x, angle_min_y, angle_max_x, angle_max_y){
+        var no_change = subdivide == this.subdivide && pixels_x == this.pixels_x && pixels_y == this.pixels_y
+        && angle_min_x == this.angle_min_x && angle_min_y == this.angle_min_y && angle_max_x == this.angle_max_x && angle_max_y == this.angle_max_y ;
         if(no_change){
             //console.warn("SpherelikeGrid updateGrid no change");
             return;
         }
+
+        
+        console.warn("#SphereGrid -----------------");
+        console.warn("#SphereGrid pixels_x", pixels_x);
+        console.warn("#SphereGrid pixels_y", pixels_y);
+        console.warn("#SphereGrid angle_min_x", angle_min_x);
+        console.warn("#SphereGrid angle_max_x", angle_max_x);
+        console.warn("#SphereGrid angle_min_y", angle_min_y);
+        console.warn("#SphereGrid angle_max_y", angle_max_y);
 
         //console.warn("SpherelikeGrid updateGrid", pixels_x, pixels_y);
 
         this.subdivide = subdivide;//if true, one additional vertex per cell is added
         this.pixels_x = pixels_x;
         this.pixels_y = pixels_y;
+        this.angle_min_x = angle_min_x;
+        this.angle_min_y = angle_min_y;
+        this.angle_max_x = angle_max_x;
+        this.angle_max_y = angle_max_y;
         this.num_cells_x = pixels_x - 1;
         this.num_cells_y = pixels_y - 1;
         this.num_cells = this.num_cells_x * this.num_cells_y;
@@ -192,8 +211,13 @@ class SpherelikeGrid{
             for(var x_index = 0; x_index<this.pixels_x; x_index++){
                 //angles in virtual texture (when position is constant and direction is variable)
                 //ISO convention (i.e. for physics: radius r, inclination theta, azimuth phi) --> https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
-                var theta_radians = Math.PI * (x_index / (this.pixels_x - 1.0));
-                var phi_radians = 2.0 * Math.PI * (y_index / (this.pixels_y - 1.0));
+                
+                var t_x = x_index / (this.pixels_x - 1.0);
+                var t_y = y_index / (this.pixels_y - 1.0);
+                var x_frac = lerp(this.angle_min_x, this.angle_max_x, t_x);
+                var y_frac = lerp(this.angle_min_y, this.angle_max_y, t_y);
+                var theta_radians = Math.PI * x_frac;
+                var phi_radians = 2.0 * Math.PI * y_frac;
 
                 var dir_x = Math.sin(theta_radians) * Math.cos(phi_radians);
                 var dir_y = Math.sin(theta_radians) * Math.sin(phi_radians);
@@ -204,8 +228,8 @@ class SpherelikeGrid{
                 vertices[index+2] = dir_z;                
                 index+=3;
                 
-                uv[index_uv] = (x_index / (this.pixels_x - 1.0));
-                uv[index_uv+1] = (y_index / (this.pixels_y - 1.0));
+                uv[index_uv] = t_x;
+                uv[index_uv+1] = t_y;
                 index_uv+=2;
 
             }

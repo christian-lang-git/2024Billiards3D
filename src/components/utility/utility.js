@@ -1,5 +1,9 @@
 import { glMatrix, mat2, mat2d, mat3, mat4, quat, quat2, vec2, vec3, vec4 } from "gl-matrix/esm";
 
+export function lerp(a, b, t) {
+    return (1 - t) * a + t * b;
+}
+
 export function clamp(value, minValue, maxValue) {
     return Math.max(minValue, Math.min(value, maxValue));
 }

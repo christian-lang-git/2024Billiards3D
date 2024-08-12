@@ -263,7 +263,12 @@ class SceneWrapperVisualizationAux extends SceneWrapperVisualization{
         this.offscreenGridComputationFTLE.compute();        
 
         var subdivide = false;
-        this.textureRendererSphere.spherelikeGrid.updateGrid(subdivide ,this.offscreenRendererSeedsAndReturns.getPlaneDimensionX(), this.offscreenRendererSeedsAndReturns.getPlaneDimensionY());
+        
+        var angle_min_x = this.offscreenRendererSeedsAndReturns.getAnlgeMinX();
+        var angle_min_y = this.offscreenRendererSeedsAndReturns.getAnlgeMinY();
+        var angle_max_x = this.offscreenRendererSeedsAndReturns.getAnlgeMaxX();
+        var angle_max_y = this.offscreenRendererSeedsAndReturns.getAnlgeMaxY();
+        this.textureRendererSphere.spherelikeGrid.updateGrid(subdivide ,this.offscreenRendererSeedsAndReturns.getPlaneDimensionX(), this.offscreenRendererSeedsAndReturns.getPlaneDimensionY(),angle_min_x, angle_min_y, angle_max_x, angle_max_y);
     }
 
     rayCastAndMovePosition(mousePositionNDC){  
