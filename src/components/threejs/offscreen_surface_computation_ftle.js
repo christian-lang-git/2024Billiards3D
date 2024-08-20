@@ -98,7 +98,7 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         vec3 dpos_dx;
         vec3 dpos_dy;
         vec3 dpos_dz;
-        AM_ExtractColumns3x3(mat_tmp1, dpos_dx, dpos_dy, dpos_dz);    
+        AM_ExtractRows3x3(mat_tmp1, dpos_dx, dpos_dy, dpos_dz);    
 
 
         //write matrix Bdir into mat_tmp0
@@ -109,7 +109,7 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         vec3 dvel_dx;
         vec3 dvel_dy;
         vec3 dvel_dz;
-        AM_ExtractColumns3x3(mat_tmp1, dvel_dx, dvel_dy, dvel_dz);    
+        AM_ExtractRows3x3(mat_tmp1, dvel_dx, dvel_dy, dvel_dz);    
     
         //psftle computation
         float psftle = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 0);

@@ -99,6 +99,21 @@ void AM_ExtractColumns3x3(ArrayMatrix mat, inout vec3 col_0, inout vec3 col_1, i
     col_2.z = mat.values[8];
 }  
 
+void AM_ExtractRows3x3(ArrayMatrix mat, inout vec3 row_0, inout vec3 row_1, inout vec3 row_2){
+    //access element in i-th row and j-th col: index = i + j * mat_rows;    
+    row_0.x = mat.values[0];
+    row_1.x = mat.values[1];
+    row_2.x = mat.values[2];
+
+    row_0.y = mat.values[3];
+    row_1.y = mat.values[4];
+    row_2.y = mat.values[5];
+
+    row_0.z = mat.values[6];
+    row_1.z = mat.values[7];
+    row_2.z = mat.values[8];
+}  
+
 `;
 
 export { SHADER_MODULE_ARRAY_MATH }
