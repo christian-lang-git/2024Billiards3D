@@ -78,6 +78,7 @@ export const AppProvider = ({ children }) => {
         UI_STATE_AUX_GRID_DIRECTION: Constants.AUX_GRID_DIRECTION_THETA_DOWN_PHI_RIGHT,
         UI_STATE_RENDERING_SCALE_VERTICES: false,
         UI_STATE_DATA_KERNEL_DISTANCE: "0.01",
+        UI_STATE_DATA_SURFACE_DERIVATIVE_METHOD: Constants.SURFACE_DERIVATIVE_MAT3X3,
     });
 
     const value = {

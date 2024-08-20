@@ -230,7 +230,7 @@ class SceneWrapperVisualization {
 
 
 
-    updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, kernel_distance, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_min_x, angle_max_x, angle_pixels_x, angle_min_y, angle_max_y, angle_pixels_y) {
+    updateParametersData(surface_type, local_direction, var_a, var_b, var_c, var_R, var_r, formula_implicit_surface, mu, angular_velocity, use_constant_velocity, seed_energy, seed_direction_x, seed_direction_y, seed_direction_z, seed_position_x, seed_position_y, seed_position_z, step_size, max_steps, number_of_intersections, number_of_bisection_steps, kernel_distance, domain_min_x, domain_max_x, domain_pixels_x, domain_min_y, domain_max_y, domain_pixels_y, domain_min_z, domain_max_z, domain_pixels_z, angle_min_x, angle_max_x, angle_pixels_x, angle_min_y, angle_max_y, angle_pixels_y, surface_derivative_method) {
         this.simulationParameters.mu = parseFloat(mu);
         this.simulationParameters.use_local_direction = local_direction;
         this.simulationParameters.angular_velocity = parseFloat(angular_velocity);
@@ -278,6 +278,8 @@ class SceneWrapperVisualization {
         var R = parseFloat(var_R);
         var r = parseFloat(var_r);
         this.simulationParameters.setSurfaceValues(surface_type, a, b, c, R, r, formula_implicit_surface);
+
+        this.simulationParameters.surface_derivative_method = surface_derivative_method;
     }
 
     updateParametersRendering(max_radius_bodies, radius_center_of_mass, radius_clicked_position, radius_clicked_position_aux, radius_clicked_position_aux_sphere, rendering_ftle_type, rendering_texture_mode, rendering_specialized_mode, return_number, rendering_forward, rendering_raw_mode, rendering_raw_mode_layer, rendering_raw_mode_x_texture_index, rendering_raw_mode_y_texture_index, scalar_min, scalar_max, opacity, tube_segment_length, tube_max_segments, tube_num_sides, tube_radius, tube_only_show_successful_returns, tube_color, tube_roughness, tube_emissive_intensity, scale_vertices) {

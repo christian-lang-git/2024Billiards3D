@@ -71,3 +71,6 @@ export const TYPE_BOOL = 1;
 export const TYPE_INT = 2;
 export const TYPE_INT_EMIT_SELECT_CHANGED = 3;
 
+export const SURFACE_DERIVATIVE_MAT3X3 = 1;
+export const SURFACE_DERIVATIVE_MAT4X4 = 2;
+

@@ -15,6 +15,7 @@ import LabeledField from "@/components/uicustom/labeledfield";
 import LabeledSelect from "@/components/uicustom/labeledSelect";
 import LabeledSelectSurfaceType from "@/components/uicustom/labeledSelectSurfaceType";
 import LabeledSelectLocalDirection from "@/components/uicustom/labeledSelectLocalDirection";
+import LabeledSelectSurfaceDerivativeType from "@/components/uicustom/labeledSelectSurfaceDerivativeType";
 
 import { Input } from "@/components/ui/input"
 import {
@@ -175,6 +176,7 @@ class TabData extends Component {
                                         name="UI_STATE_DATA_KERNEL_DISTANCE"
                                         labelText={"kernel distance"}
                                     />
+                                    <LabeledSelectSurfaceDerivativeType/>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="domain">

@@ -85,7 +85,7 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         //write matrix ATA into mat_tmp2
         AM_Multiply(mat_tmp1, mat_tmp0, mat_tmp2);
         //write matrix ATAinv into mat_tmp0
-        AM_Mat3Inv(mat_tmp2, mat_tmp0);
+        MatInv(mat_tmp2, mat_tmp0);
         //write matrix ATAinvAT into mat_tmp2
         AM_Multiply(mat_tmp0, mat_tmp1, mat_tmp2);
 
@@ -98,7 +98,7 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         vec3 dpos_dx;
         vec3 dpos_dy;
         vec3 dpos_dz;
-        AM_ExtractRows3x3(mat_tmp1, dpos_dx, dpos_dy, dpos_dz);    
+        ExtractRows(mat_tmp1, dpos_dx, dpos_dy, dpos_dz);    
 
 
         //write matrix Bdir into mat_tmp0
@@ -109,7 +109,7 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         vec3 dvel_dx;
         vec3 dvel_dy;
         vec3 dvel_dz;
-        AM_ExtractRows3x3(mat_tmp1, dvel_dx, dvel_dy, dvel_dz);    
+        ExtractRows(mat_tmp1, dvel_dx, dvel_dy, dvel_dz);    
     
         //psftle computation
         float psftle = computePSFTLE(dpos_dx, dvel_dx, dpos_dy, dvel_dy, 0);
@@ -123,9 +123,17 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
         //override in child class
         return ARRAY_MATH_DECLARATIONS.SHADER_MODULE_ARRAY_MATH_DECLARATIONS + glsl`
         int CountNeighbors(int x_pixel_mod, int y_pixel_mod);
+        bool MatInv(ArrayMatrix mat_A, inout ArrayMatrix mat_B);
         void FillMatrixA(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixA_M1(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixA_M2(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
         void FillMatrixBpos(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixBpos_M1(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixBpos_M2(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
         void FillMatrixBdir(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixBdir_M1(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void FillMatrixBdir_M2(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat);
+        void ExtractRows(ArrayMatrix mat, inout vec3 row_0, inout vec3 row_1, inout vec3 row_2);
         `;
     }
 
@@ -152,7 +160,64 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
             return num_neighbors;
         }
 
+        //M1: faster using 3x3 inverse
+        //M2: slower using 4x4 inverse        
+        bool MatInv(ArrayMatrix mat_A, inout ArrayMatrix mat_B){
+            switch(surface_derivative_method){
+                case 1:
+                    return AM_Mat3Inv(mat_A, mat_B);
+                case 2:
+                    return AM_Mat4Inv(mat_A, mat_B);
+            }
+            return false;
+        }
+
         void FillMatrixA(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+            switch(surface_derivative_method){
+                case 1:
+                    FillMatrixA_M1(vertex_pos, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+                case 2:
+                    FillMatrixA_M2(vertex_pos, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+            }
+        }
+
+        void FillMatrixBpos(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){            
+            switch(surface_derivative_method){
+                case 1:
+                    FillMatrixBpos_M1(vertex_flow_pos, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+                case 2:
+                    FillMatrixBpos_M2(vertex_flow_pos, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+            }
+        }
+
+        void FillMatrixBdir(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+            switch(surface_derivative_method){
+                case 1:
+                    FillMatrixBdir_M1(vertex_flow_dir, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+                case 2:
+                    FillMatrixBdir_M2(vertex_flow_dir, x_pixel_mod, y_pixel_mod, num_neighbors, mat);
+                    break;
+            }
+        }
+
+        void ExtractRows(ArrayMatrix mat, inout vec3 row_0, inout vec3 row_1, inout vec3 row_2){
+            switch(surface_derivative_method){
+                case 1:
+                    AM_ExtractRows3x3(mat, row_0, row_1, row_2);
+                    break;
+                case 2:
+                    vec3 row_3;//dummy
+                    AM_ExtractRows4x3(mat, row_0, row_1, row_2, row_3);
+                    break;
+            }
+        }
+
+        void FillMatrixA_M1(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
             mat.rows = num_neighbors;
             mat.cols = 3;
             int row_index = 0;
@@ -187,7 +252,45 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
             }
         }
 
-        void FillMatrixBpos(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+        void FillMatrixA_M2(vec3 vertex_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+            mat.rows = num_neighbors;
+            mat.cols = 4;
+            int row_index = 0;
+            //iterate over all 4 layers (neighbor texture)
+            for(int layer_index=0; layer_index<4; layer_index++){
+                ivec3 pointer_neighbors = ivec3(x_pixel_mod, y_pixel_mod, layer_index);
+                vec4 neighbors4 = texelFetch(input_texture_neighbors, pointer_neighbors, 0);
+                //iterate over all 4 values of the pixel (RGBA)
+                for(int rgba_index=0; rgba_index<4; rgba_index++){
+                    int neighbor_index = int(neighbors4[rgba_index]);
+                    //check for early termination
+                    if(neighbor_index < 0){
+                        return;
+                    }       
+                    
+                    //compute 2D index of neighbor for use in 2D textures
+                    int neighbor_x_index = neighbor_index % int(planeDimensionsPixel.x);
+                    int neighbor_y_index = neighbor_index / int(planeDimensionsPixel.x);
+                    ivec2 pointer_neighbor = ivec2(neighbor_x_index, neighbor_y_index);
+
+                    //fetch neighbor vertex position
+                    vec3 neighbor_pos = texelFetch(input_texture_positions, pointer_neighbor, 0).xyz;
+
+                    //write row to matrix
+                    //access element in i-th row and j-th col: index = i + j * mat_rows;
+                    mat.values[row_index + 0 * mat.rows] = neighbor_pos.x - vertex_pos.x;
+                    mat.values[row_index + 1 * mat.rows] = neighbor_pos.y - vertex_pos.y;
+                    mat.values[row_index + 2 * mat.rows] = neighbor_pos.z - vertex_pos.z;
+                    mat.values[row_index + 3 * mat.rows] = 1.0;
+
+                    row_index++;
+                }
+            }
+        }
+
+
+
+        void FillMatrixBpos_M1(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
             mat.rows = num_neighbors;
             mat.cols = 3;
             int row_index = 0;
@@ -222,7 +325,42 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
             }
         }
 
-        void FillMatrixBdir(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+        void FillMatrixBpos_M2(vec3 vertex_flow_pos, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+            mat.rows = num_neighbors;
+            mat.cols = 3;
+            int row_index = 0;
+            //iterate over all 4 layers (neighbor texture)
+            for(int layer_index=0; layer_index<4; layer_index++){
+                ivec3 pointer_neighbors = ivec3(x_pixel_mod, y_pixel_mod, layer_index);
+                vec4 neighbors4 = texelFetch(input_texture_neighbors, pointer_neighbors, 0);
+                //iterate over all 4 values of the pixel (RGBA)
+                for(int rgba_index=0; rgba_index<4; rgba_index++){
+                    int neighbor_index = int(neighbors4[rgba_index]);
+                    //check for early termination
+                    if(neighbor_index < 0){
+                        return;
+                    }       
+                    
+                    //compute 2D index of neighbor for use in 2D textures
+                    int neighbor_x_index = neighbor_index % int(planeDimensionsPixel.x);
+                    int neighbor_y_index = neighbor_index / int(planeDimensionsPixel.x);
+                    ivec2 pointer_neighbor = ivec2(neighbor_x_index, neighbor_y_index);
+
+                    //fetch neighbor flow result
+                    vec3 neighbor_flow_pos = texelFetch(input_texture_flow_pos, pointer_neighbor, 0).xyz;
+
+                    //write row to matrix
+                    //access element in i-th row and j-th col: index = i + j * mat_rows;
+                    mat.values[row_index + 0 * mat.rows] = neighbor_flow_pos.x;
+                    mat.values[row_index + 1 * mat.rows] = neighbor_flow_pos.y;
+                    mat.values[row_index + 2 * mat.rows] = neighbor_flow_pos.z;
+
+                    row_index++;
+                }
+            }
+        }
+
+        void FillMatrixBdir_M1(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
             mat.rows = num_neighbors;
             mat.cols = 3;
             int row_index = 0;
@@ -257,7 +395,40 @@ class OffscreenSurfaceComputationFtle extends OffscreenSurfaceComputation {
             }
         }
         
-        
+        void FillMatrixBdir_M2(vec3 vertex_flow_dir, int x_pixel_mod, int y_pixel_mod, int num_neighbors, inout ArrayMatrix mat){
+            mat.rows = num_neighbors;
+            mat.cols = 3;
+            int row_index = 0;
+            //iterate over all 4 layers (neighbor texture)
+            for(int layer_index=0; layer_index<4; layer_index++){
+                ivec3 pointer_neighbors = ivec3(x_pixel_mod, y_pixel_mod, layer_index);
+                vec4 neighbors4 = texelFetch(input_texture_neighbors, pointer_neighbors, 0);
+                //iterate over all 4 values of the pixel (RGBA)
+                for(int rgba_index=0; rgba_index<4; rgba_index++){
+                    int neighbor_index = int(neighbors4[rgba_index]);
+                    //check for early termination
+                    if(neighbor_index < 0){
+                        return;
+                    }       
+                    
+                    //compute 2D index of neighbor for use in 2D textures
+                    int neighbor_x_index = neighbor_index % int(planeDimensionsPixel.x);
+                    int neighbor_y_index = neighbor_index / int(planeDimensionsPixel.x);
+                    ivec2 pointer_neighbor = ivec2(neighbor_x_index, neighbor_y_index);
+
+                    //fetch neighbor flow result
+                    vec3 neighbor_flow_dir = texelFetch(input_texture_flow_dir, pointer_neighbor, 0).xyz;
+
+                    //write row to matrix
+                    //access element in i-th row and j-th col: index = i + j * mat_rows;
+                    mat.values[row_index + 0 * mat.rows] = neighbor_flow_dir.x;
+                    mat.values[row_index + 1 * mat.rows] = neighbor_flow_dir.y;
+                    mat.values[row_index + 2 * mat.rows] = neighbor_flow_dir.z;
+
+                    row_index++;
+                }
+            }
+        }
         
         
         

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { vec3 } from "gl-matrix/esm";
 
+import * as Constants from "@/components/utility/constants";
 import * as BILLIARD_DECLARATIONS from "@/components/glsl/billiard_declarations";
 import * as BILLIARD from "@/components/glsl/billiard";
 import * as LINALG from "@/components/glsl/linalg";
@@ -84,6 +85,8 @@ class OffscreenSurfaceComputation {
         this.dummy_plane_mesh.material.uniforms.one_div_cc.value = one_div_cc;   
         
         this.dummy_plane_mesh.material.uniforms.kernel_distance.value = this.simulationParameters.kernel_distance;
+
+        this.dummy_plane_mesh.material.uniforms.surface_derivative_method.value = this.simulationParameters.surface_derivative_method;        
         
         this.setAdditionalUniforms();
     }
@@ -173,7 +176,8 @@ class OffscreenSurfaceComputation {
             max_steps: { type: 'int', value: 100 },
             seed_direction: { type: 'vec3', value: new THREE.Vector3(1, 1, 1) },
             use_local_direction: { type: 'bool', value: true },
-            kernel_distance: { type: 'float', value: 0.01 },            
+            kernel_distance: { type: 'float', value: 0.01 },    
+            surface_derivative_method: { type: 'int', value: Constants.SURFACE_DERIVATIVE_MAT4X4 },        
         }
 
         this.addAdditionalUniforms();
