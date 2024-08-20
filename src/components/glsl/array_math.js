@@ -159,23 +159,23 @@ bool AM_Mat4Inv(ArrayMatrix mat_A, inout ArrayMatrix mat_B){
     float inv_3_3 = invDet * (m_0_0 * (m_1_1 * m_2_2 - m_1_2 * m_2_1) + m_0_1 * (m_1_2 * m_2_0 - m_1_0 * m_2_2) + m_0_2 * (m_1_0 * m_2_1 - m_1_1 * m_2_0));
 
     mat_B.values[0] = inv_0_0;
-    mat_B.values[1] = inv_0_1;
-    mat_B.values[2] = inv_0_2;
-    mat_B.values[3] = inv_0_3;
+    mat_B.values[1] = inv_1_0;
+    mat_B.values[2] = inv_2_0;
+    mat_B.values[3] = inv_3_0;
 
-    mat_B.values[4] = inv_1_0;
+    mat_B.values[4] = inv_0_1;
     mat_B.values[5] = inv_1_1;
-    mat_B.values[6] = inv_1_2;
-    mat_B.values[7] = inv_1_3;
+    mat_B.values[6] = inv_2_1;
+    mat_B.values[7] = inv_3_1;
 
-    mat_B.values[8] = inv_2_0;
-    mat_B.values[9] = inv_2_1;
+    mat_B.values[8] = inv_0_2;
+    mat_B.values[9] = inv_1_2;
     mat_B.values[10] = inv_2_2;
-    mat_B.values[11] = inv_2_3;
+    mat_B.values[11] = inv_3_2;
 
-    mat_B.values[12] = inv_3_0;
-    mat_B.values[13] = inv_3_1;
-    mat_B.values[14] = inv_3_2;
+    mat_B.values[12] = inv_0_3;
+    mat_B.values[13] = inv_1_3;
+    mat_B.values[14] = inv_2_3;
     mat_B.values[15] = inv_3_3;
     
     return true;

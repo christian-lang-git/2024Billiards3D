@@ -129,7 +129,7 @@ class ArrayMath {
         mat_G[5] = 15; 
         mat_G[6] = 9; 
         mat_G[7] = -11; 
-        mat_G[8] = 0; 
+        mat_G[8] = 16; 
         mat_G[9] = -8; 
         mat_G[10] = -14; 
         mat_G[11] = 3; 
@@ -218,9 +218,9 @@ class ArrayMath {
         this.AM_PrintMatrix(mat_G, mat_G_rows, mat_G_cols);
         this.AM_PrintWolfram(mat_G, mat_G_rows, mat_G_cols);
         var det = this.AM_Mat4Det(mat_G);
-        console.warn("#AM det:", det);//8605
+        console.warn("#AM det:", det);//60093
         
-        console.warn("#AM TEST Finv -----------------------------------------");
+        console.warn("#AM TEST Ginv -----------------------------------------");
         var out = this.AM_Mat4Inv(mat_G, mat_Ginv);
         mat_Ginv = out.mat;
         this.AM_PrintMatrix(mat_Ginv, mat_Ginv_rows, mat_Ginv_cols);
@@ -448,23 +448,23 @@ class ArrayMath {
         var inv_3_3 = invDet * (m_0_0 * (m_1_1 * m_2_2 - m_1_2 * m_2_1) + m_0_1 * (m_1_2 * m_2_0 - m_1_0 * m_2_2) + m_0_2 * (m_1_0 * m_2_1 - m_1_1 * m_2_0));
 
         mat_B[0] = inv_0_0;
-        mat_B[1] = inv_0_1;
-        mat_B[2] = inv_0_2;
-        mat_B[3] = inv_0_3;
+        mat_B[1] = inv_1_0;
+        mat_B[2] = inv_2_0;
+        mat_B[3] = inv_3_0;
 
-        mat_B[4] = inv_1_0;
+        mat_B[4] = inv_0_1;
         mat_B[5] = inv_1_1;
-        mat_B[6] = inv_1_2;
-        mat_B[7] = inv_1_3;
+        mat_B[6] = inv_2_1;
+        mat_B[7] = inv_3_1;
 
-        mat_B[8] = inv_2_0;
-        mat_B[9] = inv_2_1;
+        mat_B[8] = inv_0_2;
+        mat_B[9] = inv_1_2;
         mat_B[10] = inv_2_2;
-        mat_B[11] = inv_2_3;
+        mat_B[11] = inv_3_2;
 
-        mat_B[12] = inv_3_0;
-        mat_B[13] = inv_3_1;
-        mat_B[14] = inv_3_2;
+        mat_B[12] = inv_0_3;
+        mat_B[13] = inv_1_3;
+        mat_B[14] = inv_2_3;
         mat_B[15] = inv_3_3;
         
         //return true;
