@@ -441,6 +441,17 @@ class LocalCoordinates{
     }
 
     updateSpheres(pos_x, pos_y, pos_z){
+        if(true){//TODO: disables spheres, change if needed            
+            var x = 0;
+            var y = 0;
+            var z = 100000;
+            this.sphere_tangent_a_forward_mesh.position.set(x, y, z);
+            this.sphere_tangent_a_backward_mesh.position.set(x, y, z);
+            this.sphere_tangent_b_forward_mesh.position.set(x, y, z);
+            this.sphere_tangent_b_backward_mesh.position.set(x, y, z);
+            return;
+        }
+
         var x = this.point_tangent_a_forward[0];
         var y = this.point_tangent_a_forward[1];
         var z = this.point_tangent_a_forward[2];
