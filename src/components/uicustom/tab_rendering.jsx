@@ -126,10 +126,16 @@ class TabRendering extends Component {
                                             />
                                         </div>
                                     )}
-                                    <LabeledField
-                                        name="UI_STATE_RENDERING_OPACITY"
-                                        labelText={"opacity"}
-                                    />
+                                    <div className="grid grid-cols-2">
+                                        <LabeledField
+                                            name="UI_STATE_RENDERING_OPACITY"
+                                            labelText={"opacity main"}
+                                        />
+                                        <LabeledField
+                                            name="UI_STATE_RENDERING_OPACITY_AUX"
+                                            labelText={"opacity aux"}
+                                        />
+                                    </div>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="spheres">

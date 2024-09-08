@@ -719,7 +719,7 @@ class TextureRenderer {
         this.textured_mesh.material.uniforms.rendering_raw_mode_y_texture_index.value = this.simulationParameters.rendering_raw_mode_y_texture_index;
         this.textured_mesh.material.uniforms.scalar_min.value = this.simulationParameters.scalar_min;
         this.textured_mesh.material.uniforms.scalar_max.value = this.simulationParameters.scalar_max;
-        this.textured_mesh.material.uniforms.opacity.value = this.simulationParameters.opacity;
+        this.textured_mesh.material.uniforms.opacity.value = this.simulationParameters.opacity_aux;
         this.textured_mesh.material.uniforms.ftle_type.value = this.simulationParameters.rendering_ftle_type;
 
         

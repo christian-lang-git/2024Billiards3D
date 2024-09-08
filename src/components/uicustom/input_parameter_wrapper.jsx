@@ -98,6 +98,7 @@ class InputParameterWrapper extends Component{
         new InputWrapper(this, "UI_STATE_RENDERING_SCALAR_MIN", "smin", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_SCALAR_MAX", "smax", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_OPACITY", "opa", Constants.TYPE_STRING);
+        new InputWrapper(this, "UI_STATE_RENDERING_OPACITY_AUX", "opaa", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_CLICKED_POSITION_RADIUS", "radc", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_CLICKED_POSITION_RADIUS_AUX", "rada", Constants.TYPE_STRING);
         new InputWrapper(this, "UI_STATE_RENDERING_CLICKED_POSITION_RADIUS_AUX_SPHERE", "radas", Constants.TYPE_STRING);

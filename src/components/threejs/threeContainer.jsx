@@ -294,6 +294,7 @@ class ThreeContainer extends Component {
         var scalar_min = uiState.UI_STATE_RENDERING_SCALAR_MIN;
         var scalar_max = uiState.UI_STATE_RENDERING_SCALAR_MAX;
         var opacity = uiState.UI_STATE_RENDERING_OPACITY;
+        var opacity_aux = uiState.UI_STATE_RENDERING_OPACITY_AUX;
         var tube_segment_length = uiState.UI_STATE_RENDERING_TUBE_SEGMENT_LENGTH;
         var tube_max_segments = uiState.UI_STATE_RENDERING_TUBE_MAX_SEGMENTS;
         var tube_num_sides = uiState.UI_STATE_RENDERING_TUBE_NUM_SIDES;
@@ -308,7 +309,7 @@ class ThreeContainer extends Component {
         this.sceneWrapper.updateParametersRendering(max_radius_bodies, radius_center_of_mass, radius_clicked_position, radius_clicked_position_aux, radius_clicked_position_aux_sphere,
             rendering_ftle_type, rendering_texture_mode, rendering_specialized_mode, return_number, rendering_forward, rendering_raw_mode, 
             rendering_raw_mode_layer, rendering_raw_mode_x_texture_index, rendering_raw_mode_y_texture_index,
-            scalar_min, scalar_max, opacity, tube_segment_length, tube_max_segments, tube_num_sides, tube_radius, tube_only_show_successful_returns, tube_color, tube_roughness, tube_emissive_intensity, scale_vertices);       
+            scalar_min, scalar_max, opacity, opacity_aux, tube_segment_length, tube_max_segments, tube_num_sides, tube_radius, tube_only_show_successful_returns, tube_color, tube_roughness, tube_emissive_intensity, scale_vertices);       
     }
 
     updateParametersActiveBehavior() {
