@@ -66,8 +66,6 @@ class SurfaceEllipsoid extends SurfaceBase{
         var dir_y = -x * b_e*b_e;
         vec3.set(tangent_a, dir_x, dir_y, 0);
         vec3.normalize(tangent_a, tangent_a);
-
-        console.warn("a_e", a_e)
     }
 }
 
