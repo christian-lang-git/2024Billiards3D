@@ -57,8 +57,8 @@ class SurfaceEllipsoid extends SurfaceBase{
 
         //calculate the ellipse of slicing the ellipsoid via z coordinate
         var root = Math.sqrt(1-(z*z)/(c*c))
-        var a_e = a / root;
-        var b_e = b / root;
+        var a_e = a * root;
+        var b_e = b * root;
 
         //var pos_norm = vec3.create();
         //vec3.normalize(pos_norm, pos);
@@ -66,6 +66,8 @@ class SurfaceEllipsoid extends SurfaceBase{
         var dir_y = -x * b_e*b_e;
         vec3.set(tangent_a, dir_x, dir_y, 0);
         vec3.normalize(tangent_a, tangent_a);
+
+        console.warn("a_e", a_e)
     }
 }
 

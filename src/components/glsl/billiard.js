@@ -203,8 +203,8 @@ vec3 computeTangentAEllipsoid(vec3 position){
 
     //calculate the ellipse of slicing the ellipsoid via z coordinate
     float root = sqrt(1.0-(z*z)/(c*c));
-    float a_e = a / root;
-    float b_e = b / root;
+    float a_e = a * root;
+    float b_e = b * root;
 
     float dir_x = y * a_e*a_e;
     float dir_y = -x * b_e*b_e;
